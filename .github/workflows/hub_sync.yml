@@ -16,9 +16,9 @@ jobs:
         id: generate-token
         uses: tibdex/github-app-token@v1
         with:
-          app_id: ${{ secrets.APP_ID }}
-          private_key: ${{ secrets.APP_PRIVATE_KEY }}
-          installation_id: ${{ secrets.APP_INSTALLATION_ID }}
+          app_id: ${{ secrets.HUB_SYNC_APP_ID }}
+          private_key: ${{ secrets.HUB_SYNC_APP_PRIVATE_KEY }}
+          installation_id: ${{ secrets.HUB_SYNC_APP_INSTALLATION_ID }}
 
       - name: Trigger Hub Sync Workflow
         uses: benc-uk/workflow-dispatch@v1
