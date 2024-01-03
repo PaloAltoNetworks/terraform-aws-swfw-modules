@@ -17,12 +17,12 @@ on:
       - reopened
       - synchronize
       - ready_for_review
-    branches: ['main']
+    branches: ["main"]
 
 jobs:
   pr_ci_wrkflw:
     name: Run CI
-    uses: PaloAltoNetworks/terraform-modules-vmseries-ci-workflows/.github/workflows/pr_ci.yml@v2.2
+    uses: PaloAltoNetworks/terraform-modules-swfw-ci-workflows/.github/workflows/pr_ci.yml@v2.2
     if: github.actor != 'dependabot[bot]'
     secrets: inherit
     with:

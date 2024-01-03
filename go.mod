@@ -3,7 +3,7 @@ module github.com/PaloAltoNetworks/terraform-aws-vmseries-modules
 go 1.20
 
 require (
-	github.com/PaloAltoNetworks/terraform-modules-vmseries-tests-skeleton v1.1.0
+	github.com/PaloAltoNetworks/terraform-modules-swfw-tests-skeleton v1.1.0
 	github.com/gruntwork-io/terratest v0.43.6
 	github.com/hashicorp/terraform-json v0.17.1
 )
