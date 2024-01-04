@@ -4,7 +4,7 @@ A Terraform module for deploying a VM-Series firewall in AWS cloud.
 
 ## Usage
 
-For example usage, please refer to the [examples](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/main/examples) directory.
+For example usage, please refer to the [examples](https://github.com/PaloAltoNetworks/terraform-aws-swfw-modules/tree/main/examples) directory.
 
 ## VMSeries Lifecycle policy
 

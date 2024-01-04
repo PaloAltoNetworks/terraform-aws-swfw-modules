@@ -30,8 +30,8 @@ Example was prepared for PAN-OS in **10.2.3** version as described in [AWS Deplo
 ## Usage
 
 1. Access AWS CloudShell or any other environment which has access to your AWS account
-2. Clone the repository: `git clone https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules`
-3. Go to Panorama example: `cd terraform-aws-vmseries-modules/examples/panorama_standalone`
+2. Clone the repository: `git clone https://github.com/PaloAltoNetworks/terraform-aws-swfw-modules`
+3. Go to Panorama example: `cd terraform-aws-swfw-modules/examples/panorama_standalone`
 4. Copy `example.tfvars` into `terraform.tfvars`
 5. Review `terraform.tfvars` file, especially with lines commented by ` # TODO: update here`
 6. Initialize Terraform: `terraform init`

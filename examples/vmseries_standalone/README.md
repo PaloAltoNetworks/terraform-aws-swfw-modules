@@ -7,7 +7,7 @@ A Terraform example for deploying a one or more instances of VM-Series in one or
 
 This example can be used to familarize oneself with both the VM-Series NGFW  and Terraform - it creates a single instance of virtualized firewall in a Security VPC with a management-only interface and lacks any traffic inspection.
 
-For a more complex scenario of using the `vmseries` module - including traffic inspection, check the rest of our [Examples](https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/tree/main/examples).
+For a more complex scenario of using the `vmseries` module - including traffic inspection, check the rest of our [Examples](https://github.com/PaloAltoNetworks/terraform-aws-swfw-modules/tree/main/examples).
 
 **NOTE 1:**
 VM-Series will take a serveral minutes to bootup during the initial setup.
@@ -21,7 +21,7 @@ The topology consists of :
  - VPC with 1 subnet in 1 availability zones
  - 1 VM-Series instances with a public IP address and static private IP address
 
-<img src="https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules/assets/9674179/9e41457a-0465-4e73-8a4a-8ab20e4cf3ad" width="45%" height="45%" >
+<img src="https://github.com/PaloAltoNetworks/terraform-aws-swfw-modules/assets/9674179/9e41457a-0465-4e73-8a4a-8ab20e4cf3ad" width="45%" height="45%" >
 
 ## PAN-OS software version
 
@@ -38,8 +38,8 @@ Terraform example is deploying VM-Series using the [User Data](https://docs.palo
 ## Usage
 
 1. Access AWS CloudShell or any other environment which has access to your AWS account
-2. Clone the repository: `git clone https://github.com/PaloAltoNetworks/terraform-aws-vmseries-modules`
-3. Go to Panorama example: `cd terraform-aws-vmseries-modules/examples/vmseries_standalone`
+2. Clone the repository: `git clone https://github.com/PaloAltoNetworks/terraform-aws-swfw-modules`
+3. Go to Panorama example: `cd terraform-aws-swfw-modules/examples/vmseries_standalone`
 4. Copy `example.tfvars` into `terraform.tfvars`
 5. Review `terraform.tfvars` file, especially with lines commented by ` # TODO: update here`
 6. Initialize Terraform: `terraform init`
