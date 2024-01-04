@@ -21,7 +21,7 @@ The topology consists of :
  - VPC with 1 subnet in 1 availability zones
  - 1 VM-Series instances with a public IP address and static private IP address
 
-<img src="https://github.com/PaloAltoNetworks/terraform-aws-swfw-modules/assets/9674179/9e41457a-0465-4e73-8a4a-8ab20e4cf3ad" width="45%" height="45%" >
+![image](https://github.com/PaloAltoNetworks/terraform-aws-swfw-modules/assets/2110772/602ad0ee-26d0-4b69-9d4c-552031bdc7ca)    
 
 ## PAN-OS software version
 
