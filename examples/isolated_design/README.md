@@ -11,7 +11,8 @@ The Terraform code presented here will deploy Palo Alto Networks VM-Series firew
 
 ## Reference Architecture Design
 
-![Simplified High Level Topology Diagram](https://github.com/PaloAltoNetworks/terraform-aws-swfw-modules/assets/2110772/f1dbcd98-43c4-4038-ab47-a9239d4b1e8b)
+![Simplified High Level Topology Diagram](https://github.com/PaloAltoNetworks/terraform-aws-swfw-modules/assets/2110772/f85ab263-941f-4a54-8b90-29e3c9201a03)
+
 
 This code implements:
 - an _isolated design_, which secures outbound and inbound traffic flows using AWS Gateway Load Balancer (GWLB). Application resources are segmented across multiple VPCs that distribute traffic to the dedicated VPC for security services where the VM-Series are deployed.
@@ -26,8 +27,8 @@ The Isolated Design model centralizes the security instances in a dedicated secu
 Inbound traffic originates outside the VPC and is destined to applications or services hosted within your VPCs, such as web servers. This design uses the GWLB and VM-Series firewalls in the security VPC, with GWLB endpoints in the application VPCs for the transparent inspection of inbound traffic.
 
 
+![image](https://github.com/PaloAltoNetworks/terraform-aws-swfw-modules/assets/2110772/e3359141-f6f6-43a9-a308-3c7d03774429)
 
-![](https://github.com/PaloAltoNetworks/terraform-aws-swfw-modules/assets/9674179/8527796a-9e26-48bd-b903-11e118efc611)
 
 ## Prerequisites
 

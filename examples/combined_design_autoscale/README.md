@@ -10,7 +10,8 @@ The Terraform code presented here will deploy Palo Alto Networks VM-Series firew
 
 ## Reference Architecture Design
 
-![Simplified High Level Topology Diagram](https://github.com/PaloAltoNetworks/terraform-aws-swfw-modules/assets/2110772/9c08a6e3-bb3e-49c8-87ec-2fccb914899e)
+![Simplified High Level Topology Diagram](https://github.com/PaloAltoNetworks/terraform-aws-swfw-modules/assets/2110772/9179d258-e8a8-4041-84b2-9e70147596ca)
+
 
 This code implements:
 - a _centralized design_, which secures outbound, inbound, and east-west traffic flows using an AWS transit gateway (TGW). Application resources are segmented across multiple VPCs that connect in a hub-and-spoke topology, with a dedicated VPC for security services where the VM-Series are deployed
@@ -26,7 +27,7 @@ This design supports interconnecting a large number of VPCs, with a scalable sol
 
 Inbound traffic originates outside your VPCs and is destined to applications or services hosted within your VPCs, such as web or application servers. The combined model implements inbound security by using the VM-Series and Gateway Load Balancer (GWLB) in a Security VPC, with distributed GWLB endpoints in the application VPCs. Unlike with outbound traffic, this design option does not use the transit gateway for traffic forwarding between the security VPC and the application VPCs.
 
-![Detailed Topology Diagram](https://user-images.githubusercontent.com/9674179/230622195-dba54106-24be-42aa-bce8-411487d46528.png)
+![image](https://github.com/PaloAltoNetworks/terraform-aws-swfw-modules/assets/2110772/a57e31a6-2ade-4dce-8815-cc2bc913606a)
 
 ### Auto Scaling VM-Series
 
