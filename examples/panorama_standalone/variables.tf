@@ -194,8 +194,8 @@ variable "panoramas" {
         name            = string
         ebs_device_name = string
         ebs_size        = string
-        ebs_encrypted   = bool
       }))
+      encrypted     = bool
       kms_key_alias = string
     })
 
