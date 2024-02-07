@@ -576,22 +576,25 @@ vmseries_asgs = {
       }
     }
 
-    launch_template_version = "1"
+    launch_template_version = "$Latest"
+    instance_refresh        = null
 
-    instance_refresh = {
-      strategy = "Rolling"
-      preferences = {
-        checkpoint_delay             = 3600
-        checkpoint_percentages       = [50, 100]
-        instance_warmup              = 1200
-        min_healthy_percentage       = 50
-        skip_matching                = false
-        auto_rollback                = false
-        scale_in_protected_instances = "Ignore"
-        standby_instances            = "Ignore"
-      }
-      triggers = []
-    }
+    ### use below configuration, if you need instance refresh
+    # launch_template_version = "1"
+    # instance_refresh = {
+    #   strategy = "Rolling"
+    #   preferences = {
+    #     checkpoint_delay             = 3600
+    #     checkpoint_percentages       = [50, 100]
+    #     instance_warmup              = 1200
+    #     min_healthy_percentage       = 50
+    #     skip_matching                = false
+    #     auto_rollback                = false
+    #     scale_in_protected_instances = "Ignore"
+    #     standby_instances            = "Ignore"
+    #   }
+    #   triggers = []
+    # }
 
     application_lb = {
       name = "public-alb"
