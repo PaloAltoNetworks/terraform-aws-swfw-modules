@@ -86,15 +86,14 @@ panoramas = {
           name            = "ebs-1"
           ebs_device_name = "/dev/sdb"
           ebs_size        = "2000"
-          ebs_encrypted   = true
         },
         {
           name            = "ebs-2"
           ebs_device_name = "/dev/sdc"
           ebs_size        = "2000"
-          ebs_encrypted   = true
         }
       ]
+      encrypted     = true
       kms_key_alias = "aws/ebs"
     }
 

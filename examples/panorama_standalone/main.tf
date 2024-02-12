@@ -141,7 +141,7 @@ data "aws_ebs_default_kms_key" "this" {
 }
 
 data "aws_kms_alias" "this" {
-  for_each = { for panorama in local.panorama_instances : "${panorama.group}-${panorama.instance}" => panorama if anytrue([for ebs in panorama.common.ebs.volumes : ebs.ebs_encrypted]) }
+  for_each = { for panorama in local.panorama_instances : "${panorama.group}-${panorama.instance}" => panorama if panorama.common.ebs.encrypted }
 
   name = each.value.common.ebs.kms_key_alias != null ? "alias/${each.value.common.ebs.kms_key_alias}" : data.aws_ebs_default_kms_key.this.key_arn
 }
@@ -167,6 +167,7 @@ module "panorama" {
   create_public_ip       = each.value.common.network.create_public_ip
   private_ip_address     = each.value.private_ip_address
   ebs_volumes            = each.value.common.ebs.volumes
+  ebs_encrypted          = each.value.common.ebs.encrypted
   panorama_version       = each.value.common.panos_version
   ssh_key_name           = var.ssh_key_name
   ebs_kms_key_alias      = try(data.aws_kms_alias.this[each.key].target_key_arn, null)
