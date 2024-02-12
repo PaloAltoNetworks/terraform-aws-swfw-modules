@@ -28,6 +28,9 @@ locals {
   default_eni_sg_ids       = flatten([for k, v in var.interfaces : v.security_group_ids if v.device_index == 0])
   default_eni_public_ip    = flatten([for k, v in var.interfaces : v.create_public_ip if v.device_index == 0])
   account_id               = data.aws_caller_identity.current.account_id
+  // this is done in case you store it in a hierarchy. if you just provide a name appennd a forward slash
+  delicense_param = startsWith(var.delicense_ssm_param_name, "/") ? var.delicense_ssm_param_name : "/${var.delicense_ssm_param_name}"
+
   autoscaling_config = {
     ip_target_groups = var.ip_target_groups
   }
@@ -231,7 +234,7 @@ resource "aws_iam_role_policy" "lambda_iam_policy_delicense" {
                 "ssm:GetParameterHistory"
             ],
             "Resource": [
-                "arn:${data.aws_partition.this.partition}:ssm:${var.region}:${local.account_id}:parameter${var.delicense_ssm_param_name}"
+                "arn:${data.aws_partition.this.partition}:ssm:${var.region}:${local.account_id}:parameter${local.delicense_param}"
             ]
         }
     ]
