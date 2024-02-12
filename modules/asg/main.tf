@@ -231,7 +231,7 @@ resource "aws_iam_role_policy" "lambda_iam_policy_delicense" {
                 "ssm:GetParameterHistory"
             ],
             "Resource": [
-                "arn:${data.aws_partition.this.partition}:ssm:${var.region}:${local.account_id}:parameter/${var.delicense_ssm_param_name}"
+                "arn:${data.aws_partition.this.partition}:ssm:${var.region}:${local.account_id}:parameter${var.delicense_ssm_param_name}"
             ]
         }
     ]
