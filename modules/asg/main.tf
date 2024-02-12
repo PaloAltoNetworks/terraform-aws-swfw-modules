@@ -29,7 +29,7 @@ locals {
   default_eni_public_ip    = flatten([for k, v in var.interfaces : v.create_public_ip if v.device_index == 0])
   account_id               = data.aws_caller_identity.current.account_id
   // this is done in case you store it in a hierarchy. if you just provide a name appennd a forward slash
-  delicense_param = startswith(coalesce(var.delicense_ssm_param_name, ""), "/") ? var.delicense_ssm_param_name : "/${var.delicense_ssm_param_name}"
+  delicense_param = startswith(coalesce(var.delicense_ssm_param_name, "/"), "/") ? var.delicense_ssm_param_name : "/${var.delicense_ssm_param_name}"
 
   autoscaling_config = {
     ip_target_groups = var.ip_target_groups
