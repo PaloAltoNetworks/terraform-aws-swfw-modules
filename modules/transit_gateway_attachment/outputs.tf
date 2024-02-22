@@ -1,11 +1,11 @@
 output "attachment" {
   description = "The entire `aws_ec2_transit_gateway_vpc_attachment` object."
-  value       = aws_ec2_transit_gateway_vpc_attachment.this
+  value       = local.transit_gateway_attachment
 }
 
 output "subnets" {
   description = "Same as the input `subnets`. Intended to be used as a dependency."
-  value       = contains(aws_ec2_transit_gateway_vpc_attachment.this.subnet_ids, "!") == false ? var.subnets : null
+  value       = contains(local.transit_gateway_attachment.subnet_ids, "!") == false ? var.subnets : null
 }
 
 output "next_hop_set" {
@@ -23,7 +23,7 @@ output "next_hop_set" {
   EOF
   value = {
     type = "transit_gateway"
-    id   = aws_ec2_transit_gateway_vpc_attachment.this.transit_gateway_id
+    id   = local.transit_gateway_attachment.transit_gateway_id
     ids  = {}
   }
 }

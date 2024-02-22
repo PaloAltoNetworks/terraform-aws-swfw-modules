@@ -1,3 +1,15 @@
+variable "create" {
+  description = "Trigger module mode between creating a new TGW Attachment or retrieving an existing one."
+  default     = true
+  type        = bool
+}
+
+variable "id" {
+  description = "ID of an existing TGW Attachment. Used in conjunction with `create = false`. When set, takes precedence over `var.name`."
+  default     = null
+  type        = string
+}
+
 variable "vpc_id" {
   description = "AWS identifier of a VPC containing the Attachment."
   type        = string
@@ -65,6 +77,10 @@ variable "transit_gateway_route_table" {
   }
   ```
   EOF
+  default = {
+    id                 = null
+    transit_gateway_id = null
+  }
   type = object({
     id                 = string
     transit_gateway_id = string
