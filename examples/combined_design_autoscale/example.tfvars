@@ -540,6 +540,9 @@ vmseries_asgs = {
       }
     }
 
+    launch_template_version = "$Latest"
+    instance_refresh        = null
+
     delicense = {
       enabled        = false
       ssm_param_name = null

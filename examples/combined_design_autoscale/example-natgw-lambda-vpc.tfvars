@@ -595,6 +595,9 @@ vmseries_asgs = {
       }
     }
 
+    launch_template_version = "$Latest"
+    instance_refresh        = null
+
     delicense = {
       enabled        = true
       ssm_param_name = "NAME_OF_THE_SECURE_STRING_PARAMETER" # TODO: update here
