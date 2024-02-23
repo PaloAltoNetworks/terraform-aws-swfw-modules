@@ -279,7 +279,7 @@ variable "vmseries_asgs" {
     - `cloudwatch_namespace`: name of CloudWatch namespace, where metrics are available (it should be the same as namespace configured in VM-Series plugin in PAN-OS)
     - `tags`: tags configured for dynamic scaling policy
   - `launch_template_version`: launch template version to use to launch instances
-  - `instance_refresh`: instance refresh for ASG defined by several attributes (please README for module `asg` for more details)
+  - `instance_refresh`: instance refresh for ASG defined by several attributes (please see README for module `asg` for more details)
 
   Example:
   ```
