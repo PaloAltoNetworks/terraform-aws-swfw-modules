@@ -290,6 +290,7 @@ variable "delicense_ssm_param_name" {
   ```
   {"username":"ACCOUNT","password":"PASSWORD","panorama1":"IP_ADDRESS1","panorama2":"IP_ADDRESS2","license_manager":"LICENSE_MANAGER_NAME"}"
   ```
+  the format can either be the plain name in case you store it without hierarchy or with a "/" in case you store in in a hierarchy
   EOF
   default     = null
 }
