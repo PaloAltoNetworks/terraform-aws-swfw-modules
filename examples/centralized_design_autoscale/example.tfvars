@@ -576,6 +576,9 @@ vmseries_asgs = {
       }
     }
 
+    launch_template_version = "$Latest"
+    instance_refresh        = null
+
     application_lb = {
       name = "public-alb"
       rules = {

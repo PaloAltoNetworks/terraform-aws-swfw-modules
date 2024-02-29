@@ -473,6 +473,9 @@ vmseries_asgs = {
         Project = "Example"
       }
     }
+
+    launch_template_version = "$Latest"
+    instance_refresh        = null
   }
 }
 
