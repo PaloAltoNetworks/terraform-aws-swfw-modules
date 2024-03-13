@@ -328,7 +328,7 @@ module "public_alb" {
   vpc_id          = module.vpc[each.value.vpc].id
   security_groups = [module.vpc[each.value.vpc].security_group_ids[each.value.security_groups]]
   rules           = each.value.rules
-  targets         = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].private_ip }
+  targets         = { for k, v in var.alb_target_groups : k => { for vm in v.vms : vm => aws_instance.spoke_vms[vm].private_ip } }
 
   tags = var.global_tags
 }

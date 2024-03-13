@@ -530,9 +530,17 @@ spoke_nlbs = {
   }
 }
 
+alb_target_groups = {
+  app1-tg = {
+    vms = ["app1_vm01", "app1_vm02"]
+  }
+  app2-tg = {
+    vms = ["app2_vm01", "app2_vm02"]
+  }
+}
+
 spoke_albs = {
   "app1-alb" = {
-    vms = ["app1_vm01", "app1_vm02"]
     rules = {
       "app1" = {
         protocol              = "HTTP"
@@ -546,6 +554,7 @@ spoke_albs = {
             target_protocol = "HTTP"
             target_port     = 80
             path_pattern    = ["/"]
+            tg_key = "app1-tg"
           }
         }
       }
@@ -555,7 +564,6 @@ spoke_albs = {
     security_groups = "app1_lb"
   }
   "app2-alb" = {
-    vms = ["app2_vm01", "app2_vm02"]
     rules = {
       "app2" = {
         protocol              = "HTTP"
@@ -569,6 +577,7 @@ spoke_albs = {
             target_protocol = "HTTP"
             target_port     = 80
             path_pattern    = ["/"]
+            tg_key = "app2-tg"
           }
         }
       }

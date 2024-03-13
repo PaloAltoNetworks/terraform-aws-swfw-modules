@@ -484,7 +484,6 @@ variable "spoke_albs" {
 
   Following properties are available:
   - `rules`: Rules defining the method of traffic balancing
-  - `vms`: Instances to be the target group for ALB
   - `vpc`: The VPC in which the load balancer is to be run
   - `vpc_subnet`: The subnets in which the Load Balancer is to be run
   - `security_gropus`: Security Groups to be associated with the ALB
@@ -492,9 +491,27 @@ variable "spoke_albs" {
   EOF
   type = map(object({
     rules           = any
-    vms             = list(string)
     vpc             = string
     vpc_subnet      = string
     security_groups = string
   }))
+}
+
+variable "alb_target_groups" {
+  description = <<EOF
+  Instances to be the target group for ALB
+
+  Example:
+  ```
+  alb_target_groups = {
+    app1 = {
+      vms = ["app1_vm01", "app1_vm02"]
+    }
+    app2 = {
+      vms = ["app2_vm01", "app2_vm02"]
+    }
+  }
+  ```
+  EOF
+  type        = map(any)
 }

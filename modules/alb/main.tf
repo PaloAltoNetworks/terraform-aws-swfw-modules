@@ -9,7 +9,7 @@ locals {
   rules_flattened = flatten([
     for k, v in var.rules : [
       for l_k, l_v in v.listener_rules : {
-        tg_key                   = coalesce(l_v.tg_key, "${k}-${l_v.target_port}")
+        tg_key                   = coalesce("${l_v.tg_key}-${l_v.target_port}", "${k}-${l_v.target_port}")
         tg_name                  = try(v.name, null)
         app_name                 = k
         port                     = l_v.target_port
@@ -107,8 +107,8 @@ locals {
           host = t_k 
           ip = t_v
           port = v.port
-          listener_tg_name = tg_key
-          } if v.tg_key == tg_key
+          listener_tg_name = v.tg_key
+          } if v.tg_key == "${tg_key}-${v.port}"
         ]
       ]
   ])
