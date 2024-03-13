@@ -554,7 +554,7 @@ spoke_albs = {
             target_protocol = "HTTP"
             target_port     = 80
             path_pattern    = ["/"]
-            tg_key = "app1-tg"
+            tg_key          = "app1-tg"
           }
         }
       }
@@ -577,7 +577,7 @@ spoke_albs = {
             target_protocol = "HTTP"
             target_port     = 80
             path_pattern    = ["/"]
-            tg_key = "app2-tg"
+            tg_key          = "app2-tg"
           }
         }
       }

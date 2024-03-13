@@ -576,7 +576,7 @@ vmseries = {
               target_protocol = "HTTP"
               target_port     = 8081
               path_pattern    = ["/"]
-              tg_key = "vmseries"
+              tg_key          = "vmseries"
             }
           }
         }
@@ -592,7 +592,7 @@ vmseries = {
               target_protocol = "HTTP"
               target_port     = 8082
               path_pattern    = ["/"]
-              tg_key = "vmseries"
+              tg_key          = "vmseries"
             }
           }
         }

@@ -104,13 +104,13 @@ locals {
     for v in local.listener_tg_unique : [
       for tg_key, tg_value in var.targets : [
         for t_k, t_v in tg_value : {
-          host = t_k 
-          ip = t_v
-          port = v.port
+          host             = t_k
+          ip               = t_v
+          port             = v.port
           listener_tg_name = v.tg_key
-          } if v.tg_key == "${tg_key}-${v.port}"
-        ]
+        } if v.tg_key == "${tg_key}-${v.port}"
       ]
+    ]
   ])
 
   # A map of target group attachments.
