@@ -594,6 +594,7 @@ vmseries_asgs = {
               target_protocol = "HTTP"
               target_port     = 8081
               path_pattern    = ["/"]
+              tg_key          = ""
             }
           }
         }
@@ -609,6 +610,7 @@ vmseries_asgs = {
               target_protocol = "HTTP"
               target_port     = 8082
               path_pattern    = ["/"]
+              tg_key          = ""
             }
           }
         }

@@ -234,23 +234,28 @@ variable "rules" {
 
 variable "targets" {
   description = <<-EOF
-  A list of backends accepting traffic. For Application Load Balancer all targets are of type `IP`. This is because this is the only option that allows a direct routing between a Load Balancer and a specific VMSeries' network interface. The Application Load Balancer is meant to be always public, therefore the VMSeries IPs should be from the public facing subnet. An example on how to feed this variable with data:
+  A map of backends accepting traffic. For Application Load Balancer all targets are of type `IP`. This is because this is the only option that allows a direct routing between a Load Balancer and a specific backend instance' network interface. An example on how to feed this variable with data:
 
   ```
-  fw_instance_ips = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
+  { for k, v in var.alb_target_groups : k => {for vm in v.vms : vm => aws_instance.spoke_vms[vm].private_ip } }
   ```
 
-  For format of `var.vmseries` check the [`vmseries` module](../vmseries/README.md). The key is the VM name. By using those keys, we can loop through all vmseries modules and take the private IP from the interface that is assigned to the subnet we require. The subnet can be identified by the subnet set name (like above). In other words, the `for` loop returns the following map:
+  The `for` loop returns the following map:
 
   ```
-  {
-    vm01 = "1.1.1.1"
-    vm02 = "2.2.2.2"
-    ...
+{
+  "app1" = {
+    "app1_vm01" = "1.1.1.1"
+    "app1_vm02" = "2.2.2.2"
   }
+  "app2" = {
+    "app2_vm01" = "3.3.3.3"
+    "app2_vm02" = "4.4.4.4"
+  }
+}
   ```
   EOF
-  type        = map(string)
+  type        = map(any)
 }
 
 variable "tags" {

@@ -9,7 +9,7 @@ locals {
   rules_flattened = flatten([
     for k, v in var.rules : [
       for l_k, l_v in v.listener_rules : {
-        tg_key                   = "${k}-${l_v.target_port}"
+        tg_key                   = coalesce(l_v.tg_key, "${k}-${l_v.target_port}")
         tg_name                  = try(v.name, null)
         app_name                 = k
         port                     = l_v.target_port
@@ -102,13 +102,15 @@ locals {
   # One of the properties is the target group reference.
   listener_tg_attachments_list = flatten([
     for v in local.listener_tg_unique : [
-      for t_k, t_v in var.targets : {
-        host             = t_k
-        ip               = t_v
-        port             = v.port
-        listener_tg_name = v.tg_key
-      }
-    ]
+      for tg_key, tg_value in var.targets : [
+        for t_k, t_v in tg_value : {
+          host = t_k 
+          ip = t_v
+          port = v.port
+          listener_tg_name = tg_key
+          } if v.tg_key == tg_key
+        ]
+      ]
   ])
 
   # A map of target group attachments.

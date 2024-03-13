@@ -403,7 +403,7 @@ module "public_alb" {
   vpc_id          = module.vpc["security_vpc"].id
   security_groups = [module.vpc["security_vpc"].security_group_ids["application_load_balancer"]]
   rules           = each.value.application_lb.rules
-  targets         = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => module.vmseries["${vmseries.group}-${vmseries.instance}"].interfaces["public"].private_ip }
+  targets         = { for k, v in var.vmseries : k => { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => module.vmseries["${vmseries.group}-${vmseries.instance}"].interfaces["public"].private_ip } }
 
   tags = var.global_tags
 }
