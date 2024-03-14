@@ -169,6 +169,7 @@ variable "rules" {
       target_port           = "port on which the target is listening for requests"
       target_protocol       = "target protocol, can be `HTTP` or `HTTPS`"
       protocol_version      = "one of `HTTP1`, `HTTP/2` or `GRPC`, defaults to `HTTP1`"
+      tg_key                = "reference to a target group containing rule targets (i.e. VMs), each rule can be assigned with separate target group"       
 
       round_robin           = "bool, if set to true (default) the `round-robin` load balancing algorithm is used, otherwise a target attachment with least outstanding requests is chosen.
       
