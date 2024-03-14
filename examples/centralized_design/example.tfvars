@@ -565,7 +565,7 @@ vmseries = {
       name = "public-alb"
       rules = {
         "app1" = {
-          name = "example-app1-tg-8081"
+          name                  = "example-app1-tg-8081"
           protocol              = "HTTP"
           port                  = 8081
           health_check_port     = "8081"
@@ -582,7 +582,7 @@ vmseries = {
           }
         }
         "app2" = {
-          name = "example-app2-tg-8082"
+          name                  = "example-app2-tg-8082"
           protocol              = "HTTP"
           port                  = 8082
           health_check_port     = "8082"
