@@ -135,17 +135,6 @@ resource "aws_iam_instance_profile" "this" {
   role     = each.value.common.iam.create_role ? aws_iam_role.this[each.value.group].name : each.value.common.iam.role_name
 }
 
-### KMS ###
-
-data "aws_ebs_default_kms_key" "this" {
-}
-
-data "aws_kms_alias" "this" {
-  for_each = { for panorama in local.panorama_instances : "${panorama.group}-${panorama.instance}" => panorama if panorama.common.ebs.encrypted }
-
-  name = each.value.common.ebs.kms_key_alias != null ? "alias/${each.value.common.ebs.kms_key_alias}" : data.aws_ebs_default_kms_key.this.key_arn
-}
-
 ### PANORAMA INSTANCES
 
 locals {
@@ -170,7 +159,7 @@ module "panorama" {
   ebs_encrypted          = each.value.common.ebs.encrypted
   panorama_version       = each.value.common.panos_version
   ssh_key_name           = var.ssh_key_name
-  ebs_kms_key_alias      = try(data.aws_kms_alias.this[each.key].target_key_arn, null)
+  ebs_kms_key_alias      = each.value.common.ebs.kms_key_alias
   subnet_id              = module.subnet_sets[each.value.common.network.vpc_subnet].subnets[each.value.az].id
   vpc_security_group_ids = [module.vpc[each.value.common.network.vpc].security_group_ids[each.value.common.network.security_group]]
   panorama_iam_role      = aws_iam_instance_profile.this[each.key].name
