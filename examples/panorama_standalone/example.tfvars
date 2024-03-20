@@ -94,7 +94,7 @@ panoramas = {
         }
       ]
       encrypted     = true
-      kms_key_alias = "aws/ebs"
+      kms_key_alias = "alias/aws/ebs"
     }
 
     iam = {
