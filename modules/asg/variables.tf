@@ -205,6 +205,22 @@ variable "min_size" {
   default     = 1
 }
 
+variable "health_check" {
+  description = "Controls how health checking is done."
+  default = {
+    grace_period = 300
+    type         = "EC2"
+  }
+  type = object({
+    grace_period = number
+    type         = string
+  })
+  validation {
+    condition     = contains(["EC2", "ELB"], var.health_check.type)
+    error_message = "The health check type value must be `EC2` or `ELB`."
+  }
+}
+
 variable "delete_timeout" {
   description = <<EOF
   Timeout needed to correctly drain autoscaling group while deleting ASG.

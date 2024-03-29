@@ -99,6 +99,9 @@ resource "aws_autoscaling_group" "this" {
   min_size            = var.min_size
   target_group_arns   = [var.target_group_arn]
 
+  health_check_grace_period = var.health_check.grace_period
+  health_check_type         = var.health_check.type
+
   dynamic "tag" {
     for_each = var.global_tags
     content {
