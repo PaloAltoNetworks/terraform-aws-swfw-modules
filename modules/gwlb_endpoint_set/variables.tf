@@ -80,7 +80,7 @@ variable "tags" {
 }
 
 variable "delay" {
-  description = "If Service Account name belongs to different AWS account It might delay endpoint status changes. It leads to routing issue. The variable should be applied for CloudNGFW."
-  default     = false
-  type        = bool
+  description = "If Service Account name belongs to different AWS account It might delay endpoint status changes. It leads to routing issue. The variable should be applied for CloudNGFW. Number of seconds."
+  default     = 0
+  type        = number
 }

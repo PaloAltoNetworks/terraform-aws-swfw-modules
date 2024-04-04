@@ -29,9 +29,9 @@ locals {
 }
 
 resource "time_sleep" "this" {
-  count = var.delay ? 1 : 0
+  count = var.delay > 0 ? 1 : 0
 
-  create_duration = "60s"
+  create_duration = "${var.delay}s"
 
   depends_on = [aws_vpc_endpoint.this]
   # Workaround for error "Route table contains unsupported route target".
