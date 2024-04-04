@@ -28,6 +28,16 @@ locals {
   input_routes = { for v in local.input_routes_flat : "${v.routekey}-${v.subnetkey}" => v }
 }
 
+resource "time_sleep" "this" {
+  count = var.delay ? 1 : 0
+
+  create_duration = "60s"
+
+  depends_on = [aws_vpc_endpoint.this]
+  # Workaround for error "Route table contains unsupported route target".
+  # https://github.com/hashicorp/terraform-provider-aws/issues/32774
+}
+
 resource "aws_route" "this" {
   for_each = local.input_routes
 
@@ -43,4 +53,6 @@ resource "aws_route" "this" {
 
   # Aside: a VGW has the same rules, except it only supports individual NICs but not GWLB. Such lack
   # of GWLB balancing looks like a temporary AWS limitation.
+
+  depends_on = [time_sleep.this]
 }
