@@ -288,6 +288,15 @@ variable "security_group_ids" {
   default     = []
 }
 
+variable "tags_dest_additional_resources" {
+  description = <<EOF
+  List of additional resources that need to be tagged when launched via ASG.
+  Defaults to [] because "instance", "volume" and "network-interface" will always be tagged.
+  EOF
+  type        = list(string)
+  default     = []
+}
+
 variable "vmseries_iam_instance_profile" {
   description = "IAM instance profile used in launch template"
   type        = string
