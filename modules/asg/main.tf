@@ -28,7 +28,6 @@ locals {
   default_eni_sg_ids       = flatten([for k, v in var.interfaces : v.security_group_ids if v.device_index == 0])
   default_eni_public_ip    = flatten([for k, v in var.interfaces : v.create_public_ip if v.device_index == 0])
   account_id               = data.aws_caller_identity.current.account_id
-  tags_dest                = concat(["instance", "volume", "network-interface"], var.tags_dest_additional_resources)
   tags_merged = merge(try(var.global_tags, {}), {
     Name = "${var.name_prefix}vmseries"
   })
@@ -82,7 +81,7 @@ resource "aws_launch_template" "this" {
   }
 
   dynamic "tag_specifications" {
-    for_each = toset(local.tags_dest)
+    for_each = toset(var.tags_dest)
     content {
       resource_type = tag_specifications.key
       tags          = local.tags_merged
