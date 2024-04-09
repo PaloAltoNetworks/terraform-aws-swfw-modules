@@ -288,7 +288,7 @@ variable "security_group_ids" {
   default     = []
 }
 
-variable "tags_dest" {
+variable "tag_specifications_targets" {
   description = "List of resources that will be tagged when launched via ASG"
   type        = list(string)
   default     = ["instance", "volume", "network-interface"]

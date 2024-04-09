@@ -81,7 +81,7 @@ resource "aws_launch_template" "this" {
   }
 
   dynamic "tag_specifications" {
-    for_each = toset(var.tags_dest)
+    for_each = toset(var.tag_specifications_targets)
     content {
       resource_type = tag_specifications.key
       tags          = local.tags_merged
