@@ -44,8 +44,8 @@ variable "include_deprecated_ami" {
   Setting the specified parameter to `true` will enable the continued use of deprecated AMIs, 
   mitigating this issue.
   EOF
-  type = bool
-  default = false
+  type        = bool
+  default     = false
 }
 
 variable "iam_instance_profile" {
