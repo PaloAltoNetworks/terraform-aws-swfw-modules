@@ -2,7 +2,7 @@
 short_title: Isolated Design
 type: refarch
 show_in_hub: true
-swfw: vmseries|cloudngfw
+swfw: cloudngfw
 ---
 ### Isolated Design model
 - Same Firewall Cluster(s) to inspect applications in multiple VPCs.
