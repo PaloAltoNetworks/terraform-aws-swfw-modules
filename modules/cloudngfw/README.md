@@ -1,4 +1,4 @@
-# Palo Alto Networks VM-Series Module for AWS
+# Palo Alto Networks Cloud NGFW Module for AWS
 
 A Terraform module for deploying a CloudNGFW firewall in AWS cloud.
 
