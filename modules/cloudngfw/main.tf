@@ -28,7 +28,8 @@ resource "cloudngfwaws_commit_rulestack" "this" {
 
 resource "cloudngfwaws_rulestack" "this" {
   name        = var.rulestack_name
-  scope       = var.rulestack_scope #
+  scope       = var.rulestack_scope 
+
   account_id  = data.aws_caller_identity.current.id
   description = var.description_rule
 
