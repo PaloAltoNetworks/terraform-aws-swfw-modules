@@ -9,6 +9,8 @@ swfw: cloudngfw
 - Transparently insert inspection in your application VPCs for both Ingress and Egress Traffic.
 - No TGW resource is required.
 
+![image](https://github.com/PaloAltoNetworks/terraform-aws-swfw-modules/assets/9754982/a1b04cd9-2324-4488-a104-34fdb15e4254)
+
 ## Prerequsite
 - Enable Programmatic Access
 To use the Terraform provider, you must first enable the Programmatic Access for your Cloud NGFW tenant. You can check this by navigating to the Settings section of the Cloud NGFW console. The steps to do this can be found [here](https://pan.dev/cloudngfw/aws/api/).
