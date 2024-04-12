@@ -1,7 +1,7 @@
 variable "name" {
   description = "Name of the Cloud NGFW instance."
 
-  type        = string
+  type = string
 }
 
 variable "vpc_id" {
@@ -56,14 +56,8 @@ variable "description_rule" {
 
 variable "profile_config" {
   description = "The rulestack profile config."
-  default = {
-    anti_spyware  = "BestPractice"
-    anti_virus    = "BestPractice"
-    vulnerability = "BestPractice"
-    file_blocking = "BestPractice"
-    url_filtering = "BestPractice"
-  }
-  type = map(any)
+  default     = {}
+  type        = map(any)
 }
 
 variable "security_rules" {
@@ -90,13 +84,30 @@ variable "security_rules" {
   }
   ```
   EOF
+  default     = {}
   # For now it's not possible to have a more strict definition of variable type, optional
   # object attributes are still experimental
-  type = map(any)
+  type = map(object({
+    rule_list                   = string
+    priority                    = number
+    name                        = string
+    description                 = string
+    source_cidrs                = set(string)
+    destination_cidrs           = set(string)
+    negate_destination          = bool
+    protocol                    = string
+    applications                = set(string)
+    category_feeds              = set(string)
+    category_url_category_names = set(string)
+    action                      = string
+    logging                     = bool
+    audit_comment               = string
+  }))
 }
 
 variable "log_profiles" {
   description = <<-EOF
+  The CloudWatch logs group name should correspond with the assumed role generated in cfn.
   - `aws_cloudwatch_log_group`  = (Required|string)
   - `aws_cloudwatch_log_stream` = (Required|string)
   - `destination_type`          = (Required|string)
@@ -122,9 +133,22 @@ variable "log_profiles" {
   }
   ```
   EOF
+  default     = {}
   # For now it's not possible to have a more strict definition of variable type, optional
   # object attributes are still experimental
   type = map(any)
+}
+
+variable "endpoint_mode" {
+  description = "The endpoint mode indicate the creation method of endpoint for target VPC. Customer Managed required to create endpoint manually."
+  default     = "CustomerManaged"
+  type        = string
+}
+
+variable "retention_in_days" {
+  description = "CloudWatch log groups retains logs."
+  default     = 365
+  type        = number
 }
 
 variable "tags" {

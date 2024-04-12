@@ -6,7 +6,7 @@ resource "cloudngfwaws_ngfw" "this" {
   account_id  = data.aws_caller_identity.current.id
   description = var.description
 
-  endpoint_mode = "CustomerManaged"
+  endpoint_mode = var.endpoint_mode
 
   dynamic "subnet_mapping" {
     for_each = var.subnets
@@ -27,8 +27,8 @@ resource "cloudngfwaws_commit_rulestack" "this" {
 }
 
 resource "cloudngfwaws_rulestack" "this" {
-  name        = var.rulestack_name
-  scope       = var.rulestack_scope 
+  name  = var.rulestack_name
+  scope = var.rulestack_scope
 
   account_id  = data.aws_caller_identity.current.id
   description = var.description_rule
@@ -92,7 +92,7 @@ resource "aws_cloudwatch_log_group" "this" {
   for_each = toset(distinct([for _, v in var.log_profiles : v.name if v.create_cw]))
 
   name              = each.key
-  retention_in_days = 90
+  retention_in_days = var.retention_in_days
 
   tags = var.tags
 }

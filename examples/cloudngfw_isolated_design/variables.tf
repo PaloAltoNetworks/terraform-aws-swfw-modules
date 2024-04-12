@@ -290,6 +290,13 @@ variable "cloudngfws" {
           log_type         = "DECRYPTION"
         }
       }
+      profile_config = {
+        anti_spyware  = "BestPractice"
+        anti_virus    = "BestPractice"
+        vulnerability = "BestPractice"
+        file_blocking = "BestPractice"
+        url_filtering = "BestPractice"
+      }
     }
   }
   ```
@@ -302,9 +309,9 @@ variable "cloudngfws" {
     description    = string
     security_rules = map(any)
     log_profiles   = map(any)
+    profile_config = map(any)
   }))
 }
-
 
 variable "gwlb_endpoints" {
   description = <<-EOF

@@ -136,6 +136,7 @@ module "cloudngfw" {
   description    = each.value.description
   security_rules = each.value.security_rules
   log_profiles   = each.value.log_profiles
+  profile_config = each.value.profile_config
 }
 
 ### GWLB ENDPOINTS ###
