@@ -34,6 +34,17 @@ variable "panorama_version" {
   default     = "10.1.5"
 }
 
+variable "include_deprecated_ami" {
+  description = <<-EOF
+  In certain scenarios, customers may deploy a Panorama instance through the marketplace, 
+  only to later discover that the ami has been deprecated, resulting in pipeline failures. 
+  Setting the specified parameter to `true` will enable the continued use of deprecated AMIs, 
+  mitigating this issue.
+  EOF
+  type        = bool
+  default     = false
+}
+
 variable "panorama_ami_id" {
   description = <<-EOF
   Specific AMI ID to use for Panorama instance.

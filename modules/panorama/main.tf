@@ -14,6 +14,8 @@ data "aws_ami" "this" {
   }
 
   name_regex = "^Panorama-AWS-${var.panorama_version}-[[:alnum:]]{8}-([[:alnum:]]{4}-){3}[[:alnum:]]{12}$"
+
+  include_deprecated = var.include_deprecated_ami
 }
 
 # Retrieve the default KMS key in the current region for EBS encryption
