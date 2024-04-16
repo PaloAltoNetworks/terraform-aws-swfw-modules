@@ -276,6 +276,7 @@ variable "vmseries_asgs" {
   - `scaling_plan`: scaling plan with attributes
     - `enabled`: `true` if automatic dynamic scaling policy should be created
     - `metric_name`: name of the metric used in dynamic scaling policy
+    - `estimated_instance_warmup`: estimated time, in seconds, until a newly launched instance can contribute to the CloudWatch metrics
     - `target_value`: target value for the metric used in dynamic scaling policy
     - `statistic`: statistic of the metric. Valid values: Average, Maximum, Minimum, SampleCount, Sum
     - `cloudwatch_namespace`: name of CloudWatch namespace, where metrics are available (it should be the same as namespace configured in VM-Series plugin in PAN-OS)
@@ -372,11 +373,12 @@ variable "vmseries_asgs" {
       }
 
       scaling_plan = {
-        enabled              = true               # TODO: update here
-        metric_name          = "panSessionActive" # TODO: update here
-        target_value         = 75                 # TODO: update here
-        statistic            = "Average"          # TODO: update here
-        cloudwatch_namespace = "example-vmseries" # TODO: update here
+        enabled                   = true
+        metric_name               = "panSessionActive"
+        estimated_instance_warmup = 900
+        target_value              = 75
+        statistic                 = "Average"
+        cloudwatch_namespace      = "asg-vmseries"
         tags = {
           ManagedBy = "terraform"
         }
@@ -449,12 +451,13 @@ variable "vmseries_asgs" {
     })
 
     scaling_plan = object({
-      enabled              = bool
-      metric_name          = string
-      target_value         = number
-      statistic            = string
-      cloudwatch_namespace = string
-      tags                 = map(string)
+      enabled                   = bool
+      metric_name               = string
+      estimated_instance_warmup = number
+      target_value              = number
+      statistic                 = string
+      cloudwatch_namespace      = string
+      tags                      = map(string)
     })
 
     launch_template_version = string

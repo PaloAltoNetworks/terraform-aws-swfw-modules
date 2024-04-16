@@ -566,13 +566,14 @@ vmseries_asgs = {
     }
 
     scaling_plan = {
-      enabled              = true               # TODO: update here
-      metric_name          = "panSessionActive" # TODO: update here
-      target_value         = 75                 # TODO: update here
-      statistic            = "Average"          # TODO: update here
-      cloudwatch_namespace = "asg-vmseries"     # TODO: update here
+      enabled                   = true               # TODO: update here
+      metric_name               = "panSessionActive" # TODO: update here
+      estimated_instance_warmup = 900                # TODO: update here
+      target_value              = 75                 # TODO: update here
+      statistic                 = "Average"          # TODO: update here
+      cloudwatch_namespace      = "asg-vmseries"     # TODO: update here
       tags = {
-        Project = "Example"
+        ManagedBy = "terraform"
       }
     }
 
