@@ -352,6 +352,12 @@ variable "scaling_tags" {
   default     = {}
 }
 
+variable "scaling_estimated_instance_warmup" {
+  description = "Estimated time, in seconds, until a newly launched instance can contribute to the CloudWatch metrics"
+  type        = number
+  default     = 900
+}
+
 variable "scaling_target_value" {
   description = "Target value for the metric used in dynamic scaling policy"
   type        = number

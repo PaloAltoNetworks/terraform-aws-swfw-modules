@@ -412,7 +412,8 @@ resource "aws_autoscalingplans_scaling_plan" "this" {
         namespace   = var.scaling_cloudwatch_namespace
         statistic   = var.scaling_statistic
       }
-      target_value = var.scaling_target_value
+      estimated_instance_warmup = var.scaling_estimated_instance_warmup
+      target_value              = var.scaling_target_value
     }
   }
 }
