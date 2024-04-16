@@ -23,6 +23,17 @@ variable "vmseries_product_code" {
   type        = string
 }
 
+variable "include_deprecated_ami" {
+  description = <<-EOF
+  In certain scenarios, customers may deploy a VM-Series instance through the marketplace, 
+  only to later discover that the ami has been deprecated, resulting in pipeline failures. 
+  Setting the specified parameter to `true` will enable the continued use of deprecated AMIs, 
+  mitigating this issue.
+  EOF
+  type        = bool
+  default     = false
+}
+
 variable "instance_type" {
   description = "EC2 instance type."
   default     = "m5.xlarge"
