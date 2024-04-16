@@ -78,7 +78,7 @@ vmseries = {
       dhcp-accept-server-domain   = "no"                                                      # TODO: update here
     }
 
-    panos_version = "10.2.3"        # TODO: update here
+    panos_version = "10.1.12"       # TODO: update here
     ebs_kms_id    = "alias/aws/ebs" # TODO: update here
 
     # Value of `vpc` must match key of objects stored in `vpcs`

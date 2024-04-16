@@ -71,7 +71,7 @@ panoramas = {
       }
     }
 
-    panos_version = "10.2.3"
+    panos_version = "10.1.12"
 
     network = {
       vpc              = "management_vpc"
