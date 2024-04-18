@@ -1,7 +1,6 @@
 variable "name" {
   description = "Name of the Cloud NGFW instance."
-
-  type = string
+  type        = string
 }
 
 variable "vpc_id" {

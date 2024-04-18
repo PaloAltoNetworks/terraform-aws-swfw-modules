@@ -1,5 +1,9 @@
 data "aws_caller_identity" "current" {}
 
+locals {
+  new_log_cw = toset(distinct([for _, v in var.log_profiles : v.name if v.create_cw]))
+}
+
 resource "cloudngfwaws_ngfw" "this" {
   name        = var.name
   vpc_id      = var.vpc_id
@@ -34,11 +38,11 @@ resource "cloudngfwaws_rulestack" "this" {
   description = var.description_rule
 
   profile_config {
-    anti_spyware  = var.profile_config["anti_spyware"]
-    anti_virus    = var.profile_config["anti_virus"]
-    vulnerability = var.profile_config["vulnerability"]
-    file_blocking = var.profile_config["file_blocking"]
-    url_filtering = var.profile_config["url_filtering"]
+    anti_spyware  = try(var.profile_config["anti_spyware"], null)
+    anti_virus    = try(var.profile_config["anti_virus"], null)
+    vulnerability = try(var.profile_config["vulnerability"], null)
+    file_blocking = try(var.profile_config["file_blocking"], null)
+    url_filtering = try(var.profile_config["url_filtering"], null)
   }
 }
 
@@ -89,7 +93,7 @@ resource "cloudngfwaws_ngfw_log_profile" "this" {
 }
 
 resource "aws_cloudwatch_log_group" "this" {
-  for_each = toset(distinct([for _, v in var.log_profiles : v.name if v.create_cw]))
+  for_each = local.new_log_cw
 
   name              = each.key
   retention_in_days = var.retention_in_days
@@ -98,7 +102,7 @@ resource "aws_cloudwatch_log_group" "this" {
 }
 
 resource "aws_cloudwatch_log_stream" "this" {
-  for_each = toset(distinct([for _, v in var.log_profiles : v.name if v.create_cw]))
+  for_each = local.new_log_cw
 
   name           = each.key
   log_group_name = aws_cloudwatch_log_group.this[each.key].name

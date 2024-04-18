@@ -63,5 +63,5 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_cloudngfw_service_name"></a> [cloudngfw\_service\_name](#output\_cloudngfw\_service\_name) | n/a |
+| <a name="output_cloudngfw_service_name"></a> [cloudngfw\_service\_name](#output\_cloudngfw\_service\_name) | The service endpoint name exposed to tenant environment. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
