@@ -31,7 +31,7 @@ variable "panorama_version" {
   ```
   EOF
   type        = string
-  default     = "10.1.12"
+  default     = "10.2.3"
 }
 
 variable "include_deprecated_ami" {

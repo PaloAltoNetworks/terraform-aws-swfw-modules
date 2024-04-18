@@ -23,7 +23,7 @@ variable "vmseries_version" {
   aws ec2 describe-images --region us-west-1 --filters "Name=product-code,Values=6njl1pau431dv1qxipg63mvah" "Name=name,Values=PA-VM-AWS*" --output json --query "Images[].Description" \| grep -o 'PA-VM-AWS-.*' \| sort
   ```
   EOF
-  default     = "10.1.12"
+  default     = "10.2.9-h1"
   type        = string
 }
 

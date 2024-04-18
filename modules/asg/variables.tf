@@ -1,6 +1,6 @@
 variable "vmseries_version" {
   description = "Select which FW version to deploy"
-  default     = "10.1.12"
+  default     = "10.2.9-h1"
 }
 
 variable "region" {
