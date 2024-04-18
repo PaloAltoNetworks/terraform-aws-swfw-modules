@@ -1,6 +1,6 @@
 variable "vmseries_version" {
   description = "Select which FW version to deploy"
-  default     = "10.2.2"
+  default     = "10.2.9-h1"
 }
 
 variable "region" {
@@ -21,6 +21,17 @@ variable "vmseries_product_code" {
   EOF
   default     = "6njl1pau431dv1qxipg63mvah"
   type        = string
+}
+
+variable "include_deprecated_ami" {
+  description = <<-EOF
+  In certain scenarios, customers may deploy a VM-Series instance through the marketplace, 
+  only to later discover that the ami has been deprecated, resulting in pipeline failures. 
+  Setting the specified parameter to `true` will enable the continued use of deprecated AMIs, 
+  mitigating this issue.
+  EOF
+  type        = bool
+  default     = false
 }
 
 variable "instance_type" {
@@ -339,6 +350,12 @@ variable "scaling_tags" {
   description = "Tags configured for dynamic scaling policy"
   type        = map(any)
   default     = {}
+}
+
+variable "scaling_estimated_instance_warmup" {
+  description = "Estimated time, in seconds, until a newly launched instance can contribute to the CloudWatch metrics"
+  type        = number
+  default     = 900
 }
 
 variable "scaling_target_value" {

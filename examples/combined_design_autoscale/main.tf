@@ -386,12 +386,13 @@ module "vm_series_asg" {
   target_group_arn  = module.gwlb[each.value.gwlb].target_group.arn
   bootstrap_options = join(";", compact(concat(local.bootstrap_options_with_endpoints_mapping[each.key])))
 
-  scaling_plan_enabled         = each.value.scaling_plan.enabled
-  scaling_metric_name          = each.value.scaling_plan.metric_name
-  scaling_target_value         = each.value.scaling_plan.target_value
-  scaling_statistic            = each.value.scaling_plan.statistic
-  scaling_cloudwatch_namespace = each.value.scaling_plan.cloudwatch_namespace
-  scaling_tags                 = merge(each.value.scaling_plan.tags, { prefix : var.name_prefix })
+  scaling_plan_enabled              = each.value.scaling_plan.enabled
+  scaling_metric_name               = each.value.scaling_plan.metric_name
+  scaling_estimated_instance_warmup = each.value.scaling_plan.estimated_instance_warmup
+  scaling_target_value              = each.value.scaling_plan.target_value
+  scaling_statistic                 = each.value.scaling_plan.statistic
+  scaling_cloudwatch_namespace      = each.value.scaling_plan.cloudwatch_namespace
+  scaling_tags                      = merge(each.value.scaling_plan.tags, { prefix : var.name_prefix })
 
   delicense_ssm_param_name = each.value.delicense.ssm_param_name
   delicense_enabled        = each.value.delicense.enabled

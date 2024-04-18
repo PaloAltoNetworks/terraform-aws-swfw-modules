@@ -15,6 +15,8 @@ data "aws_ami" "this" {
   }
 
   name_regex = "^PA-VM-AWS-${var.vmseries_version}-[[:alnum:]]{8}-([[:alnum:]]{4}-){3}[[:alnum:]]{12}$"
+
+  include_deprecated = var.include_deprecated_ami
 }
 
 data "aws_kms_alias" "ebs_kms" {
@@ -410,7 +412,8 @@ resource "aws_autoscalingplans_scaling_plan" "this" {
         namespace   = var.scaling_cloudwatch_namespace
         statistic   = var.scaling_statistic
       }
-      target_value = var.scaling_target_value
+      estimated_instance_warmup = var.scaling_estimated_instance_warmup
+      target_value              = var.scaling_target_value
     }
   }
 }

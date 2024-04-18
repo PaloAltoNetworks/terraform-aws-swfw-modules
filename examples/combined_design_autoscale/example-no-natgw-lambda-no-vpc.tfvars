@@ -454,7 +454,7 @@ vmseries_asgs = {
       dhcp-accept-server-domain   = "yes"                                                                                # TODO: update here
     }
 
-    panos_version = "10.2.3"        # TODO: update here
+    panos_version = "10.2.9-h1"     # TODO: update here
     ebs_kms_id    = "alias/aws/ebs" # TODO: update here
 
     # Value of `vpc` must match key of objects stored in `vpcs`
@@ -530,11 +530,12 @@ vmseries_asgs = {
     }
 
     scaling_plan = {
-      enabled              = true               # TODO: update here
-      metric_name          = "panSessionActive" # TODO: update here
-      target_value         = 75                 # TODO: update here
-      statistic            = "Average"          # TODO: update here
-      cloudwatch_namespace = "example-vmseries" # TODO: update here
+      enabled                   = true               # TODO: update here
+      metric_name               = "panSessionActive" # TODO: update here
+      estimated_instance_warmup = 900                # TODO: update here
+      target_value              = 75                 # TODO: update here
+      statistic                 = "Average"          # TODO: update here
+      cloudwatch_namespace      = "asg-vmseries"     # TODO: update here
       tags = {
         ManagedBy = "terraform"
       }
