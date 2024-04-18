@@ -206,10 +206,16 @@ resource "aws_iam_role" "spoke_vm_ec2_iam_role" {
 EOF
 }
 
+resource "aws_iam_role_policy_attachment" "spoke_vm_iam_instance_policy" {
+  role       = aws_iam_role.spoke_vm_ec2_iam_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
 resource "aws_iam_instance_profile" "spoke_vm_iam_instance_profile" {
 
   name = "${var.name_prefix}spoke_vm_instance_profile"
   role = aws_iam_role.spoke_vm_ec2_iam_role.name
+
 }
 
 resource "aws_instance" "spoke_vms" {

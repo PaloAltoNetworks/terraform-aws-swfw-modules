@@ -107,25 +107,28 @@ variable "security_rules" {
 variable "log_profiles" {
   description = <<-EOF
   The CloudWatch logs group name should correspond with the assumed role generated in cfn.
-  - `aws_cloudwatch_log_group`  = (Required|string)
-  - `aws_cloudwatch_log_stream` = (Required|string)
-  - `destination_type`          = (Required|string)
-  - `log_type`                  = (Required|string)
+  - `create_cw`        = (Required|string) Whether to create AWS CloudWatch log group.
+  - `name`             = (Required|string) The CW log group should correspond with cfn cross zone role.
+  - `destination_type` = (Required|string) Only supported type is "CloudWatchLogs".
+  - `log_type`         = (Required|string) The firewall log type.
   Example:
   ```
   log_profiles = {
-    aws_cloudwatch_log_group  = "PaloAltoCloudNGFW"
-    aws_cloudwatch_log_stream = "PaloAltoCloudNGFW"
-
     dest_1 = {
+      create_cw        = true
+      name             = "PaloAltoCloudNGFW"
       destination_type = "CloudWatchLogs"
       log_type         = "THREAT"
     }
     dest_2 = {
+      create_cw        = true
+      name             = "PaloAltoCloudNGFW"
       destination_type = "CloudWatchLogs"
       log_type         = "TRAFFIC"
     }
     dest_3 = {
+      create_cw        = true
+      name             = "PaloAltoCloudNGFW"
       destination_type = "CloudWatchLogs"
       log_type         = "DECRYPTION"
     }
@@ -135,7 +138,13 @@ variable "log_profiles" {
   default     = {}
   # For now it's not possible to have a more strict definition of variable type, optional
   # object attributes are still experimental
-  type = map(any)
+  type = map(object({
+    create_cw        = bool
+    name             = string
+    destination_type = string
+    log_type         = string
+    }
+  ))
 }
 
 variable "endpoint_mode" {

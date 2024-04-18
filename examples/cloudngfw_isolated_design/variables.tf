@@ -169,7 +169,7 @@ variable "spoke_vms" {
       vpc            = "app1_vpc"
       vpc_subnet     = "app1_vpc-app1_vm"
       security_group = "app1_vm"
-      type           = "t2.micro"
+      type           = "t3.micro"
     }
   }
   ```

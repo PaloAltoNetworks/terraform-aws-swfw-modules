@@ -262,28 +262,28 @@ spoke_vms = {
     vpc            = "app1_vpc"
     vpc_subnet     = "app1_vpc-app1_vm"
     security_group = "app1_vm"
-    type           = "t2.micro"
+    type           = "t3.micro"
   }
   "app1_vm02" = {
     az             = "us-east-1b"
     vpc            = "app1_vpc"
     vpc_subnet     = "app1_vpc-app1_vm"
     security_group = "app1_vm"
-    type           = "t2.micro"
+    type           = "t3.micro"
   }
   "app2_vm01" = {
     az             = "us-east-1a"
     vpc            = "app2_vpc"
     vpc_subnet     = "app2_vpc-app2_vm"
     security_group = "app2_vm"
-    type           = "t2.micro"
+    type           = "t3.micro"
   }
   "app2_vm02" = {
     az             = "us-east-1b"
     vpc            = "app2_vpc"
     vpc_subnet     = "app2_vpc-app2_vm"
     security_group = "app2_vm"
-    type           = "t2.micro"
+    type           = "t3.micro"
   }
 }
 
