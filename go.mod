@@ -6,6 +6,7 @@ require (
 	github.com/PaloAltoNetworks/terraform-modules-swfw-tests-skeleton v1.2.0
 	github.com/gruntwork-io/terratest v0.43.6
 	github.com/hashicorp/terraform-json v0.17.1
+	gotest.tools/v3 v3.0.3
 )
 
 require (
@@ -40,6 +41,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/tmccombs/hcl2json v0.3.3 // indirect
