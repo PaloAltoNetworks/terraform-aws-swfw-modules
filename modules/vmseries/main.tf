@@ -34,12 +34,13 @@ data "aws_kms_alias" "current_arn" {
 resource "aws_network_interface" "this" {
   for_each = var.interfaces
 
-  subnet_id         = each.value.subnet_id
-  private_ips       = lookup(each.value, "private_ips", null)
-  source_dest_check = lookup(each.value, "source_dest_check", false)
-  security_groups   = lookup(each.value, "security_group_ids", null)
-  description       = lookup(each.value, "description", null)
-  tags              = merge(var.tags, { Name = coalesce(try(each.value.name, null), "${var.name}-${each.key}") })
+  subnet_id          = each.value.subnet_id
+  private_ips        = lookup(each.value, "private_ips", null)
+  source_dest_check  = lookup(each.value, "source_dest_check", false)
+  security_groups    = lookup(each.value, "security_group_ids", null)
+  description        = lookup(each.value, "description", null)
+  tags               = merge(var.tags, { Name = coalesce(try(each.value.name, null), "${var.name}-${each.key}") })
+  ipv6_address_count = try(each.value.ipv6_address_count, null)
 }
 
 # Create and/or associate EIPs
