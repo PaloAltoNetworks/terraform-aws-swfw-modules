@@ -1,7 +1,7 @@
 ---
 short_title: Isolated Design
 type: refarch
-show_in_hub: true
+show_in_hub: false
 swfw: cloudngfw
 ---
 ### Isolated Design model
