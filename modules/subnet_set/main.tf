@@ -3,6 +3,7 @@ locals {
     v.az => {
       name                    = coalesce(try(v.name, null), "${var.name}${substr(v.az, -1, -1)}")
       cidr_block              = k
+      ipv6_cidr_block         = try(v.ipv6_cidr, null)
       create_subnet           = try(v.create_subnet, true)
       create_route_table      = try(v.create_route_table, v.create_subnet, true)
       read_route_table        = var.create_shared_route_table == false && try(v.create_route_table, v.create_subnet, true) == false
@@ -34,6 +35,7 @@ resource "aws_subnet" "this" {
   for_each = { for k, v in local.input_subnets : k => v if v.create_subnet }
 
   cidr_block              = each.value.cidr_block
+  ipv6_cidr_block         = try(each.value.ipv6_cidr_block, null)
   availability_zone       = each.key
   vpc_id                  = var.vpc_id
   map_public_ip_on_launch = var.map_public_ip_on_launch

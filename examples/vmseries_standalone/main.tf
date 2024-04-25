@@ -18,29 +18,38 @@ module "vpc" {
 
 ### SUBNETS ###
 
-resource "aws_subnet" "subnets" {
-  for_each          = local.merged_subnets
-  vpc_id            = module.vpc[split("-", each.key)[0]].id
-  cidr_block        = each.value.cidr
-  ipv6_cidr_block   = try(cidrsubnet(module.vpc[split("-", each.key)[0]].vpc.ipv6_cidr_block, 8, each.value.ipv6_index), null)
-  availability_zone = each.value.az
-  tags = {
-    Name = "${var.name_prefix}${split("-", each.key)[1]}"
-  }
-}
+module "subnet_sets" {
+  for_each = toset(flatten([for _, v in { for vk, vv in var.vpcs : vk => distinct([for sk, sv in vv.subnets : "${vk}-${sv.set}"]) } : v]))
+  source   = "../../modules/subnet_set"
 
-resource "aws_route_table" "route_tables" {
-  for_each = local.merged_subnets
-  vpc_id   = module.vpc[split("-", each.key)[0]].id
-  tags = {
-    Name = "${var.name_prefix}${split("-", each.key)[1]}"
+  name                = split("-", each.key)[1]
+  vpc_id              = module.vpc[split("-", each.key)[0]].id
+  has_secondary_cidrs = module.vpc[split("-", each.key)[0]].has_secondary_cidrs
+  nacl_associations = {
+    for i in flatten([
+      for vk, vv in var.vpcs : [
+        for sk, sv in vv.subnets :
+        {
+          az : sv.az,
+          nacl_id : lookup(module.vpc[split("-", each.key)[0]].nacl_ids, sv.nacl, null)
+        } if sv.nacl != null && each.key == "${vk}-${sv.set}"
+    ]]) : i.az => i.nacl_id
   }
-}
-
-resource "aws_route_table_association" "rt_associate" {
-  for_each       = local.merged_subnets
-  subnet_id      = aws_subnet.subnets[each.key].id
-  route_table_id = aws_route_table.route_tables[each.key].id
+  cidrs = {
+    for i in flatten([
+      for vk, vv in var.vpcs : [
+        for sk, sv in vv.subnets :
+        {
+          cidr = sk,
+          subnet = {
+            az        = sv.az
+            nacl      = sv.nacl
+            set       = sv.set
+            ipv6_cidr = try(cidrsubnet(module.vpc[split("-", each.key)[0]].vpc.ipv6_cidr_block, 8, sv.ipv6_index), null)
+          }
+        } if each.key == "${vk}-${sv.set}"
+    ]]) : i.cidr => i.subnet
+  }
 }
 
 ### ROUTES ###
@@ -58,20 +67,13 @@ locals {
       }
     ]
   ]))
-  subnets = { for vk, vv in var.vpcs : vk => { for sk, sv in vv.subnets : "${vk}-${sv.set}" => merge(sv, { cidr = sk }) } }
-  merged_subnets = merge([for vk, vv in local.subnets : { for sk, sv in vv : sk => {
-    az         = sv.az
-    ipv6_index = sv.ipv6_index
-    nacl       = sv.nacl
-    cidr       = sv.cidr
-  set = sv.set } }]...)
 }
 
 module "vpc_routes" {
   for_each = { for route in local.vpc_routes : "${route.subnet_key}_${route.to_cidr}" => route }
   source   = "../../modules/vpc_route"
 
-  route_table_ids  = { for k, v in aws_route_table.route_tables : k => v.id if k == each.value.subnet_key }
+  route_table_ids  = module.subnet_sets[each.value.subnet_key].unique_route_table_ids
   to_cidr          = each.value.to_cidr
   destination_type = try(each.value.destination_type, null)
   next_hop_set     = each.value.next_hop_set
@@ -151,7 +153,7 @@ module "vmseries" {
       private_ips        = [v.private_ip[each.value.instance]]
       security_group_ids = try([module.vpc[each.value.common.vpc].security_group_ids[v.security_group]], [])
       source_dest_check  = try(v.source_dest_check, false)
-      subnet_id          = aws_subnet.subnets[v.vpc_subnet].id
+      subnet_id          = module.subnet_sets[v.vpc_subnet].subnets[each.value.az].id
       create_public_ip   = try(v.create_public_ip, false)
       eip_allocation_id  = try(v.eip_allocation_id[each.value.instance], null)
       ipv6_address_count = try(v.ipv6_address_count, null)

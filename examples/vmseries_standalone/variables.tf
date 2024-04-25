@@ -23,7 +23,7 @@ variable "vpcs" {
   Following properties are available:
   - `name`: VPC name
   - `cidr`: CIDR for VPC
-  - `assign_generated_ipv6_cidr_block`: "A boolean flag to assign AWS-provided /56 IPv6 CIDR block."
+  - `assign_generated_ipv6_cidr_block`: A boolean flag to assign AWS-provided /56 IPv6 CIDR block.
   - `nacls`: map of network ACLs
   - `security_groups`: map of security groups
   - `subnets`: map of subnets with properties:
