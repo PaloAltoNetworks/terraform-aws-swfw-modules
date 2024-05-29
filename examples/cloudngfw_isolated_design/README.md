@@ -70,7 +70,7 @@ resource "aws_iam_role" "ngfw_role" {
 }
 
 ```
-- Update appriopate values for terraform variables ```var.provider_account``` and ``var.provider_role```.
+- Update appriopate values for terraform variables ```var.provider_account``` and ``var.provider_role``.
 
 ## Reference
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

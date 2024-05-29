@@ -12,7 +12,7 @@ global_tags = {
   Owner       = "PS Team"
 }
 
-ssh_key_name = "ssh_key" # TODO: update here
+ssh_key_name = "example-ssh-key" # TODO: update here
 
 ### VPC
 vpcs = {
