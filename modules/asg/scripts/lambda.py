@@ -192,7 +192,18 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
 
         self.logger.debug(f"DEBUG: create_interface: instance_id={instance_id}, subnet_id={subnet_id}, sg_id={sg_id}")
         try:
-            network_interface = self.ec2_client.create_network_interface(SubnetId=subnet_id, Groups=[sg_id])
+            tags = loads(getenv('lambda_config')).get('tags')
+            tag_specifications = [{'Key': k, 'Value': v} for k, v in tags.items()]
+            network_interface = self.ec2_client.create_network_interface(
+                SubnetId=subnet_id,
+                Groups=[sg_id],
+                TagSpecifications=[
+                    {
+                        'ResourceType': 'network-interface',
+                        'Tags': tag_specifications
+                    },
+                ]
+            )
             network_interface_id = network_interface['NetworkInterface']['NetworkInterfaceId']
             self.logger.info(f"Created network interface: {network_interface_id}")
             return network_interface_id

@@ -44,6 +44,7 @@ locals {
   }
   lambda_config = {
     region = var.region
+    tags   = local.tags_merged
   }
 }
 
@@ -221,11 +222,14 @@ resource "aws_iam_role_policy" "lambda_iam_policy_default" {
                 "ec2:AssociateAddress",
                 "ec2:AttachNetworkInterface",
                 "ec2:CreateNetworkInterface",
+                "ec2:CreateTags",
                 "ec2:DescribeAddresses",
                 "ec2:DescribeInstances",
                 "ec2:DescribeNetworkInterfaces",
+                "ec2:DescribeTags",
                 "ec2:DescribeSubnets",
                 "ec2:DeleteNetworkInterface",
+                "ec2:DeleteTags",
                 "ec2:DetachNetworkInterface",
                 "ec2:DisassociateAddress",
                 "ec2:ModifyNetworkInterfaceAttribute",
