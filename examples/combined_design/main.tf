@@ -173,30 +173,59 @@ module "gwlbe_endpoint" {
 
 locals {
   # Flatten the VPCs and their routes into a list of maps, each containing the VPC name, subnet name, and route details.
-  vpc_routes = flatten(concat([
+  # In TFVARS there is no possibility to define ID of the next hop, so we need to use the key of the next hop e.g.name =
+  #
+  #    tgw_default = {
+  #      vpc           = "security_vpc"
+  #      subnet        = "tgw_attach"
+  #      to_cidr       = "0.0.0.0/0"
+  #      next_hop_key  = "security_gwlb_outbound"
+  #      next_hop_type = "gwlbe_endpoint"
+  #    }
+  #
+  # Value of `next_hop_type` defines the type of the next hop. It can be one of the following:
+  # - internet_gateway
+  # - nat_gateway
+  # - transit_gateway_attachment
+  # - gwlbe_endpoint
+  #
+  # If more next hop types are needed, they can be added below.
+  #
+  # Value of `next_hop_key` is the key of the next hop.
+  # It is used to reference the next hop in the module that manages it.
+  #
+  # Value of `to_cidr` is the CIDR of the destination.
+
+  vpc_routes_with_next_hop_map = flatten(concat([
     for vk, vv in var.vpcs : [
       for rk, rv in vv.routes : {
-        subnet_key = "${rv.vpc}-${rv.subnet}"
-        to_cidr    = rv.to_cidr
-        next_hop_set = (
-          rv.next_hop_type == "internet_gateway" ? module.vpc[rv.next_hop_key].igw_as_next_hop_set : (
-            rv.next_hop_type == "nat_gateway" ? module.natgw_set[rv.next_hop_key].next_hop_set : (
-              rv.next_hop_type == "transit_gateway_attachment" ? module.transit_gateway_attachment[rv.next_hop_key].next_hop_set : (
-                rv.next_hop_type == "gwlbe_endpoint" ? module.gwlbe_endpoint[rv.next_hop_key].next_hop_set : null
-              )
-            )
-          )
-        )
+        vpc           = rv.vpc
+        subnet        = rv.subnet
+        to_cidr       = rv.to_cidr
+        next_hop_type = rv.next_hop_type
+        next_hop_map = {
+          "internet_gateway"           = try(module.vpc[rv.next_hop_key].igw_as_next_hop_set, null)
+          "nat_gateway"                = try(module.natgw_set[rv.next_hop_key].next_hop_set, null)
+          "transit_gateway_attachment" = try(module.transit_gateway_attachment[rv.next_hop_key].next_hop_set, null)
+          "gwlbe_endpoint"             = try(module.gwlbe_endpoint[rv.next_hop_key].next_hop_set, null)
+        }
       }
-    ]
-  ]))
+  ]]))
+  vpc_routes = {
+    for route in local.vpc_routes_with_next_hop_map : "${route.vpc}-${route.subnet}-${route.to_cidr}" => {
+      vpc          = route.vpc
+      subnet       = route.subnet
+      to_cidr      = route.to_cidr
+      next_hop_set = lookup(route.next_hop_map, route.next_hop_type, null)
+    }
+  }
 }
 
 module "vpc_routes" {
-  for_each = { for route in local.vpc_routes : "${route.subnet_key}_${route.to_cidr}" => route }
+  for_each = local.vpc_routes
   source   = "../../modules/vpc_route"
 
-  route_table_ids = module.subnet_sets[each.value.subnet_key].unique_route_table_ids
+  route_table_ids = module.subnet_sets["${each.value.vpc}-${each.value.subnet}"].unique_route_table_ids
   to_cidr         = each.value.to_cidr
   next_hop_set    = each.value.next_hop_set
 }
