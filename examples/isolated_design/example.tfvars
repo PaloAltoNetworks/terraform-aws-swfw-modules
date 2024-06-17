@@ -107,7 +107,6 @@ vpcs = {
             type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
             cidr_blocks = ["10.0.0.0/8"]
           }
-
         }
       }
       vmseries_public = {
