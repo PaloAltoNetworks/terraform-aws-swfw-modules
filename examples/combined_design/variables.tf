@@ -114,9 +114,15 @@ variable "vpcs" {
       }))
     }))
     subnets = map(object({
-      az   = string
-      set  = string
-      nacl = optional(string)
+      az                      = string
+      set                     = string
+      nacl                    = optional(string)
+      create_subnet           = optional(bool, true)
+      create_route_table      = optional(bool, true)
+      existing_route_table_id = optional(string)
+      associate_route_table   = optional(bool, true)
+      route_table_name        = optional(string)
+      local_tags              = optional(map(string), {})
     }))
     routes = map(object({
       vpc           = string
