@@ -135,7 +135,6 @@ module "vpc_routes" {
   next_hop_set    = each.value.next_hop_set
 }
 
-
 ### NATGW ###
 
 module "natgw_set" {
