@@ -12,7 +12,6 @@ ssh_key_name = "example-ssh-key" # TODO: update here
 
 ### VPC
 vpcs = {
-  # Do not use `-` in key for VPC as this character is used in concatation of VPC and subnet for module `subnet_set` in `main.tf`
   security_vpc = {
     name = "security-vpc"
     cidr = "10.100.0.0/16"
@@ -154,8 +153,6 @@ vpcs = {
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "security_vpc"
         next_hop_type = "internet_gateway"
-        # next_hop_key  = "security_nat_gw"
-        # next_hop_type = "nat_gateway"
       }
       mgmt_panorama = {
         vpc           = "security_vpc"
@@ -206,20 +203,6 @@ vpcs = {
         next_hop_key  = "security"
         next_hop_type = "transit_gateway_attachment"
       }
-      # nat_default = {
-      #   vpc           = "security_vpc"
-      #   subnet        = "natgw"
-      #   to_cidr       = "0.0.0.0/0"
-      #   next_hop_key  = "security_vpc"
-      #   next_hop_type = "internet_gateway"
-      # }
-      # nat_rfc1918 = {
-      #   vpc           = "security_vpc"
-      #   subnet        = "natgw"
-      #   to_cidr       = "10.0.0.0/8"
-      #   next_hop_key  = "security_gwlb_outbound"
-      #   next_hop_type = "gwlbe_endpoint"
-      # }
     }
   }
   app1_vpc = {
