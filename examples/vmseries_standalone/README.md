@@ -118,6 +118,6 @@ Use a web browser to access https://x.x.x.x and login with admin and your previo
 
 | Name | Description |
 |------|-------------|
-| <a name="output_vm_series_ipv6_addresses"></a> [vm\_series\_ipv6\_addresses](#output\_vm\_series\_ipv6\_addresses) | Map of IPv6 addresses assigned to interfaces in `vmseries` module instances. |
+| <a name="output_vmseries_ipv6_addresses"></a> [vmseries\_ipv6\_addresses](#output\_vmseries\_ipv6\_addresses) | Map of IPv6 addresses assigned to interfaces in `vmseries` module instances. |
 | <a name="output_vmseries_public_ips"></a> [vmseries\_public\_ips](#output\_vmseries\_public\_ips) | Map of public IPs created within `vmseries` module instances. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

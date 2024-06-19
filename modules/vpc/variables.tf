@@ -167,6 +167,11 @@ variable "security_groups" {
           type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
           cidr_blocks = ["0.0.0.0/0"]
         }
+        all-outbound-ipv6 = {
+          description = "Permit All traffic outbound"
+          type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+          cidr_blocks = ["::/0"]
+        }
         https-inbound-private = {
           description = "Permit HTTPS for VM-Series Management"
           type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
