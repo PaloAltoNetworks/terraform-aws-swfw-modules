@@ -128,12 +128,6 @@ locals {
   }
 }
 
-# rv.next_hop_type == "vpc_peer" && var.panorama_connection.peering_vpc_id != null ? {
-#   type = "vpc_peer"
-#   id   = aws_vpc_peering_connection.this[0].id
-#   ids  = {}
-# }
-
 module "vpc_routes" {
   for_each = local.vpc_routes
   source   = "../../modules/vpc_route"
