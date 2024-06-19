@@ -84,12 +84,41 @@ variable "vpcs" {
   EOF
   default     = {}
   type = map(object({
-    name            = string
-    cidr            = string
-    security_groups = any
+    name = string
+    cidr = string
+    nacls = map(object({
+      name = string
+      rules = map(object({
+        rule_number = number
+        egress      = bool
+        protocol    = string
+        rule_action = string
+        cidr_block  = string
+        from_port   = optional(string)
+        to_port     = optional(string)
+      }))
+    }))
+    security_groups = map(object({
+      name = string
+      rules = map(object({
+        description = string
+        type        = string
+        from_port   = string
+        to_port     = string
+        protocol    = string
+        cidr_blocks = list(string)
+      }))
+    }))
     subnets = map(object({
-      az  = string
-      set = string
+      az                      = string
+      set                     = string
+      nacl                    = optional(string)
+      create_subnet           = optional(bool, true)
+      create_route_table      = optional(bool, true)
+      existing_route_table_id = optional(string)
+      associate_route_table   = optional(bool, true)
+      route_table_name        = optional(string)
+      local_tags              = optional(map(string), {})
     }))
     routes = map(object({
       vpc           = string

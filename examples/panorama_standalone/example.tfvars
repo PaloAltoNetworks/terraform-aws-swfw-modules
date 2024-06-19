@@ -14,8 +14,9 @@ ssh_key_name = "example-ssh-key" # TODO: update here
 vpcs = {
   # Do not use `-` in key for VPC as this character is used in concatation of VPC and subnet for module `subnet_set` in `main.tf`
   management_vpc = {
-    name = "management-vpc"
-    cidr = "10.255.0.0/16"
+    name  = "management-vpc"
+    cidr  = "10.255.0.0/16"
+    nacls = {}
     security_groups = {
       panorama_mgmt = {
         name = "panorama_mgmt"

@@ -30,7 +30,8 @@ variable "vpcs" {
      - `set`: internal identifier referenced by main.tf
      - `nacl`: key of NACL (can be null)
   - `routes`: map of routes with properties:
-     - `vpc_subnet` - built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
+     - `vpc` - key of VPC
+     - `subnet` - key of subnet
      - `next_hop_key` - must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
      - `next_hop_type` - internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
 
@@ -73,7 +74,8 @@ variable "vpcs" {
       }
       routes = {
         vm_default = {
-          vpc_subnet    = "app1_vpc-app1_vm"
+          vpc           = "app1_vpc"
+          subnet        = "app1_vm"
           to_cidr       = "0.0.0.0/0"
           next_hop_key  = "app1"
           next_hop_type = "transit_gateway_attachment"
@@ -95,18 +97,35 @@ variable "vpcs" {
         protocol    = string
         rule_action = string
         cidr_block  = string
-        from_port   = string
-        to_port     = string
+        from_port   = optional(string)
+        to_port     = optional(string)
       }))
     }))
-    security_groups = any
+    security_groups = map(object({
+      name = string
+      rules = map(object({
+        description = string
+        type        = string
+        from_port   = string
+        to_port     = string
+        protocol    = string
+        cidr_blocks = list(string)
+      }))
+    }))
     subnets = map(object({
-      az   = string
-      set  = string
-      nacl = string
+      az                      = string
+      set                     = string
+      nacl                    = optional(string)
+      create_subnet           = optional(bool, true)
+      create_route_table      = optional(bool, true)
+      existing_route_table_id = optional(string)
+      associate_route_table   = optional(bool, true)
+      route_table_name        = optional(string)
+      local_tags              = optional(map(string), {})
     }))
     routes = map(object({
-      vpc_subnet    = string
+      vpc           = string
+      subnet        = string
       to_cidr       = string
       next_hop_key  = string
       next_hop_type = string
@@ -151,7 +170,8 @@ variable "vmseries" {
           device_index      = 1
           private_ip        = "10.100.0.4"
           security_group    = "vmseries_mgmt"
-          vpc_subnet        = "security_vpc-mgmt"
+          vpc               = "security_vpc"
+          subnet            = "mgmt"
           create_public_ip  = true
           source_dest_check = true
           eip_allocation_id = null
@@ -188,7 +208,8 @@ variable "vmseries" {
       device_index      = number
       private_ip        = map(string)
       security_group    = string
-      vpc_subnet        = string
+      vpc               = string
+      subnet            = string
       create_public_ip  = bool
       source_dest_check = bool
       eip_allocation_id = map(string)

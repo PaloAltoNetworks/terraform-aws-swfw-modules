@@ -16,24 +16,61 @@ module "vpc" {
 
 ### SUBNETS ###
 
+locals {
+  # Flatten the VPCs and their subnets into a list of maps, each containing the VPC name, subnet name, and subnet details.
+  subnets_in_vpcs = flatten([for vk, vv in var.vpcs : [for sk, sv in vv.subnets :
+    {
+      cidr                    = sk
+      nacl                    = sv.nacl
+      az                      = sv.az
+      subnet                  = sv.set
+      vpc                     = vk
+      create_subnet           = try(sv.create_subnet, true)
+      create_route_table      = try(sv.create_route_table, sv.create_subnet, true)
+      existing_route_table_id = try(sv.existing_route_table_id, null)
+      associate_route_table   = try(sv.associate_route_table, true)
+      route_table_name        = try(sv.route_table_name, null)
+      local_tags              = try(sv.local_tags, {})
+    }
+  ]])
+  # Create a map of subnets, keyed by the VPC name and subnet name.
+  subnets_with_lists = { for subnet_in_vpc in local.subnets_in_vpcs : "${subnet_in_vpc.vpc}-${subnet_in_vpc.subnet}" => subnet_in_vpc... }
+  subnets = { for key, value in local.subnets_with_lists : key => {
+    vpc                     = distinct([for v in value : v.vpc])[0]                               # VPC name (always take first from the list as key is limitting number of VPCs)
+    subnet                  = distinct([for v in value : v.subnet])[0]                            # Subnet name (always take first from the list as key is limitting number of subnets)
+    az                      = [for v in value : v.az]                                             # List of AZs
+    cidr                    = [for v in value : v.cidr]                                           # List of CIDRs
+    nacl                    = compact([for v in value : v.nacl])                                  # List of NACLs
+    create_subnet           = [for v in value : try(v.create_subnet, true)]                       # List of create_subnet flags
+    create_route_table      = [for v in value : try(v.create_route_table, v.create_subnet, true)] # List of create_route_table flags
+    existing_route_table_id = [for v in value : try(v.existing_route_table_id, null)]             # List of existing_route_table_id values
+    associate_route_table   = [for v in value : try(v.associate_route_table, true)]               # List of associate_route_table flags
+    route_table_name        = [for v in value : try(v.route_table_name, null)]                    # List of route_table_name values
+    local_tags              = [for v in value : try(v.local_tags, {})]                            # List of local_tags maps
+  } }
+}
+
 module "subnet_sets" {
-  for_each = toset(flatten([for _, v in { for vk, vv in var.vpcs : vk => distinct([for sk, sv in vv.subnets : "${vk}-${sv.set}"]) } : v]))
+  for_each = local.subnets
   source   = "../../modules/subnet_set"
 
-  name                = split("-", each.key)[1]
-  vpc_id              = module.vpc[split("-", each.key)[0]].id
-  has_secondary_cidrs = module.vpc[split("-", each.key)[0]].has_secondary_cidrs
-  nacl_associations   = {}
-  cidrs = {
-    for i in flatten([
-      for vk, vv in var.vpcs : [
-        for sk, sv in vv.subnets :
-        {
-          cidr : sk,
-          subnet : sv
-        } if each.key == "${vk}-${sv.set}"
-    ]]) : i.cidr => i.subnet
+  name                = each.value.subnet
+  vpc_id              = module.vpc[each.value.vpc].id
+  has_secondary_cidrs = module.vpc[each.value.vpc].has_secondary_cidrs
+  nacl_associations = {
+    for index, az in each.value.az : az =>
+    lookup(module.vpc[each.value.vpc].nacl_ids, each.value.nacl[index], null) if length(each.value.nacl) > 0
   }
+  cidrs = {
+    for index, cidr in each.value.cidr : cidr => {
+      az                      = each.value.az[index]
+      create_subnet           = each.value.create_subnet[index]
+      create_route_table      = each.value.create_route_table[index]
+      existing_route_table_id = each.value.existing_route_table_id[index]
+      associate_route_table   = each.value.associate_route_table[index]
+      route_table_name        = each.value.route_table_name[index]
+      local_tags              = each.value.local_tags[index]
+  } }
 }
 
 ### ROUTES ###
@@ -52,9 +89,9 @@ locals {
   #
   # Value of `next_hop_type` defines the type of the next hop. It can be one of the following:
   # - internet_gateway
-  # 
+  #
   # Please note, that in this example only internet_gateway is allowed, because no NAT Gateway, TGW or GWLB endpoints are created in main.tf
-  # 
+  #
   # If more next hop types are needed, they can be added below.
   #
   # Value of `next_hop_key` is the key of the next hop.
