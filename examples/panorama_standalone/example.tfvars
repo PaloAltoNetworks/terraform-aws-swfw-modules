@@ -44,11 +44,11 @@ vpcs = {
       "10.255.1.0/24" = { az = "eu-west-1b", set = "mgmt" }
     }
     routes = {
-      # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
       # Value of `next_hop_key` must match keys used to create TGW attachment, IGW, GWLB endpoint or other resources
       # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       mgmt_default = {
-        vpc_subnet    = "management_vpc-mgmt"
+        vpc           = "management_vpc"
+        subnet        = "mgmt"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "management_vpc"
         next_hop_type = "internet_gateway"
@@ -75,7 +75,7 @@ panoramas = {
 
     network = {
       vpc              = "management_vpc"
-      vpc_subnet       = "management_vpc-mgmt"
+      subnet           = "mgmt"
       security_group   = "panorama_mgmt"
       create_public_ip = true
     }
