@@ -99,16 +99,6 @@ vpcs = {
             type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
             cidr_blocks = ["10.0.0.0/8"]
           }
-          panorama_mgmt = {
-            description = "Permit Panorama Management"
-            type        = "ingress", from_port = "3978", to_port = "3978", protocol = "tcp"
-            cidr_blocks = ["10.0.0.0/8"]
-          }
-          panorama_log = {
-            description = "Permit Panorama Logging"
-            type        = "ingress", from_port = "28443", to_port = "28443", protocol = "tcp"
-            cidr_blocks = ["10.0.0.0/8"]
-          }
         }
       }
       vmseries_public = {
