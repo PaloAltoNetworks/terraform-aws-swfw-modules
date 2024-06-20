@@ -20,12 +20,15 @@ provider "aws" {
   region = var.region
 }
 
+locals {
+  provider = coalesce(var.provider_account, data.aws_caller_identity.current.account_id)
+}
 
 provider "cloudngfwaws" {
   region    = var.region
   host      = "api.${var.region}.aws.cloudngfw.paloaltonetworks.com"
-  lfa_arn   = "arn:aws:iam::${var.provider_account}:role/${var.provider_role}"
-  lra_arn   = "arn:aws:iam::${var.provider_account}:role/${var.provider_role}"
+  lfa_arn   = "arn:aws:iam::${local.provider}:role/${var.provider_role}"
+  lra_arn   = "arn:aws:iam::${local.provider}:role/${var.provider_role}"
   sync_mode = true
 }
 

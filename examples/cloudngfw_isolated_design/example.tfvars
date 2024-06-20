@@ -1,5 +1,5 @@
 ### Provider
-provider_account = "xxxxxxxx"
+provider_account = ""
 provider_role    = "cloudngfw"
 
 ### GENERAL
