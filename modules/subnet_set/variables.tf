@@ -14,6 +14,7 @@ variable "cidrs" {
   - `existing_route_table_id` - (Optional|string) Id of an existing route table to associate with the subnet.
   - `name`                    - (Optional|string) Name (tag) of a subnet and, optionally a route table, to create or use. Defaults to set name appended with zone letter id.
   - `route_table_name`        - (Optional|string) Name (tag) of a subnet and, optionally a route table, to create or use.  Defaults to `name` value.
+  - `ipv6_cidr_block`         - (Optional|string) IPv6 CIDR block. The subnet size must use a /64 prefix length.
   - `local_tags`              - (Optional|map) Map of tags to assign to created resources.
   EOF
   type        = map(any)

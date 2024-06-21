@@ -92,6 +92,7 @@ variable "interfaces" {
   - `create_public_ip`   = (Optional|bool) Whether to create a public IP for the ENI. Defaults to false.
   - `eip_allocation_id`  = (Optional|string) Associate an existing EIP to the ENI.
   - `private_ips`        = (Optional|list) List of private IPs to assign to the ENI. If not set, dynamic allocation is used.
+  - `ipv6_address_count` = (Optional|number) Number of IPv6 addresses that will be assigned to the interface (use only when IPv6 enabled in the subnet). Defaults to null.
   - `public_ipv4_pool`   = (Optional|string) EC2 IPv4 address pool identifier. 
   - `source_dest_check`  = (Optional|bool) Whether to enable source destination checking for the ENI. Defaults to false.
   - `security_group_ids` = (Optional|list) A list of Security Group IDs to assign to this interface. Defaults to null.

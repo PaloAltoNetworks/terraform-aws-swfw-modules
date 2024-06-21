@@ -23,16 +23,19 @@ variable "vpcs" {
   Following properties are available:
   - `name`: VPC name
   - `cidr`: CIDR for VPC
+  - `assign_generated_ipv6_cidr_block`: A boolean flag to assign AWS-provided /56 IPv6 CIDR block.
   - `nacls`: map of network ACLs
   - `security_groups`: map of security groups
   - `subnets`: map of subnets with properties:
      - `az`: availability zone
      - `set`: internal identifier referenced by main.tf
      - `nacl`: key of NACL (can be null)
+     - `ipv6_index` - choose index for auto-generated IPv6 CIDR, must be null while used with IPv4 only
   - `routes`: map of routes with properties:
      - `vpc_subnet` - built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
      - `next_hop_key` - must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
      - `next_hop_type` - internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
+     - `destination_type` - provide destination type. Available options `ipv4`, `ipv6`, `mpl`
 
   Example:
   ```
@@ -85,8 +88,9 @@ variable "vpcs" {
   EOF
   default     = {}
   type = map(object({
-    name = string
-    cidr = string
+    name                             = string
+    cidr                             = string
+    assign_generated_ipv6_cidr_block = bool
     nacls = map(object({
       name = string
       rules = map(object({
@@ -101,15 +105,17 @@ variable "vpcs" {
     }))
     security_groups = any
     subnets = map(object({
-      az   = string
-      set  = string
-      nacl = string
+      az         = string
+      set        = string
+      nacl       = string
+      ipv6_index = number
     }))
     routes = map(object({
-      vpc_subnet    = string
-      to_cidr       = string
-      next_hop_key  = string
-      next_hop_type = string
+      vpc_subnet       = string
+      to_cidr          = string
+      destination_type = string
+      next_hop_key     = string
+      next_hop_type    = string
     }))
   }))
 }
@@ -185,13 +191,14 @@ variable "vmseries" {
     vpc = string
 
     interfaces = map(object({
-      device_index      = number
-      private_ip        = map(string)
-      security_group    = string
-      vpc_subnet        = string
-      create_public_ip  = bool
-      source_dest_check = bool
-      eip_allocation_id = map(string)
+      device_index       = number
+      private_ip         = map(string)
+      security_group     = string
+      vpc_subnet         = string
+      create_public_ip   = bool
+      ipv6_address_count = number
+      source_dest_check  = bool
+      eip_allocation_id  = map(string)
     }))
   }))
 }
