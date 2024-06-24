@@ -16,7 +16,7 @@ vpcs = {
   security_vpc = {
     name                             = "security-vpc"
     cidr                             = "10.100.0.0/16"
-    assign_generated_ipv6_cidr_block = false
+    assign_generated_ipv6_cidr_block = true
     nacls                            = {}
     security_groups = {
       vmseries_mgmt = {
@@ -27,15 +27,30 @@ vpcs = {
             type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
             cidr_blocks = ["0.0.0.0/0"]
           }
+          all_outbound_ipv6 = {
+            description      = "Permit All traffic outbound"
+            type             = "egress", from_port = "0", to_port = "0", protocol = "-1"
+            ipv6_cidr_blocks = ["::/0"]
+          }
           https = {
             description = "Permit HTTPS"
             type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
             cidr_blocks = ["0.0.0.0/0"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
           }
+          https_ipv6 = {
+            description      = "Permit HTTPS"
+            type             = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
+            ipv6_cidr_blocks = ["::/0"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
+          }
           ssh = {
             description = "Permit SSH"
             type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
             cidr_blocks = ["0.0.0.0/0"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
+          }
+          ssh_ipv6 = {
+            description      = "Permit SSH"
+            type             = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
+            ipv6_cidr_blocks = ["::/0"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
           }
         }
       }
@@ -43,9 +58,10 @@ vpcs = {
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf
       # Value of `nacl` must match key of objects stored in `nacls`
-      "10.100.0.0/24" = { az = "eu-west-1a", set = "mgmt", nacl = null, ipv6_index = null }
+      "10.100.0.0/24" = { az = "eu-west-1a", set = "mgmt", nacl = null, ipv6_index = 1 }
     }
     routes = {
+      # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
       # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       mgmt_default = {
@@ -53,6 +69,14 @@ vpcs = {
         subnet           = "mgmt"
         to_cidr          = "0.0.0.0/0"
         destination_type = "ipv4"
+        next_hop_key     = "security_vpc"
+        next_hop_type    = "internet_gateway"
+      }
+      mgmt_default_ipv6 = {
+        vpc              = "security_vpc"
+        subnet           = "mgmt"
+        to_cidr          = "::/0"
+        destination_type = "ipv6"
         next_hop_key     = "security_vpc"
         next_hop_type    = "internet_gateway"
       }
@@ -95,7 +119,7 @@ vmseries = {
         security_group     = "vmseries_mgmt"
         vpc                = "security_vpc"
         subnet             = "mgmt"
-        ipv6_address_count = 0
+        ipv6_address_count = 1
         create_public_ip   = true
         source_dest_check  = true
         eip_allocation_id = {

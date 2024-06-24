@@ -5,14 +5,15 @@ module "vpc" {
 
   for_each = var.vpcs
 
-  name                    = "${var.name_prefix}${each.value.name}"
-  cidr_block              = each.value.cidr
-  nacls                   = each.value.nacls
-  security_groups         = each.value.security_groups
-  create_internet_gateway = true
-  enable_dns_hostnames    = true
-  enable_dns_support      = true
-  instance_tenancy        = "default"
+  name                             = "${var.name_prefix}${each.value.name}"
+  cidr_block                       = each.value.cidr
+  assign_generated_ipv6_cidr_block = each.value.assign_generated_ipv6_cidr_block
+  nacls                            = each.value.nacls
+  security_groups                  = each.value.security_groups
+  create_internet_gateway          = true
+  enable_dns_hostnames             = true
+  enable_dns_support               = true
+  instance_tenancy                 = "default"
 }
 
 ### SUBNETS ###
@@ -22,6 +23,7 @@ locals {
   subnets_in_vpcs = flatten([for vk, vv in var.vpcs : [for sk, sv in vv.subnets :
     {
       cidr                    = sk
+      ipv6_cidr               = try(cidrsubnet(module.vpc[vk].vpc.ipv6_cidr_block, 8, sv.ipv6_index), null)
       nacl                    = sv.nacl
       az                      = sv.az
       subnet                  = sv.set
@@ -103,10 +105,11 @@ locals {
   vpc_routes_with_next_hop_map = flatten(concat([
     for vk, vv in var.vpcs : [
       for rk, rv in vv.routes : {
-        vpc           = rv.vpc
-        subnet        = rv.subnet
-        to_cidr       = rv.to_cidr
-        next_hop_type = rv.next_hop_type
+        vpc              = rv.vpc
+        subnet           = rv.subnet
+        to_cidr          = rv.to_cidr
+        destination_type = rv.destination_type
+        next_hop_type    = rv.next_hop_type
         next_hop_map = {
           "internet_gateway" = try(module.vpc[rv.next_hop_key].igw_as_next_hop_set, null)
         }
@@ -114,10 +117,11 @@ locals {
   ]]))
   vpc_routes = {
     for route in local.vpc_routes_with_next_hop_map : "${route.vpc}-${route.subnet}-${route.to_cidr}" => {
-      vpc          = route.vpc
-      subnet       = route.subnet
-      to_cidr      = route.to_cidr
-      next_hop_set = lookup(route.next_hop_map, route.next_hop_type, null)
+      vpc              = route.vpc
+      subnet           = route.subnet
+      to_cidr          = route.to_cidr
+      destination_type = route.destination_type
+      next_hop_set     = lookup(route.next_hop_map, route.next_hop_type, null)
     }
   }
 }
@@ -126,9 +130,10 @@ module "vpc_routes" {
   for_each = local.vpc_routes
   source   = "../../modules/vpc_route"
 
-  route_table_ids = module.subnet_sets["${each.value.vpc}-${each.value.subnet}"].unique_route_table_ids
-  to_cidr         = each.value.to_cidr
-  next_hop_set    = each.value.next_hop_set
+  route_table_ids  = module.subnet_sets["${each.value.vpc}-${each.value.subnet}"].unique_route_table_ids
+  to_cidr          = each.value.to_cidr
+  destination_type = each.value.destination_type
+  next_hop_set     = each.value.next_hop_set
 }
 
 
@@ -209,6 +214,7 @@ module "vmseries" {
       subnet_id          = module.subnet_sets["${v.vpc}-${v.subnet}"].subnets[each.value.az].id
       create_public_ip   = try(v.create_public_ip, false)
       eip_allocation_id  = try(v.eip_allocation_id[each.value.instance], null)
+      ipv6_address_count = try(v.ipv6_address_count, null)
     }
   }
 

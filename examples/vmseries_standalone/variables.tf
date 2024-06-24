@@ -23,17 +23,21 @@ variable "vpcs" {
   Following properties are available:
   - `name`: VPC name
   - `cidr`: CIDR for VPC
+  - `assign_generated_ipv6_cidr_block`: A boolean flag to assign AWS-provided /56 IPv6 CIDR block.
   - `nacls`: map of network ACLs
   - `security_groups`: map of security groups
   - `subnets`: map of subnets with properties:
      - `az`: availability zone
      - `set`: internal identifier referenced by main.tf
      - `nacl`: key of NACL (can be null)
+     - `ipv6_index` - choose index for auto-generated IPv6 CIDR, must be null while used with IPv4 only
   - `routes`: map of routes with properties:
      - `vpc` - key of VPC
      - `subnet` - key of subnet
+      - `to_cidr` - CIDR for route
      - `next_hop_key` - must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
      - `next_hop_type` - internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
+     - `destination_type` - provide destination type. Available options `ipv4`, `ipv6`, `mpl`
 
   Example:
   ```
@@ -77,6 +81,7 @@ variable "vpcs" {
           vpc           = "app1_vpc"
           subnet        = "app1_vm"
           to_cidr       = "0.0.0.0/0"
+          destination_type = "ipv4"
           next_hop_key  = "app1"
           next_hop_type = "transit_gateway_attachment"
         }
@@ -87,8 +92,9 @@ variable "vpcs" {
   EOF
   default     = {}
   type = map(object({
-    name = string
-    cidr = string
+    name                             = string
+    cidr                             = string
+    assign_generated_ipv6_cidr_block = bool
     nacls = map(object({
       name = string
       rules = map(object({
@@ -104,12 +110,13 @@ variable "vpcs" {
     security_groups = map(object({
       name = string
       rules = map(object({
-        description = string
-        type        = string
-        from_port   = string
-        to_port     = string
-        protocol    = string
-        cidr_blocks = list(string)
+        description      = string
+        type             = string
+        from_port        = string
+        to_port          = string
+        protocol         = string
+        cidr_blocks      = optional(list(string))
+        ipv6_cidr_blocks = optional(list(string))
       }))
     }))
     subnets = map(object({
@@ -121,14 +128,16 @@ variable "vpcs" {
       existing_route_table_id = optional(string)
       associate_route_table   = optional(bool, true)
       route_table_name        = optional(string)
+      ipv6_index              = number
       local_tags              = optional(map(string), {})
     }))
     routes = map(object({
-      vpc           = string
-      subnet        = string
-      to_cidr       = string
-      next_hop_key  = string
-      next_hop_type = string
+      vpc              = string
+      subnet           = string
+      to_cidr          = string
+      destination_type = string
+      next_hop_key     = string
+      next_hop_type    = string
     }))
   }))
 }
@@ -205,14 +214,15 @@ variable "vmseries" {
     vpc = string
 
     interfaces = map(object({
-      device_index      = number
-      private_ip        = map(string)
-      security_group    = string
-      vpc               = string
-      subnet            = string
-      create_public_ip  = bool
-      source_dest_check = bool
-      eip_allocation_id = map(string)
+      device_index       = number
+      security_group     = string
+      vpc                = string
+      subnet             = string
+      create_public_ip   = bool
+      private_ip         = map(string)
+      ipv6_address_count = number
+      source_dest_check  = bool
+      eip_allocation_id  = map(string)
     }))
   }))
 }

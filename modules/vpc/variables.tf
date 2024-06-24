@@ -149,6 +149,8 @@ variable "security_groups" {
       - `type`: Specifies if rule will be evaluated on ingress (inbound) or egress (outbound) traffic.
       - `cidr_blocks`: List of CIDR blocks - for ingress, determines the traffic that can reach your instance. For egress
       Determines the traffic that can leave your instance, and where it can go.
+      - `ipv6_cidr_blocks`: List of IPv6 CIDR blocks - for ingress, determines the traffic that can reach your instance. For egress
+      Determines the traffic that can leave your instance, and where it can go. Defaults to null. 
       - `prefix_list_ids`: List of Prefix List IDs
       - `self`: security group itself will be added as a source to the rule.  Cannot be specified with cidr_blocks, or security_groups.
       - `source_security_groups`: list of security group IDs to be used as a source to the rule. Cannot be specified with cidr_blocks, or self.
@@ -164,6 +166,11 @@ variable "security_groups" {
           description = "Permit All traffic outbound"
           type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
           cidr_blocks = ["0.0.0.0/0"]
+        }
+        all-outbound-ipv6 = {
+          description = "Permit All traffic outbound"
+          type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+          cidr_blocks = ["::/0"]
         }
         https-inbound-private = {
           description = "Permit HTTPS for VM-Series Management"
