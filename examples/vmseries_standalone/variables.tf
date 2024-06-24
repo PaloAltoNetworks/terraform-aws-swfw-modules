@@ -34,7 +34,7 @@ variable "vpcs" {
   - `routes`: map of routes with properties:
      - `vpc` - key of VPC
      - `subnet` - key of subnet
-      - `to_cidr` - CIDR for route
+     - `to_cidr` - CIDR for route
      - `next_hop_key` - must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
      - `next_hop_type` - internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
      - `destination_type` - provide destination type. Available options `ipv4`, `ipv6`, `mpl`

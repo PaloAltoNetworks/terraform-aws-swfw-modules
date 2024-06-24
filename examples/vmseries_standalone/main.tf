@@ -43,6 +43,7 @@ locals {
     subnet                  = distinct([for v in value : v.subnet])[0]                            # Subnet name (always take first from the list as key is limitting number of subnets)
     az                      = [for v in value : v.az]                                             # List of AZs
     cidr                    = [for v in value : v.cidr]                                           # List of CIDRs
+    ipv6_cidr               = [for v in value : try(v.ipv6_cidr, null)]                           # List of IPv6 CIDRs
     nacl                    = compact([for v in value : v.nacl])                                  # List of NACLs
     create_subnet           = [for v in value : try(v.create_subnet, true)]                       # List of create_subnet flags
     create_route_table      = [for v in value : try(v.create_route_table, v.create_subnet, true)] # List of create_route_table flags
@@ -73,6 +74,7 @@ module "subnet_sets" {
       associate_route_table   = each.value.associate_route_table[index]
       route_table_name        = each.value.route_table_name[index]
       local_tags              = each.value.local_tags[index]
+      ipv6_cidr               = each.value.ipv6_cidr[index]
   } }
 }
 
