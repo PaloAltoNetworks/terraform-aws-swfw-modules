@@ -90,6 +90,12 @@ resource "cloudngfwaws_ngfw_log_profile" "this" {
       log_type         = log_destination.value.log_type
     }
   }
+
+  lifecycle {
+    ignore_changes = [
+      account_id,
+    ]
+  }
 }
 
 resource "aws_cloudwatch_log_group" "this" {

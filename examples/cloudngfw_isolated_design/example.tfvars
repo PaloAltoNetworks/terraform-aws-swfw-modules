@@ -1,9 +1,9 @@
 ### Provider
-provider_account = "xxxxxxxx"
+provider_account = ""
 provider_role    = "cloudngfw"
 
 ### GENERAL
-region      = "us-east-1"  # TODO: update here
+region      = "eu-west-1"  # TODO: update here
 name_prefix = "cloudngfw-" # TODO: update here
 
 global_tags = {
@@ -12,7 +12,7 @@ global_tags = {
   Owner       = "PS Team"
 }
 
-ssh_key_name = "ssh_key" # TODO: update here
+ssh_key_name = "example-ssh-key" # TODO: update here
 
 ### VPC
 vpcs = {
@@ -70,16 +70,16 @@ vpcs = {
     }
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
-      "10.104.0.0/24"   = { az = "us-east-1a", set = "app1_vm", nacl = null }
-      "10.104.128.0/24" = { az = "us-east-1b", set = "app1_vm", nacl = null }
-      "10.104.2.0/24"   = { az = "us-east-1a", set = "app1_lb", nacl = null }
-      "10.104.130.0/24" = { az = "us-east-1b", set = "app1_lb", nacl = null }
-      "10.104.3.0/24"   = { az = "us-east-1a", set = "app1_gwlbe", nacl = null }
-      "10.104.131.0/24" = { az = "us-east-1b", set = "app1_gwlbe", nacl = null }
-      "10.104.4.0/24"   = { az = "us-east-1a", set = "app1_natgw", nacl = null }
-      "10.104.132.0/24" = { az = "us-east-1b", set = "app1_natgw", nacl = null }
-      "10.104.5.0/24"   = { az = "us-east-1a", set = "app1_gwlbe2", nacl = null }
-      "10.104.133.0/24" = { az = "us-east-1b", set = "app1_gwlbe2", nacl = null }
+      "10.104.0.0/24"   = { az = "eu-west-1a", set = "app1_vm", nacl = null }
+      "10.104.128.0/24" = { az = "eu-west-1b", set = "app1_vm", nacl = null }
+      "10.104.2.0/24"   = { az = "eu-west-1a", set = "app1_lb", nacl = null }
+      "10.104.130.0/24" = { az = "eu-west-1b", set = "app1_lb", nacl = null }
+      "10.104.3.0/24"   = { az = "eu-west-1a", set = "app1_gwlbe", nacl = null }
+      "10.104.131.0/24" = { az = "eu-west-1b", set = "app1_gwlbe", nacl = null }
+      "10.104.4.0/24"   = { az = "eu-west-1a", set = "app1_natgw", nacl = null }
+      "10.104.132.0/24" = { az = "eu-west-1b", set = "app1_natgw", nacl = null }
+      "10.104.5.0/24"   = { az = "eu-west-1a", set = "app1_gwlbe2", nacl = null }
+      "10.104.133.0/24" = { az = "eu-west-1b", set = "app1_gwlbe2", nacl = null }
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
@@ -182,16 +182,16 @@ vpcs = {
     }
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
-      "10.105.0.0/24"   = { az = "us-east-1a", set = "app2_vm", nacl = null }
-      "10.105.128.0/24" = { az = "us-east-1b", set = "app2_vm", nacl = null }
-      "10.105.2.0/24"   = { az = "us-east-1a", set = "app2_lb", nacl = null }
-      "10.105.130.0/24" = { az = "us-east-1b", set = "app2_lb", nacl = null }
-      "10.105.3.0/24"   = { az = "us-east-1a", set = "app2_gwlbe", nacl = null }
-      "10.105.131.0/24" = { az = "us-east-1b", set = "app2_gwlbe", nacl = null }
-      "10.105.4.0/24"   = { az = "us-east-1a", set = "app2_natgw", nacl = null }
-      "10.105.132.0/24" = { az = "us-east-1b", set = "app2_natgw", nacl = null }
-      "10.105.5.0/24"   = { az = "us-east-1a", set = "app2_gwlbe2", nacl = null }
-      "10.105.133.0/24" = { az = "us-east-1b", set = "app2_gwlbe2", nacl = null }
+      "10.105.0.0/24"   = { az = "eu-west-1a", set = "app2_vm", nacl = null }
+      "10.105.128.0/24" = { az = "eu-west-1b", set = "app2_vm", nacl = null }
+      "10.105.2.0/24"   = { az = "eu-west-1a", set = "app2_lb", nacl = null }
+      "10.105.130.0/24" = { az = "eu-west-1b", set = "app2_lb", nacl = null }
+      "10.105.3.0/24"   = { az = "eu-west-1a", set = "app2_gwlbe", nacl = null }
+      "10.105.131.0/24" = { az = "eu-west-1b", set = "app2_gwlbe", nacl = null }
+      "10.105.4.0/24"   = { az = "eu-west-1a", set = "app2_natgw", nacl = null }
+      "10.105.132.0/24" = { az = "eu-west-1b", set = "app2_natgw", nacl = null }
+      "10.105.5.0/24"   = { az = "eu-west-1a", set = "app2_gwlbe2", nacl = null }
+      "10.105.133.0/24" = { az = "eu-west-1b", set = "app2_gwlbe2", nacl = null }
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
@@ -258,28 +258,28 @@ natgws = {
 ### SPOKE VMS
 spoke_vms = {
   "app1_vm01" = {
-    az             = "us-east-1a"
+    az             = "eu-west-1a"
     vpc            = "app1_vpc"
     vpc_subnet     = "app1_vpc-app1_vm"
     security_group = "app1_vm"
     type           = "t3.micro"
   }
   "app1_vm02" = {
-    az             = "us-east-1b"
+    az             = "eu-west-1b"
     vpc            = "app1_vpc"
     vpc_subnet     = "app1_vpc-app1_vm"
     security_group = "app1_vm"
     type           = "t3.micro"
   }
   "app2_vm01" = {
-    az             = "us-east-1a"
+    az             = "eu-west-1a"
     vpc            = "app2_vpc"
     vpc_subnet     = "app2_vpc-app2_vm"
     security_group = "app2_vm"
     type           = "t3.micro"
   }
   "app2_vm02" = {
-    az             = "us-east-1b"
+    az             = "eu-west-1b"
     vpc            = "app2_vpc"
     vpc_subnet     = "app2_vpc-app2_vm"
     security_group = "app2_vm"
