@@ -51,8 +51,9 @@ locals {
 }
 
 module "subnet_sets" {
+  source = "../../modules/subnet_set"
+
   for_each = local.subnets
-  source   = "../../modules/subnet_set"
 
   name                = each.value.subnet
   vpc_id              = module.vpc[each.value.vpc].id
@@ -122,8 +123,9 @@ locals {
 }
 
 module "vpc_routes" {
+  source = "../../modules/vpc_route"
+
   for_each = local.vpc_routes
-  source   = "../../modules/vpc_route"
 
   route_table_ids = module.subnet_sets["${each.value.vpc}-${each.value.subnet}"].unique_route_table_ids
   to_cidr         = each.value.to_cidr
@@ -216,8 +218,9 @@ locals {
 }
 
 module "panorama" {
+  source = "../../modules/panorama"
+
   for_each = { for panorama in local.panorama_instances : "${panorama.group}-${panorama.instance}" => panorama }
-  source   = "../../modules/panorama"
 
   name                   = "${var.name_prefix}${each.key}"
   availability_zone      = each.value.az

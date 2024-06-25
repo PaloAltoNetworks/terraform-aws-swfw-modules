@@ -55,8 +55,9 @@ locals {
 }
 
 module "subnet_sets" {
+  source = "../../modules/subnet_set"
+
   for_each = local.subnets
-  source   = "../../modules/subnet_set"
 
   name                = each.value.subnet
   vpc_id              = module.vpc[each.value.vpc].id
@@ -129,8 +130,9 @@ locals {
 }
 
 module "vpc_routes" {
+  source = "../../modules/vpc_route"
+
   for_each = local.vpc_routes
-  source   = "../../modules/vpc_route"
 
   route_table_ids  = module.subnet_sets["${each.value.vpc}-${each.value.subnet}"].unique_route_table_ids
   to_cidr          = each.value.to_cidr
@@ -181,8 +183,9 @@ EOF
 
 ### BOOTSTRAP PACKAGE
 module "bootstrap" {
+  source = "../../modules/bootstrap"
+
   for_each = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => vmseries }
-  source   = "../../modules/bootstrap"
 
   iam_role_name             = "${var.name_prefix}vmseries${each.value.instance}"
   iam_instance_profile_name = "${var.name_prefix}vmseries_instance_profile${each.value.instance}"
@@ -201,8 +204,9 @@ locals {
 }
 
 module "vmseries" {
+  source = "../../modules/vmseries"
+
   for_each = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => vmseries }
-  source   = "../../modules/vmseries"
 
   name             = "${var.name_prefix}${each.key}"
   vmseries_version = each.value.common.panos_version

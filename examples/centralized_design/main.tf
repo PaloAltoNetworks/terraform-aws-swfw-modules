@@ -52,8 +52,9 @@ locals {
 }
 
 module "subnet_sets" {
+  source = "../../modules/subnet_set"
+
   for_each = local.subnets
-  source   = "../../modules/subnet_set"
 
   name                = each.value.subnet
   vpc_id              = module.vpc[each.value.vpc].id
@@ -127,8 +128,9 @@ locals {
 }
 
 module "vpc_routes" {
+  source = "../../modules/vpc_route"
+
   for_each = local.vpc_routes
-  source   = "../../modules/vpc_route"
 
   route_table_ids = module.subnet_sets["${each.value.vpc}-${each.value.subnet}"].unique_route_table_ids
   to_cidr         = each.value.to_cidr
@@ -322,8 +324,9 @@ locals {
 }
 
 module "vmseries" {
+  source = "../../modules/vmseries"
+
   for_each = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => vmseries }
-  source   = "../../modules/vmseries"
 
   name             = "${var.name_prefix}${each.key}"
   vmseries_version = each.value.common.panos_version
@@ -348,8 +351,9 @@ module "vmseries" {
 ### Public ALB and NLB used in centralized model ###
 
 module "public_alb" {
+  source = "../../modules/alb"
+
   for_each = { for k, v in var.vmseries : k => v }
-  source   = "../../modules/alb"
 
   lb_name         = "${var.name_prefix}${each.value.application_lb.name}"
   subnets         = { for k, v in module.subnet_sets["security_vpc-alb"].subnets : k => { id = v.id } }
@@ -362,8 +366,9 @@ module "public_alb" {
 }
 
 module "public_nlb" {
+  source = "../../modules/nlb"
+
   for_each = { for k, v in var.vmseries : k => v }
-  source   = "../../modules/nlb"
 
   name        = "${var.name_prefix}${each.value.network_lb.name}"
   internal_lb = false

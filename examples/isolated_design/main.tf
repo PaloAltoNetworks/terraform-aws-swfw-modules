@@ -52,8 +52,9 @@ locals {
 }
 
 module "subnet_sets" {
+  source = "../../modules/subnet_set"
+
   for_each = local.subnets
-  source   = "../../modules/subnet_set"
 
   name                = each.value.subnet
   vpc_id              = module.vpc[each.value.vpc].id
@@ -129,8 +130,9 @@ locals {
 }
 
 module "vpc_routes" {
+  source = "../../modules/vpc_route"
+
   for_each = local.vpc_routes
-  source   = "../../modules/vpc_route"
 
   route_table_ids = module.subnet_sets["${each.value.vpc}-${each.value.subnet}"].unique_route_table_ids
   to_cidr         = each.value.to_cidr
@@ -284,8 +286,9 @@ locals {
 }
 
 module "vmseries" {
+  source = "../../modules/vmseries"
+
   for_each = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => vmseries }
-  source   = "../../modules/vmseries"
 
   name             = "${var.name_prefix}${each.key}"
   vmseries_version = each.value.common.panos_version
@@ -376,7 +379,8 @@ resource "aws_instance" "spoke_vms" {
 ### SPOKE INBOUND APPLICATION LOAD BALANCER ###
 
 module "public_alb" {
-  source   = "../../modules/alb"
+  source = "../../modules/alb"
+
   for_each = var.spoke_albs
 
   lb_name         = "${var.name_prefix}${each.key}"
@@ -392,7 +396,8 @@ module "public_alb" {
 ### SPOKE INBOUND NETWORK LOAD BALANCER ###
 
 module "public_nlb" {
-  source   = "../../modules/nlb"
+  source = "../../modules/nlb"
+
   for_each = var.spoke_nlbs
 
   name        = "${var.name_prefix}${each.key}"
