@@ -30,7 +30,8 @@ variable "vpcs" {
      - `set`: internal identifier referenced by main.tf
      - `nacl`: key of NACL (can be null)
   - `routes`: map of routes with properties:
-     - `vpc_subnet` - built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
+     - `vpc` - VPC key
+     - `subnet` - subnet key
      - `next_hop_key` - must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
      - `next_hop_type` - internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
 
@@ -74,7 +75,8 @@ variable "vpcs" {
       }
       routes = {
         vm_default = {
-          vpc_subnet    = "app1_vpc-app1_vm"
+          vpc           = "app1_vpc"
+          subnet        = "app1_vm"
           to_cidr       = "0.0.0.0/0"
           next_hop_key  = "app1"
           next_hop_type = "transit_gateway_attachment"
@@ -96,18 +98,35 @@ variable "vpcs" {
         protocol    = string
         rule_action = string
         cidr_block  = string
-        from_port   = string
-        to_port     = string
+        from_port   = optional(string)
+        to_port     = optional(string)
       }))
     }))
-    security_groups = any
+    security_groups = map(object({
+      name = string
+      rules = map(object({
+        description = string
+        type        = string
+        from_port   = string
+        to_port     = string
+        protocol    = string
+        cidr_blocks = list(string)
+      }))
+    }))
     subnets = map(object({
-      az   = string
-      set  = string
-      nacl = string
+      az                      = string
+      set                     = string
+      nacl                    = optional(string)
+      create_subnet           = optional(bool, true)
+      create_route_table      = optional(bool, true)
+      existing_route_table_id = optional(string)
+      associate_route_table   = optional(bool, true)
+      route_table_name        = optional(string)
+      local_tags              = optional(map(string), {})
     }))
     routes = map(object({
-      vpc_subnet    = string
+      vpc           = string
+      subnet        = string
       to_cidr       = string
       next_hop_key  = string
       next_hop_type = string
@@ -144,7 +163,8 @@ variable "tgw" {
     attachments = {
       security = {
         name                = "vmseries"
-        vpc_subnet          = "security_vpc-tgw_attach"
+        vpc                 = "security_vpc"
+        subnet              = "tgw_attach"
         route_table         = "from_security_vpc"
         propagate_routes_to = "from_spoke_vpc"
       }
@@ -164,7 +184,8 @@ variable "tgw" {
     }))
     attachments = map(object({
       name                = string
-      vpc_subnet          = string
+      vpc                 = string
+      subnet              = string
       route_table         = string
       propagate_routes_to = string
     }))
@@ -178,22 +199,25 @@ variable "natgws" {
 
   Following properties are available:
   - `name`: name of NAT Gateway
-  - `vpc_subnet`: key of the VPC and subnet connected by '-' character
+  - `vpc`: VPC key
+  - `subnet`: subnet key
 
   Example:
   ```
   natgws = {
     security_nat_gw = {
-      name       = "natgw"
-      vpc_subnet = "security_vpc-natgw"
+      name   = "natgw"
+      vpc    = "security_vpc"
+      subnet = "natgw"
     }
   }
   ```
   EOF
   default     = {}
   type = map(object({
-    name       = string
-    vpc_subnet = string
+    name   = string
+    vpc    = string
+    subnet = string
   }))
 }
 
@@ -204,22 +228,25 @@ variable "gwlbs" {
 
   Following properties are available:
   - `name`: name of the GWLB
-  - `vpc_subnet`: key of the VPC and subnet connected by '-' character
+  - `vpc`: VPC key
+  - `subnet`: subnet key
 
   Example:
   ```
   gwlbs = {
     security_gwlb = {
-      name       = "security-gwlb"
-      vpc_subnet = "security_vpc-gwlb"
+      name   = "security-gwlb"
+      vpc    = "security_vpc"
+      subnet = "gwlb"
     }
   }
   ```
   EOF
   default     = {}
   type = map(object({
-    name       = string
-    vpc_subnet = string
+    name   = string
+    vpc    = string
+    subnet = string
   }))
 }
 variable "gwlb_endpoints" {
@@ -230,9 +257,10 @@ variable "gwlb_endpoints" {
   - `name`: name of the GWLB endpoint
   - `gwlb`: key of GWLB
   - `vpc`: key of VPC
-  - `vpc_subnet`: key of the VPC and subnet connected by '-' character
+  - `subnet`: key of subnet
   - `act_as_next_hop`: set to `true` if endpoint is part of an IGW route table e.g. for inbound traffic
-  - `to_vpc_subnets`: subnets to which traffic from IGW is routed to the GWLB endpoint
+  - `from_igw_to_vpc`: VPC to which traffic from IGW is routed to the GWLB endpoint
+  - `from_igw_to_subnet` : subnet to which traffic from IGW is routed to the GWLB endpoint
 
   Example:
   ```
@@ -241,21 +269,21 @@ variable "gwlb_endpoints" {
       name            = "eastwest-gwlb-endpoint"
       gwlb            = "security_gwlb"
       vpc             = "security_vpc"
-      vpc_subnet      = "security_vpc-gwlbe_eastwest"
+      subnet          = "gwlbe_eastwest"
       act_as_next_hop = false
-      to_vpc_subnets  = null
     }
   }
   ```
   EOF
   default     = {}
   type = map(object({
-    name            = string
-    gwlb            = string
-    vpc             = string
-    vpc_subnet      = string
-    act_as_next_hop = bool
-    to_vpc_subnets  = string
+    name               = string
+    gwlb               = string
+    vpc                = string
+    subnet             = string
+    act_as_next_hop    = bool
+    from_igw_to_vpc    = optional(string)
+    from_igw_to_subnet = optional(string)
   }))
 }
 
@@ -515,8 +543,8 @@ variable "spoke_vms" {
 
   Following properties are available:
   - `az`: name of the Availability Zone
-  - `vpc`: name of the VPC (needs to be one of the keys in map `vpcs`)
-  - `vpc_subnet`: key of the VPC and subnet connected by '-' character
+  - `vpc`: key of the VPC (needs to be one of the keys in map `vpcs`)
+  - `subnet`: key of the subnet
   - `security_group`: security group assigned to ENI used by VM
   - `type`: EC2 type VM
 
@@ -526,7 +554,7 @@ variable "spoke_vms" {
     "app1_vm01" = {
       az             = "eu-central-1a"
       vpc            = "app1_vpc"
-      vpc_subnet     = "app1_vpc-app1_vm"
+      subnet         = "app1_vm"
       security_group = "app1_vm"
       type           = "t2.micro"
     }
@@ -537,7 +565,7 @@ variable "spoke_vms" {
   type = map(object({
     az             = string
     vpc            = string
-    vpc_subnet     = string
+    subnet         = string
     security_group = string
     type           = string
   }))
@@ -549,22 +577,25 @@ variable "spoke_lbs" {
   A map defining Network Load Balancers deployed in spoke VPCs.
 
   Following properties are available:
-  - `vpc_subnet`: key of the VPC and subnet connected by '-' character
+  - `vpc`: key of the VPC
+  - `subnet`: key of the subnet
   - `vms`: keys of spoke VMs
 
   Example:
   ```
   spoke_lbs = {
     "app1-nlb" = {
-      vpc_subnet = "app1_vpc-app1_lb"
-      vms        = ["app1_vm01", "app1_vm02"]
+      vpc    = "app1_vpc"
+      subnet = "app1_lb"
+      vms    = ["app1_vm01", "app1_vm02"]
     }
   }
   ```
   EOF
   default     = {}
   type = map(object({
-    vpc_subnet = string
-    vms        = list(string)
+    vpc    = string
+    subnet = string
+    vms    = list(string)
   }))
 }

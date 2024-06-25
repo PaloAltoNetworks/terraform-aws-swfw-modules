@@ -31,7 +31,8 @@ variable "vpcs" {
      - `az`: availability zone
      - `set`: internal identifier referenced by main.tf
   - `routes`: map of routes with properties:
-     - `vpc_subnet`: built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
+     - `vpc`: key of VPC
+     - `subnet`: key of subnet
      - `to_cidr`: destination IP range
      - `next_hop_key`: must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
      - `next_hop_type`: internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
@@ -70,7 +71,8 @@ variable "vpcs" {
       }
       routes = {
         mgmt_default = {
-          vpc_subnet    = "security_vpc-mgmt"
+          vpc           = "security_vpc
+          subnet        = "mgmt"
           to_cidr       = "0.0.0.0/0"
           next_hop_key  = "security_vpc"
           next_hop_type = "internet_gateway"
@@ -82,15 +84,45 @@ variable "vpcs" {
   EOF
   default     = {}
   type = map(object({
-    name            = string
-    cidr            = string
-    security_groups = any
+    name = string
+    cidr = string
+    nacls = map(object({
+      name = string
+      rules = map(object({
+        rule_number = number
+        egress      = bool
+        protocol    = string
+        rule_action = string
+        cidr_block  = string
+        from_port   = optional(string)
+        to_port     = optional(string)
+      }))
+    }))
+    security_groups = map(object({
+      name = string
+      rules = map(object({
+        description = string
+        type        = string
+        from_port   = string
+        to_port     = string
+        protocol    = string
+        cidr_blocks = list(string)
+      }))
+    }))
     subnets = map(object({
-      az  = string
-      set = string
+      az                      = string
+      set                     = string
+      nacl                    = optional(string)
+      create_subnet           = optional(bool, true)
+      create_route_table      = optional(bool, true)
+      existing_route_table_id = optional(string)
+      associate_route_table   = optional(bool, true)
+      route_table_name        = optional(string)
+      local_tags              = optional(map(string), {})
     }))
     routes = map(object({
-      vpc_subnet    = string
+      vpc           = string
+      subnet        = string
       to_cidr       = string
       next_hop_key  = string
       next_hop_type = string
@@ -110,7 +142,7 @@ variable "panoramas" {
   - `panos_version`: PAN-OS version used for Panorama
   - `network`: definition of network settings in object with attributes:
     - `vpc`: name of the VPC (needs to be one of the keys in map `vpcs`)
-    - `vpc_subnet`: key of the VPC and subnet connected by '-' character
+    - `subnet`: key of the subnet
     - `security_group`: security group assigned to ENI used by Panorama
     - `create_public_ip`: true, if public IP address for management should be created
   - `ebs`: EBS settings defined in object with attributes:
@@ -140,7 +172,7 @@ variable "panoramas" {
 
       network = {
         vpc              = "management_vpc"
-        vpc_subnet       = "management_vpc-mgmt"
+        subnet           = "mgmt"
         security_group   = "panorama_mgmt"
         create_public_ip = true
       }
@@ -184,7 +216,7 @@ variable "panoramas" {
 
     network = object({
       vpc              = string
-      vpc_subnet       = string
+      subnet           = string
       security_group   = string
       create_public_ip = bool
     })

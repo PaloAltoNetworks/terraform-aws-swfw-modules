@@ -65,14 +65,16 @@ vpcs = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
       # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       mgmt_default = {
-        vpc_subnet       = "security_vpc-mgmt"
+        vpc              = "security_vpc"
+        subnet           = "mgmt"
         to_cidr          = "0.0.0.0/0"
         destination_type = "ipv4"
         next_hop_key     = "security_vpc"
         next_hop_type    = "internet_gateway"
       }
       mgmt_default_ipv6 = {
-        vpc_subnet       = "security_vpc-mgmt"
+        vpc              = "security_vpc"
+        subnet           = "mgmt"
         to_cidr          = "::/0"
         destination_type = "ipv6"
         next_hop_key     = "security_vpc"
@@ -115,7 +117,8 @@ vmseries = {
           "01" = "10.100.0.4"
         }
         security_group     = "vmseries_mgmt"
-        vpc_subnet         = "security_vpc-mgmt"
+        vpc                = "security_vpc"
+        subnet             = "mgmt"
         ipv6_address_count = 1
         create_public_ip   = true
         source_dest_check  = true

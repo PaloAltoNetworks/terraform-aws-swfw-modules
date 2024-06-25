@@ -46,11 +46,11 @@ vpcs = {
       "10.100.0.0/24" = { az = "eu-west-1a", set = "mgmt", nacl = null, ipv6_index = null }
     }
     routes = {
-      # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
       # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       mgmt_default = {
-        vpc_subnet       = "security_vpc-mgmt"
+        vpc              = "security_vpc"
+        subnet           = "mgmt"
         to_cidr          = "0.0.0.0/0"
         destination_type = "ipv4"
         next_hop_key     = "security_vpc"
@@ -93,7 +93,8 @@ vmseries = {
           "01" = "10.100.0.4"
         }
         security_group     = "vmseries_mgmt"
-        vpc_subnet         = "security_vpc-mgmt"
+        vpc                = "security_vpc"
+        subnet             = "mgmt"
         ipv6_address_count = 0
         create_public_ip   = true
         source_dest_check  = true
