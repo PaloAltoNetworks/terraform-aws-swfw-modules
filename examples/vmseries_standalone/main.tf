@@ -208,8 +208,9 @@ module "vmseries" {
 
   for_each = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => vmseries }
 
-  name             = "${var.name_prefix}${each.key}"
-  vmseries_version = each.value.common.panos_version
+  name              = "${var.name_prefix}${each.key}"
+  vmseries_version  = each.value.common.panos_version
+  ebs_kms_key_alias = each.value.common.ebs_kms_id
 
   interfaces = {
     for k, v in each.value.common.interfaces : k => {
