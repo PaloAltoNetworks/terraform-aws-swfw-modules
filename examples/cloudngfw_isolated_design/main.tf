@@ -244,8 +244,8 @@ resource "aws_instance" "spoke_vms" {
 
   user_data = <<EOF
   #!/bin/bash
-  yum update -y
-  yum install -y httpd
+  until yum update -y; do echo "Retrying"; sleep 5; done
+  until yum install -y httpd; do echo "Retrying"; sleep 5; done
   systemctl start httpd
   systemctl enable httpd
   usermod -a -G apache ec2-user

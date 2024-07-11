@@ -318,12 +318,16 @@ data "aws_ami" "this" {
   most_recent = true # newest by time, not by version number
 
   filter {
-    name   = "name"
-    values = ["bitnami-nginx-1.25*-linux-debian-11-x86_64-hvm-ebs-nami"]
-    # The wildcard '*' causes re-creation of the whole EC2 instance when a new image appears.
+    name   = "owner-alias"
+    values = ["amazon"]
   }
 
-  owners = ["979382823631"] # bitnami = 979382823631
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm*"]
+  }
+
+  owners = ["137112412989"]
 }
 
 data "aws_ebs_default_kms_key" "current" {
@@ -349,10 +353,16 @@ resource "aws_iam_role" "spoke_vm_ec2_iam_role" {
 EOF
 }
 
+resource "aws_iam_role_policy_attachment" "spoke_vm_iam_instance_policy" {
+  role       = aws_iam_role.spoke_vm_ec2_iam_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
 resource "aws_iam_instance_profile" "spoke_vm_iam_instance_profile" {
 
   name = "${var.name_prefix}spoke_vm_instance_profile"
   role = aws_iam_role.spoke_vm_ec2_iam_role.name
+
 }
 
 resource "aws_instance" "spoke_vms" {
@@ -376,6 +386,19 @@ resource "aws_instance" "spoke_vms" {
     http_endpoint = "enabled"
     http_tokens   = "required"
   }
+
+  user_data = <<EOF
+  #!/bin/bash
+  until yum update -y; do echo "Retrying"; sleep 5; done
+  until yum install -y httpd; do echo "Retrying"; sleep 5; done
+  systemctl start httpd
+  systemctl enable httpd
+  usermod -a -G apache ec2-user
+  chown -R ec2-user:apache /var/www
+  chmod 2775 /var/www
+  find /var/www -type d -exec chmod 2775 {} \;
+  find /var/www -type f -exec chmod 0664 {} \;
+  EOF
 }
 
 ### SPOKE INBOUND APPLICATION LOAD BALANCER ###
