@@ -310,7 +310,7 @@ resource "aws_lambda_function" "this" {
   role                           = aws_iam_role.this.arn
   handler                        = "lambda.lambda_handler"
   source_code_hash               = data.archive_file.this.output_base64sha256
-  runtime                        = "python3.8"
+  runtime                        = "python3.11"
   timeout                        = var.lambda_timeout
   reserved_concurrent_executions = var.reserved_concurrent_executions
   tracing_config {
