@@ -75,6 +75,11 @@ An example XML configuration snippet (for PANOS 10.2.3) of the described configu
 load config partial mode merge from-xpath /config/devices/entry/template/entry[@name='asg'] to-xpath /config/devices/entry/template/entry[@name='asg'] from template-asg-path-monitoring.xml
 ```
 
+## Spoke VMs
+
+For the proposed example, the Spoke VMs are supporting ssm-agent. In addition, the VM ```user_data``` contains an installation of httpd service.</br>
+To enable access from the session manager, the Internet connection for a public endpoint is required.
+
 ## Usage
 
 1. Copy `example.tfvars` into `terraform.tfvars`

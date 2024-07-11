@@ -204,6 +204,11 @@ target_value = 80
 statistic    = "Maximum"
 ```
 
+## Spoke VMs
+
+For the proposed example, the Spoke VMs are supporting ssm-agent. In addition, the VM ```user_data``` contains an installation of httpd service.</br>
+To enable access from the session manager, the Internet connection for a public endpoint is required.
+
 ## Reference
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ### Requirements
