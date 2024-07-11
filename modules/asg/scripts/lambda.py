@@ -5,8 +5,8 @@ from xml.etree import ElementTree as et
 from xml.etree.ElementTree import Element
 
 from boto3 import client
-from botocore.exceptions import ClientError, ParamValidationError
 from botocore.config import Config
+from botocore.exceptions import ClientError, ParamValidationError
 
 from panos.panorama import Panorama
 
@@ -290,11 +290,11 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         """
         self.logger.info(f"Disable source_dest_check for network interface {interface_id}")
         self.ec2_client.modify_network_interface_attribute(
-                NetworkInterfaceId=interface_id,
-                SourceDestCheck={
-                    'Value': False,
-                }
-            )
+            NetworkInterfaceId=interface_id,
+            SourceDestCheck={
+                'Value': False,
+            }
+        )
 
     def modify_network_interface(self, interface_id: str, attachment_id: str, source_dest_check: bool = True):
         """
@@ -365,6 +365,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ec2/client/describe_network_interfaces.html
 
         :param instance_id: EC2 Instance id
+        :param device_index: Network interface index
         :return: none
         """
         description = self.ec2_client.describe_network_interfaces(
@@ -381,7 +382,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         )
         try:
             return description['NetworkInterfaces'][0]['PrivateIpAddress']
-        except IndexError as e:
+        except IndexError:
             return None
 
     def register_untrust_ip_as_target(self, ip_target_groups: list, untrust_ip: str):
@@ -406,7 +407,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
                         },
                     ]
                 )
-            except ParamValidationError as e:
+            except ParamValidationError:
                 self.logger.error(f"Unable to register target with IP {untrust_ip}")
 
     def deregister_untrust_ip_as_target(self, ip_target_groups: list, untrust_ip: str):
@@ -430,7 +431,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
                         },
                     ]
                 )
-            except ParamValidationError as e:
+            except ParamValidationError:
                 self.logger.error(f"Unable to deregister target with IP {untrust_ip}")
 
     def panorama_cmd(self, panorama, cmd: str, xml: bool = True, cmd_xml: bool = True) -> Element:
@@ -454,8 +455,8 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         :ssm_param_name: Parameter name
         :return: dict
         """
-        ssm_param_list = self.ssm_client.get_parameter(Name=ssm_param_name, WithDecryption=True).get("Parameter").get("Value"). \
-            replace("\'", "\"")
+        ssm_param_list = self.ssm_client.get_parameter(Name=ssm_param_name, WithDecryption=True). \
+            get("Parameter").get("Value").replace("\'", "\"")
         return loads(ssm_param_list)
 
     def delicense_fw(self, instance_id) -> bool:
@@ -489,13 +490,19 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
                 # Check if first Panorama is active - if not, the use second Panorama for de-licensing
                 if self.check_is_active_in_ha(panorama_hostname, panorama_username, panorama_password):
                     # De-license using active, first Panorama instance from Active-Passive HA cluster
-                    delicensed = self.request_panorama_delicense_fw(vmseries_ip_address, panorama_hostname, panorama_username, panorama_password, panorama_lm_name)
+                    delicensed = self.request_panorama_delicense_fw(vmseries_ip_address, panorama_hostname,
+                                                                    panorama_username, panorama_password,
+                                                                    panorama_lm_name)
                 else:
                     # De-license using active, second Panorama instance from Active-Passive HA cluster
-                    delicensed = self.request_panorama_delicense_fw(vmseries_ip_address, panorama_hostname2, panorama_username, panorama_password, panorama_lm_name)
+                    delicensed = self.request_panorama_delicense_fw(vmseries_ip_address, panorama_hostname2,
+                                                                    panorama_username, panorama_password,
+                                                                    panorama_lm_name)
             else:
                 # De-license using the only 1 Panorama instance
-                delicensed = self.request_panorama_delicense_fw(vmseries_ip_address, panorama_hostname, panorama_username, panorama_password, panorama_lm_name)
+                delicensed = self.request_panorama_delicense_fw(vmseries_ip_address, panorama_hostname,
+                                                                panorama_username, panorama_password,
+                                                                panorama_lm_name)
 
             return delicensed
         else:
@@ -537,7 +544,8 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
             self.logger.info(f"Error while checking high-availability state for Panorama {panorama_hostname}")
             return False
 
-    def request_panorama_delicense_fw(self, vmseries_ip_address, panorama_hostname, panorama_username, panorama_password, panorama_lm_name) -> bool:
+    def request_panorama_delicense_fw(self, vmseries_ip_address, panorama_hostname, panorama_username,
+                                      panorama_password, panorama_lm_name) -> bool:
         """
         Function used to de-license VM-Series using plugin sw_fw_license running on Panorama server
 
@@ -545,6 +553,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         :param panorama_hostname: Hostname of the Panorama server
         :param panorama_username: Account's name
         :param panorama_password: Account's password
+        :param panorama_lm_name: License manager name (in plugin sw_fw_license)
         :return: True if VM-Series was de-licensed correctly, False in other case
         """
         try:
@@ -552,7 +561,9 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
             delicensed = False
 
             # Connect to selected Panorama instance
-            self.logger.info(f"Connecting to '{panorama_hostname}' using user '{panorama_username}' to license manager '{panorama_lm_name}'")
+            self.logger.info(
+                f"Connecting to '{panorama_hostname}' using user '{panorama_username}' "
+                f"to license manager '{panorama_lm_name}'")
             panorama = Panorama(hostname=panorama_hostname,
                                 api_username=panorama_username,
                                 api_password=panorama_password)
@@ -575,10 +586,11 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
                             serial_obj = fw.find("serial")
                             if serial_obj is not None:
                                 serial = serial_obj.text
-                                # If IP address is the same as destroyed VM and serial is not none, then delicense firewall
+                                # If IP address is the same as destroyed VM and serial is not none, then delicense FW
                                 if serial_obj.text is not None:
                                     self.logger.info(f"De-licensing firewall: {serial} ...")
-                                    cmd = f"request plugins sw_fw_license deactivate license-manager \"{panorama_lm_name}\" devices member \"{serial}\""
+                                    cmd = (f"request plugins sw_fw_license deactivate license-manager "
+                                           f"\"{panorama_lm_name}\" devices member \"{serial}\"")
                                     resp_parsed = self.panorama_cmd(panorama, cmd)
                                     if resp_parsed.attrib["status"] == "success":
                                         self.logger.info(f"De-licensing firewall: {serial} succeeded")
