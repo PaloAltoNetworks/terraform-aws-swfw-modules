@@ -74,7 +74,7 @@ variable "vpcs" {
       routes = {
         vm_default = {
           vpc           = "app1_vpc"
-          subnet_group        = "app1_vm"
+          subnet_group  = "app1_vm"
           to_cidr       = "0.0.0.0/0"
           next_hop_key  = "app1"
           next_hop_type = "transit_gateway_attachment"
@@ -145,8 +145,8 @@ variable "tgw" {
     attachments = {
       security = {
         name                = "vmseries"
-        vpc = "security_vpc"
-        subnet_group          = "tgw_attach"
+        vpc                 = "security_vpc"
+        subnet_group        = "tgw_attach"
         route_table         = "from_security_vpc"
         propagate_routes_to = "from_spoke_vpc"
       }
@@ -188,8 +188,8 @@ variable "natgws" {
   ```
   natgws = {
     security_nat_gw = {
-      name   = "natgw"
-      vpc    = "security_vpc"
+      name         = "natgw"
+      vpc          = "security_vpc"
       subnet_group = "natgw"
     }
   }
@@ -217,8 +217,8 @@ variable "gwlbs" {
   ```
   gwlbs = {
     security_gwlb = {
-      name   = "security-gwlb"
-      vpc    = "security_vpc"
+      name         = "security-gwlb"
+      vpc          = "security_vpc"
       subnet_group = "gwlb"
     }
   }
