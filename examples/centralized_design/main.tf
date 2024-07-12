@@ -227,7 +227,7 @@ module "gwlbe_endpoint" {
   act_as_next_hop_for = each.value.act_as_next_hop ? {
     "from-igw-to-lb" = {
       route_table_id = module.vpc[each.value.vpc].internet_gateway_route_table.id
-      to_subnets     = module.subnet_sets["${each.value.from_igw_to_vpc}-${each.value.from_igw_to_subnet}"].subnets
+      to_subnets     = module.subnet_sets["${each.value.from_igw_to_vpc}-${each.value.from_igw_to_subnet_group}"].subnets
     }
     # The routes in this section are special in that they are on the "edge", that is they are part of an IGW route table,
     # and AWS allows their destinations to only be:

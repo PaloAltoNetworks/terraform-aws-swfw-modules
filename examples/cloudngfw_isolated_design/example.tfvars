@@ -16,7 +16,6 @@ ssh_key_name = "example-ssh-key" # TODO: update here
 
 ### VPC
 vpcs = {
-  # Do not use `-` in key for VPC as this character is used in concatenation of VPC and subnet for module `subnet_set` in `main.tf`
   app1_vpc = {
     name  = "app1-spoke-vpc"
     cidr  = "10.104.0.0/16"

@@ -251,7 +251,7 @@ variable "gwlb_endpoints" {
       name            = "eastwest-gwlb-endpoint"
       gwlb            = "security_gwlb"
       vpc             = "security_vpc"
-      subnet_group          = "gwlbe_eastwest"
+      subnet_group    = "gwlbe_eastwest"
       act_as_next_hop = false
     }
   }
@@ -259,13 +259,13 @@ variable "gwlb_endpoints" {
   EOF
   default     = {}
   type = map(object({
-    name               = string
-    gwlb               = string
-    vpc                = string
-    subnet_group       = string
-    act_as_next_hop    = bool
-    from_igw_to_vpc    = optional(string)
-    from_igw_to_subnet = optional(string)
+    name                     = string
+    gwlb                     = string
+    vpc                      = string
+    subnet_group             = string
+    act_as_next_hop          = bool
+    from_igw_to_vpc          = optional(string)
+    from_igw_to_subnet_group = optional(string)
   }))
 }
 
