@@ -15,7 +15,7 @@ resource "aws_vpc" "this" {
   count = var.create_vpc ? 1 : 0
 
   cidr_block                       = var.cidr_block
-  tags                             = merge(var.global_tags, var.vpc_tags, { Name = var.name })
+  tags                             = merge(var.tags, var.vpc_tags, { Name = var.name })
   enable_dns_support               = var.enable_dns_support
   enable_dns_hostnames             = var.enable_dns_hostnames
   instance_tenancy                 = var.instance_tenancy
@@ -41,7 +41,7 @@ resource "aws_vpc_dhcp_options" "this" {
   domain_name_servers = var.domain_name_servers
   ntp_servers         = var.ntp_servers
 
-  tags = merge(var.global_tags, var.vpc_tags, { Name = var.name })
+  tags = merge(var.tags, var.vpc_tags, { Name = var.name })
 }
 
 resource "aws_vpc_dhcp_options_association" "this" {
@@ -71,16 +71,16 @@ resource "aws_internet_gateway" "this" {
   count = var.create_internet_gateway ? 1 : 0
 
   vpc_id = local.vpc.id
-  tags   = merge(var.global_tags, { Name = coalesce(var.name_internet_gateway, "${var.name}-igw") })
+  tags   = merge(var.tags, { Name = coalesce(var.name_internet_gateway, "${var.name}-igw") })
 }
 
-#### Associate RT to IGW for AWS Ingress Routing #### 
+#### Associate RT to IGW for AWS Ingress Routing ####
 
 resource "aws_route_table" "from_igw" {
   count = var.create_internet_gateway ? 1 : 0
 
   vpc_id = local.vpc.id
-  tags   = merge(var.global_tags, { Name = coalesce(var.route_table_internet_gateway, "${var.name}-igw") })
+  tags   = merge(var.tags, { Name = coalesce(var.route_table_internet_gateway, "${var.name}-igw") })
 }
 
 resource "aws_route_table_association" "from_igw" {
@@ -99,15 +99,15 @@ resource "aws_vpn_gateway" "this" {
 
   vpc_id          = local.vpc.id
   amazon_side_asn = var.vpn_gateway_amazon_side_asn
-  tags            = merge(var.global_tags, { Name = coalesce(var.name_vpn_gateway, "${var.name}-vgw") })
+  tags            = merge(var.tags, { Name = coalesce(var.name_vpn_gateway, "${var.name}-vgw") })
 }
 
-#### Dedicated RT for Ingress Routing - Traffic from VGW to us #### 
+#### Dedicated RT for Ingress Routing - Traffic from VGW to us ####
 resource "aws_route_table" "from_vgw" {
   count = var.create_vpn_gateway ? 1 : 0
 
   vpc_id = local.vpc.id
-  tags   = merge(var.global_tags, { Name = coalesce(var.route_table_vpn_gateway, "${var.name}-vgw") })
+  tags   = merge(var.tags, { Name = coalesce(var.route_table_vpn_gateway, "${var.name}-vgw") })
 }
 
 resource "aws_route_table_association" "from_vgw" {
@@ -125,7 +125,7 @@ resource "aws_network_acl" "this" {
   for_each = var.nacls
   vpc_id   = local.vpc.id
 
-  tags = merge(var.global_tags, { Name = each.value.name })
+  tags = merge(var.tags, { Name = each.value.name })
 }
 
 locals {
@@ -206,9 +206,81 @@ resource "aws_security_group" "this" {
     }
   }
 
-  tags = merge(var.global_tags, { Name = each.value.name })
+  tags = merge(var.tags, { Name = each.value.name })
 
   lifecycle {
     create_before_destroy = true
   }
+}
+
+############################################################
+# Subnets
+############################################################
+
+#### Existing Subnets ####
+
+data "aws_subnet" "this" {
+  for_each = { for k, v in var.subnets : k => v if v.create_subnet == false }
+
+  tags   = { Name = each.value.name }
+  vpc_id = local.vpc.id
+}
+
+#### Create Subnets ####
+
+resource "aws_subnet" "this" {
+  for_each = { for k, v in var.subnets : k => v if v.create_subnet }
+
+  cidr_block              = each.value.cidr_block
+  ipv6_cidr_block         = try(each.value.ipv6_cidr_block, null)
+  availability_zone       = "${var.region}${each.value.az}"
+  vpc_id                  = local.vpc.id
+  map_public_ip_on_launch = var.subnets_map_public_ip_on_launch
+  tags                    = merge(var.tags, each.value.tags, { Name = each.value.name })
+
+  depends_on = [
+    aws_vpc_ipv4_cidr_block_association.this
+  ]
+}
+
+locals {
+  subnets      = { for k, v in var.subnets : k => v.create_subnet ? aws_subnet.this[k] : data.aws_subnet.this[k] }
+  route_tables = { for k, v in var.subnets : k => v.create_route_table ? aws_route_table.this[k] : data.aws_route_table.this[k] }
+}
+
+#### NACL association
+
+resource "aws_network_acl_association" "main" {
+  for_each       = { for k, v in var.subnets : k => v if v.nacl != null }
+  network_acl_id = aws_network_acl.this[each.value.nacl].id
+  subnet_id      = local.subnets[each.key].id
+}
+
+############################################################
+# Route tables
+############################################################
+
+#### One route table per each subnet by default ####
+
+data "aws_route_table" "this" {
+  for_each = { for k, v in var.subnets : k => v if v.create_route_table == false }
+
+  vpc_id         = local.vpc.id
+  route_table_id = each.value.existing_route_table_id
+  tags           = { Name = coalesce(each.value.route_table_name, each.value.name) }
+}
+
+resource "aws_route_table" "this" {
+  for_each = { for k, v in var.subnets : k => v if v.create_route_table }
+
+  vpc_id           = local.vpc.id
+  tags             = merge(var.tags, each.value.tags, { Name = coalesce(each.value.route_table_name, each.value.name) })
+  propagating_vgws = var.propagating_vgws
+}
+
+resource "aws_route_table_association" "this" {
+  for_each = { for k, v in var.subnets : k => v if v.associate_route_table }
+
+  subnet_id      = local.subnets[each.key].id
+  route_table_id = local.route_tables[each.key].id
 }

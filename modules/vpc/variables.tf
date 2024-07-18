@@ -3,6 +3,11 @@ variable "name" {
   type        = string
 }
 
+variable "region" {
+  description = "AWS region."
+  type        = string
+}
+
 variable "create_vpc" {
   description = "When set to `true` inputs are used to create a VPC, otherwise - to get data about an existing one (based on the `name` value)."
   default     = true
@@ -89,7 +94,7 @@ variable "instance_tenancy" {
   type        = string
 }
 
-variable "global_tags" {
+variable "tags" {
   description = "Optional map of arbitrary tags to apply to all the created resources."
   default     = {}
   type        = map(string)
@@ -98,6 +103,35 @@ variable "global_tags" {
 variable "vpc_tags" {
   description = "Optional map of arbitrary tags to apply to VPC resource."
   default     = {}
+}
+
+variable "subnets" {
+  description = "Map of subnets to create or use."
+  type = map(object({
+    az                      = string
+    cidr_block              = string
+    group                   = string
+    name                    = string
+    nacl                    = optional(string)
+    create_subnet           = optional(bool, true)
+    create_route_table      = optional(bool, true)
+    route_table_name        = optional(string)
+    existing_route_table_id = optional(string)
+    associate_route_table   = optional(bool, true)
+    tags                    = optional(map(string))
+  }))
+}
+
+variable "subnets_map_public_ip_on_launch" {
+  description = "Enable/disable public IP on launch."
+  type        = bool
+  default     = false
+}
+
+variable "propagating_vgws" {
+  description = "List of VGWs to propagate routes to."
+  type        = list(string)
+  default     = []
 }
 
 variable "nacls" {

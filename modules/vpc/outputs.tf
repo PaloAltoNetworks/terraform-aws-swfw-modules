@@ -70,3 +70,17 @@ output "igw_as_next_hop_set" {
 output "has_secondary_cidrs" {
   value = contains([for k, v in aws_vpc_ipv4_cidr_block_association.this : length(v.id) > 0], true)
 }
+
+output "subnets" {
+  value = { for k, v in local.subnets : k => merge(v, {
+    group = var.subnets[k].group
+    az    = var.subnets[k].az
+  }) }
+}
+
+output "route_tables" {
+  value = { for k, v in local.route_tables : k => merge(v, {
+    group = var.subnets[k].group
+    az    = var.subnets[k].az
+  }) }
+}

@@ -7,8 +7,8 @@ variable "name_prefix" {
   description = "Prefix used in names for the resources (VPCs, EC2 instances, autoscaling groups etc.)"
   type        = string
 }
-variable "global_tags" {
-  description = "Global tags configured for all provisioned resources"
+variable "tags" {
+  description = "Tags configured for all provisioned resources"
 }
 variable "ssh_key_name" {
   description = "Name of the SSH key pair existing in AWS key pairs and used to authenticate to VM-Series or test boxes"
@@ -114,8 +114,10 @@ variable "vpcs" {
       }))
     }))
     subnets = map(object({
+      group                   = string
       az                      = string
-      set                     = string
+      name                    = string
+      cidr_block              = string
       nacl                    = optional(string)
       create_subnet           = optional(bool, true)
       create_route_table      = optional(bool, true)
@@ -123,6 +125,7 @@ variable "vpcs" {
       associate_route_table   = optional(bool, true)
       route_table_name        = optional(string)
       local_tags              = optional(map(string), {})
+      tags                    = optional(map(string), {})
     }))
     routes = map(object({
       vpc           = string
