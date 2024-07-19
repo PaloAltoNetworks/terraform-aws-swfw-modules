@@ -85,7 +85,7 @@ To enable access from the session manager, the Internet connection for a public 
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.17 |
-| <a name="requirement_cloudngfwaws"></a> [cloudngfwaws](#requirement\_cloudngfwaws) | 2.0.6 |
+| <a name="requirement_cloudngfwaws"></a> [cloudngfwaws](#requirement\_cloudngfwaws) | ~> 2.0.17 |
 | <a name="requirement_time"></a> [time](#requirement\_time) | 0.11.1 |
 
 ### Providers
