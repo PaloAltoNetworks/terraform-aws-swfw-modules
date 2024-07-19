@@ -162,7 +162,7 @@ resource "aws_lb_target_group" "this" {
   port               = try(each.value.target_port, each.value.port)
   protocol           = each.value.protocol
   target_type        = each.value.target_type
-  preserve_client_ip = each.value.preserve_client_ip
+  preserve_client_ip = try(each.value.preserve_client_ip, false)
 
   health_check {
     healthy_threshold   = try(each.value.threshold, null)
