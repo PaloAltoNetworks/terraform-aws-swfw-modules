@@ -382,11 +382,12 @@ module "public_nlb" {
   vpc_id      = module.vpc["security_vpc"].id
 
   balance_rules = { for k, v in each.value.network_lb.rules : k => {
-    protocol    = v.protocol
-    port        = v.port
-    target_type = v.target_type
-    stickiness  = v.stickiness
-    targets     = {}
+    protocol           = v.protocol
+    port               = v.port
+    target_type        = v.target_type
+    stickiness         = v.stickiness
+    preserve_client_ip = v.preserve_client_ip
+    targets            = {}
   } }
 
   tags = var.global_tags
