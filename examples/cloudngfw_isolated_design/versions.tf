@@ -7,7 +7,7 @@ terraform {
     }
     cloudngfwaws = {
       source  = "PaloAltoNetworks/cloudngfwaws"
-      version = "~> 2.0.17"
+      version = "2.0.6"
     }
     time = {
       source  = "hashicorp/time"

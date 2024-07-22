@@ -15,14 +15,14 @@ For example usage, please refer to the [examples](https://github.com/PaloAltoNet
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.17 |
-| <a name="requirement_cloudngfwaws"></a> [cloudngfwaws](#requirement\_cloudngfwaws) | ~> 2.0.17 |
+| <a name="requirement_cloudngfwaws"></a> [cloudngfwaws](#requirement\_cloudngfwaws) | 2.0.6 |
 
 ### Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.17 |
-| <a name="provider_cloudngfwaws"></a> [cloudngfwaws](#provider\_cloudngfwaws) | ~> 2.0.17 |
+| <a name="provider_cloudngfwaws"></a> [cloudngfwaws](#provider\_cloudngfwaws) | 2.0.6 |
 
 ### Modules
 
@@ -34,11 +34,11 @@ No modules.
 |------|------|
 | [aws_cloudwatch_log_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_cloudwatch_log_stream.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_stream) | resource |
-| [cloudngfwaws_commit_rulestack.this](https://registry.terraform.io/providers/PaloAltoNetworks/cloudngfwaws/latest/docs/resources/commit_rulestack) | resource |
-| [cloudngfwaws_ngfw.this](https://registry.terraform.io/providers/PaloAltoNetworks/cloudngfwaws/latest/docs/resources/ngfw) | resource |
-| [cloudngfwaws_ngfw_log_profile.this](https://registry.terraform.io/providers/PaloAltoNetworks/cloudngfwaws/latest/docs/resources/ngfw_log_profile) | resource |
-| [cloudngfwaws_rulestack.this](https://registry.terraform.io/providers/PaloAltoNetworks/cloudngfwaws/latest/docs/resources/rulestack) | resource |
-| [cloudngfwaws_security_rule.this](https://registry.terraform.io/providers/PaloAltoNetworks/cloudngfwaws/latest/docs/resources/security_rule) | resource |
+| [cloudngfwaws_commit_rulestack.this](https://registry.terraform.io/providers/PaloAltoNetworks/cloudngfwaws/2.0.6/docs/resources/commit_rulestack) | resource |
+| [cloudngfwaws_ngfw.this](https://registry.terraform.io/providers/PaloAltoNetworks/cloudngfwaws/2.0.6/docs/resources/ngfw) | resource |
+| [cloudngfwaws_ngfw_log_profile.this](https://registry.terraform.io/providers/PaloAltoNetworks/cloudngfwaws/2.0.6/docs/resources/ngfw_log_profile) | resource |
+| [cloudngfwaws_rulestack.this](https://registry.terraform.io/providers/PaloAltoNetworks/cloudngfwaws/2.0.6/docs/resources/rulestack) | resource |
+| [cloudngfwaws_security_rule.this](https://registry.terraform.io/providers/PaloAltoNetworks/cloudngfwaws/2.0.6/docs/resources/security_rule) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 
 ### Inputs
