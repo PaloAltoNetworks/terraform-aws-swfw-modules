@@ -91,6 +91,7 @@ variable "balance_rules" {
       health_check_port   = "port used by the target group healthcheck, if ommited, `traffic-port` will be used"
       threshold           = "number of consecutive health checks before considering target healthy or unhealthy, defaults to 3"
       interval            = "time between each health check, between 5 and 300 seconds, defaults to 30s"
+      preserve_client_ip  = "whether client IP preservation is enabled, by default disabled for protocols TCP and TLS, enabled for others"
 
       certificate_arn     = "(TLS ONLY) this is the arn of a certificate"
       alpn_policy         = "(TLS ONLY) ALPN policy name, for possible values check (terraform documentation)[https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener#alpn_policy], defaults to `None`"
@@ -134,16 +135,17 @@ variable "balance_rules" {
   ```
   balance_rules = {
     "HTTPS-APP" = {
-      protocol          = "TCP"
-      port              = "443"
-      health_check_port = "80"
-      threshold         = 2
-      interval          = 10
-      target_port       = 8443
-      target_type       = "ip"
-      targets           = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
-      target_az         = "all"
-      stickiness        = true
+      protocol           = "TCP"
+      port               = "443"
+      health_check_port  = "80"
+      threshold          = 2
+      interval           = 10
+      target_port        = 8443
+      target_type        = "ip"
+      targets            = { for k, v in var.vmseries : k => module.vmseries[k].interfaces["untrust"].private_ip }
+      target_az          = "all"
+      stickiness         = true
+      preserve_client_ip = true
     }
   }
   ```
