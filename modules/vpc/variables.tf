@@ -32,51 +32,6 @@ variable "assign_generated_ipv6_cidr_block" {
   type        = bool
 }
 
-variable "use_internet_gateway" {
-  description = "If an existing VPC is provided and has IG attached, set to `true` to reuse it."
-  default     = false
-}
-
-variable "create_internet_gateway" {
-  description = "Set to `true` to create IG and attach it to the VPC."
-  default     = false
-}
-
-variable "name_internet_gateway" {
-  description = "Name of the IGW to create or use."
-  type        = string
-  default     = null
-}
-
-variable "route_table_internet_gateway" {
-  description = "Name of route table for the IGW."
-  type        = string
-  default     = null
-}
-
-variable "create_vpn_gateway" {
-  description = "When set to true, create VPN gateway and a dedicated route table."
-  default     = false
-  type        = bool
-}
-variable "vpn_gateway_amazon_side_asn" {
-  description = "ASN for the Amazon side of the gateway."
-  default     = null
-  type        = string
-}
-
-variable "name_vpn_gateway" {
-  description = "Name of the VPN gateway to create."
-  type        = string
-  default     = null
-}
-
-variable "route_table_vpn_gateway" {
-  description = "Name of the route table for VPN gateway."
-  type        = string
-  default     = null
-}
-
 variable "enable_dns_support" {
   description = "A boolean flag to enable/disable DNS support in the VPC. [Defaults true](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc#enable_dns_support)."
   default     = null
@@ -86,6 +41,27 @@ variable "enable_dns_hostnames" {
   description = "A boolean flag to enable/disable DNS hostnames in the VPC. [Defaults false](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc#enable_dns_hostnames)."
   default     = null
   type        = bool
+}
+
+variable "create_dhcp_options" {
+  description = "Should be true if you want to specify a DHCP options set with a custom domain name, DNS servers, NTP servers."
+  default     = false
+  type        = bool
+}
+variable "domain_name" {
+  description = "Specifies DNS name for DHCP options set. 'create_dhcp_options' needs to be enabled."
+  default     = ""
+  type        = string
+}
+variable "domain_name_servers" {
+  description = "Specify a list of DNS server addresses for DHCP options set, default to AWS provided"
+  default     = []
+  type        = list(string)
+}
+variable "ntp_servers" {
+  description = "Specify a list of NTP server addresses for DHCP options set, default to AWS provided"
+  default     = []
+  type        = list(string)
 }
 
 variable "instance_tenancy" {
@@ -103,6 +79,54 @@ variable "tags" {
 variable "vpc_tags" {
   description = "Optional map of arbitrary tags to apply to VPC resource."
   default     = {}
+  type        = map(string)
+}
+
+variable "use_internet_gateway" {
+  description = "If an existing VPC is provided and has IG attached, set to `true` to reuse it."
+  default     = false
+  type        = bool
+}
+
+variable "create_internet_gateway" {
+  description = "Set to `true` to create IG and attach it to the VPC."
+  default     = false
+  type        = bool
+}
+
+variable "name_internet_gateway" {
+  description = "Name of the IGW to create or use."
+  default     = null
+  type        = string
+}
+
+variable "route_table_internet_gateway" {
+  description = "Name of route table for the IGW."
+  default     = null
+  type        = string
+}
+
+variable "create_vpn_gateway" {
+  description = "When set to true, create VPN gateway and a dedicated route table."
+  default     = false
+  type        = bool
+}
+variable "vpn_gateway_amazon_side_asn" {
+  description = "ASN for the Amazon side of the gateway."
+  default     = null
+  type        = string
+}
+
+variable "name_vpn_gateway" {
+  description = "Name of the VPN gateway to create."
+  default     = null
+  type        = string
+}
+
+variable "route_table_vpn_gateway" {
+  description = "Name of the route table for VPN gateway."
+  default     = null
+  type        = string
 }
 
 variable "subnets" {
@@ -124,14 +148,14 @@ variable "subnets" {
 
 variable "subnets_map_public_ip_on_launch" {
   description = "Enable/disable public IP on launch."
-  type        = bool
   default     = false
+  type        = bool
 }
 
 variable "propagating_vgws" {
   description = "List of VGWs to propagate routes to."
-  type        = list(string)
   default     = []
+  type        = list(string)
 }
 
 variable "nacls" {
@@ -244,25 +268,4 @@ variable "security_groups" {
 
   default = {}
   type    = any
-}
-
-variable "create_dhcp_options" {
-  description = "Should be true if you want to specify a DHCP options set with a custom domain name, DNS servers, NTP servers."
-  default     = false
-  type        = bool
-}
-variable "domain_name" {
-  description = "Specifies DNS name for DHCP options set. 'create_dhcp_options' needs to be enabled."
-  default     = ""
-  type        = string
-}
-variable "domain_name_servers" {
-  description = "Specify a list of DNS server addresses for DHCP options set, default to AWS provided"
-  default     = []
-  type        = list(string)
-}
-variable "ntp_servers" {
-  description = "Specify a list of NTP server addresses for DHCP options set, default to AWS provided"
-  default     = []
-  type        = list(string)
 }

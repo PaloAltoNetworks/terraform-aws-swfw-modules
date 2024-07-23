@@ -98,7 +98,7 @@ No modules.
 | <a name="input_subnets_map_public_ip_on_launch"></a> [subnets\_map\_public\_ip\_on\_launch](#input\_subnets\_map\_public\_ip\_on\_launch) | Enable/disable public IP on launch. | `bool` | `false` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Optional map of arbitrary tags to apply to all the created resources. | `map(string)` | `{}` | no |
 | <a name="input_use_internet_gateway"></a> [use\_internet\_gateway](#input\_use\_internet\_gateway) | If an existing VPC is provided and has IG attached, set to `true` to reuse it. | `bool` | `false` | no |
-| <a name="input_vpc_tags"></a> [vpc\_tags](#input\_vpc\_tags) | Optional map of arbitrary tags to apply to VPC resource. | `map` | `{}` | no |
+| <a name="input_vpc_tags"></a> [vpc\_tags](#input\_vpc\_tags) | Optional map of arbitrary tags to apply to VPC resource. | `map(string)` | `{}` | no |
 | <a name="input_vpn_gateway_amazon_side_asn"></a> [vpn\_gateway\_amazon\_side\_asn](#input\_vpn\_gateway\_amazon\_side\_asn) | ASN for the Amazon side of the gateway. | `string` | `null` | no |
 
 ### Outputs
@@ -117,5 +117,6 @@ No modules.
 | <a name="output_subnets"></a> [subnets](#output\_subnets) | n/a |
 | <a name="output_vpc"></a> [vpc](#output\_vpc) | The entire VPC object (either created or pre-existing). |
 | <a name="output_vpn_gateway"></a> [vpn\_gateway](#output\_vpn\_gateway) | The entire Virtual Private Gateway object. It is null when `create_vpn_gateway` is false. |
+| <a name="output_vpn_gateway_as_next_hop_set"></a> [vpn\_gateway\_as\_next\_hop\_set](#output\_vpn\_gateway\_as\_next\_hop\_set) | The object is suitable for use as `vpc_route` module's input `next_hop_set`. |
 | <a name="output_vpn_gateway_route_table"></a> [vpn\_gateway\_route\_table](#output\_vpn\_gateway\_route\_table) | The Route Table object created to handle traffic from Virtual Private Gateway (VGW). It is null when `create_vpn_gateway` is false. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
