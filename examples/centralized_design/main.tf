@@ -376,11 +376,12 @@ module "public_nlb" {
   vpc_id      = module.vpc["security_vpc"].id
 
   balance_rules = { for k, v in each.value.network_lb.rules : k => {
-    protocol    = v.protocol
-    port        = v.port
-    target_type = v.target_type
-    stickiness  = v.stickiness
-    targets     = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => module.vmseries["${vmseries.group}-${vmseries.instance}"].interfaces["public"].private_ip }
+    protocol           = v.protocol
+    port               = v.port
+    target_type        = v.target_type
+    stickiness         = v.stickiness
+    preserve_client_ip = v.preserve_client_ip
+    targets            = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => module.vmseries["${vmseries.group}-${vmseries.instance}"].interfaces["public"].private_ip }
   } }
 
   tags = var.global_tags

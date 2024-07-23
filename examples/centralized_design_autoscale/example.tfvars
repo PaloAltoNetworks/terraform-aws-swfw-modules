@@ -621,16 +621,18 @@ vmseries_asgs = {
       name = "public-nlb"
       rules = {
         "ssh1" = {
-          protocol    = "TCP"
-          port        = "2021"
-          target_type = "ip"
-          stickiness  = true
+          protocol           = "TCP"
+          port               = "2021"
+          target_type        = "ip"
+          stickiness         = true
+          preserve_client_ip = true
         }
         "ssh2" = {
-          protocol    = "TCP"
-          port        = "2022"
-          target_type = "ip"
-          stickiness  = true
+          protocol           = "TCP"
+          port               = "2022"
+          target_type        = "ip"
+          stickiness         = true
+          preserve_client_ip = true
         }
       }
     }

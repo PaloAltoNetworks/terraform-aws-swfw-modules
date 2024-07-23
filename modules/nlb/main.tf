@@ -157,12 +157,12 @@ resource "aws_lb" "this" {
 resource "aws_lb_target_group" "this" {
   for_each = var.balance_rules
 
-  name        = coalesce(try(each.value.name, null), "${var.name}-${each.key}")
-  vpc_id      = var.vpc_id
-  port        = try(each.value.target_port, each.value.port)
-  protocol    = each.value.protocol
-  target_type = each.value.target_type
-
+  name               = coalesce(try(each.value.name, null), "${var.name}-${each.key}")
+  vpc_id             = var.vpc_id
+  port               = try(each.value.target_port, each.value.port)
+  protocol           = each.value.protocol
+  target_type        = each.value.target_type
+  preserve_client_ip = try(each.value.preserve_client_ip, null)
 
   health_check {
     healthy_threshold   = try(each.value.threshold, null)
