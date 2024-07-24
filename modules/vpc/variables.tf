@@ -168,23 +168,19 @@ variable "nacls" {
     trusted_path_monitoring = {
       name = "trusted-path-monitoring"
       rules = {
-        block_outbound_icmp = {
-          rule_number = 110
-          egress      = true
-          protocol    = "icmp"
-          rule_action = "deny"
-          cidr_block  = "10.100.1.0/24"
-          from_port   = null
-          to_port     = null
+        allow_other_outbound = {
+          rule_number = 200
+          type        = "egress"
+          protocol    = "-1"
+          action      = "allow"
+          cidr_block  = "0.0.0.0/0"
         }
         allow_inbound = {
           rule_number = 300
-          egress      = false
+          type        = "ingress"
           protocol    = "-1"
-          rule_action = "allow"
+          action      = "allow"
           cidr_block  = "0.0.0.0/0"
-          from_port   = null
-          to_port     = null
         }
       }
     }
@@ -192,7 +188,18 @@ variable "nacls" {
   ```
   EOF
   default     = {}
-  type        = any
+  type = map(object({
+    name = string
+    rules = map(object({
+      rule_number = number
+      type        = string
+      protocol    = string
+      action      = string
+      cidr_block  = string
+      from_port   = optional(string)
+      to_port     = optional(string)
+    }))
+  }))
 }
 
 variable "security_groups" {
@@ -217,48 +224,28 @@ variable "security_groups" {
   Example:
   ```
   security_groups = {
-    vmseries-mgmt = {
-      name = "vmseries-mgmt"
+    vmseries_mgmt = {
+      name = "vmseries_mgmt"
       rules = {
-        all-outbound = {
+        all_outbound = {
           description = "Permit All traffic outbound"
           type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
           cidr_blocks = ["0.0.0.0/0"]
         }
-        all-outbound-ipv6 = {
-          description = "Permit All traffic outbound"
-          type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
-          cidr_blocks = ["::/0"]
-        }
-        https-inbound-private = {
-          description = "Permit HTTPS for VM-Series Management"
+        https = {
+          description = "Permit HTTPS"
           type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-          cidr_blocks = ["10.0.0.0/8"]
+          cidr_blocks = ["0.0.0.0/0"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
         }
-        https-inbound-eip = {
-          description = "Permit HTTPS for VM-Series Management from known public IPs"
-          type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-          cidr_blocks = ["100.100.100.100/32"]
-        }
-        ssh-inbound-eip = {
-          description = "Permit SSH for VM-Series Management from known public IPs"
+        ssh = {
+          description = "Permit SSH"
           type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-          cidr_blocks = ["100.100.100.100/32"]
+          cidr_blocks = ["0.0.0.0/0"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
         }
-        https-inbound-self = {
-          description = "Permit HTTPS from instances with the same security group"
-          type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-          self        = true
-        }
-        https-inbound-security-groups = {
-          description = "Permit HTTPS traffic for the resources associated with the specified security group"
-          type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-          source_security_groups = ["sg-1a2b3c4d5e6f7g8h9i"]
-        }
-        https-inbound-prefix-list = {
-          description = "Permit HTTPS for VM-Series Management for IPs in managed prefix list"
-          type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-          prefix_list_ids = ["pl-1a2b3c4d5e6f7g8h9i"]
+        panorama_ssh = {
+          description = "Permit Panorama SSH (Optional)"
+          type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
+          cidr_blocks = ["10.0.0.0/8"]
         }
       }
     }
@@ -267,5 +254,19 @@ variable "security_groups" {
   EOF
 
   default = {}
-  type    = any
+  type = map(object({
+    name = string
+    rules = map(object({
+      description            = string
+      type                   = string
+      from_port              = string
+      to_port                = string
+      protocol               = string
+      cidr_blocks            = list(string)
+      ipv6_cidr_blocks       = optional(list(string))
+      prefix_list_ids        = optional(list(string))
+      self                   = optional(bool, false)
+      source_security_groups = optional(list(string))
+    }))
+  }))
 }

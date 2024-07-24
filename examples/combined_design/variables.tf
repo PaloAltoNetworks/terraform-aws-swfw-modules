@@ -94,9 +94,9 @@ variable "vpcs" {
       name = string
       rules = map(object({
         rule_number = number
-        egress      = bool
+        type        = string
         protocol    = string
-        rule_action = string
+        action      = string
         cidr_block  = string
         from_port   = optional(string)
         to_port     = optional(string)

@@ -3,20 +3,6 @@ locals {
   internet_gateway = var.create_internet_gateway ? aws_internet_gateway.this[0] : var.use_internet_gateway ? data.aws_internet_gateway.this[0] : null
   subnets          = { for k, v in var.subnets : k => v.create_subnet ? aws_subnet.this[k] : data.aws_subnet.this[k] }
   route_tables     = { for k, v in var.subnets : k => v.create_route_table ? aws_route_table.this[k] : data.aws_route_table.this[k] }
-  nacl_rules = flatten([
-    for n in keys(var.nacls) : [
-      for r in var.nacls[n].rules : {
-        nacl        = n
-        rule_number = r.rule_number
-        egress      = r.egress
-        protocol    = r.protocol
-        rule_action = r.rule_action
-        cidr_block  = r.cidr_block
-        from_port   = r.from_port
-        to_port     = r.to_port
-      }
-    ]
-  ])
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc
@@ -40,7 +26,7 @@ resource "aws_vpc" "this" {
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_ipv4_cidr_block_association
 resource "aws_vpc_ipv4_cidr_block_association" "this" {
-  for_each = { for _, v in var.secondary_cidr_blocks : v => "ipv4" } # convert list to map
+  for_each = { for _, v in var.secondary_cidr_blocks : v => "ipv4" }
 
   vpc_id     = local.vpc.id
   cidr_block = each.key
@@ -80,7 +66,8 @@ resource "aws_internet_gateway" "this" {
   count = var.create_internet_gateway ? 1 : 0
 
   vpc_id = local.vpc.id
-  tags   = merge(var.tags, { Name = coalesce(var.name_internet_gateway, "${var.name}-igw") })
+
+  tags = merge(var.tags, { Name = coalesce(var.name_internet_gateway, "${var.name}-igw") })
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table
@@ -88,7 +75,8 @@ resource "aws_route_table" "from_igw" {
   count = var.create_internet_gateway ? 1 : 0
 
   vpc_id = local.vpc.id
-  tags   = merge(var.tags, { Name = coalesce(var.route_table_internet_gateway, "${var.name}-igw") })
+
+  tags = merge(var.tags, { Name = coalesce(var.route_table_internet_gateway, "${var.name}-igw") })
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association
@@ -105,7 +93,8 @@ resource "aws_vpn_gateway" "this" {
 
   vpc_id          = local.vpc.id
   amazon_side_asn = var.vpn_gateway_amazon_side_asn
-  tags            = merge(var.tags, { Name = coalesce(var.name_vpn_gateway, "${var.name}-vgw") })
+
+  tags = merge(var.tags, { Name = coalesce(var.name_vpn_gateway, "${var.name}-vgw") })
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table
@@ -113,7 +102,8 @@ resource "aws_route_table" "from_vgw" {
   count = var.create_vpn_gateway ? 1 : 0
 
   vpc_id = local.vpc.id
-  tags   = merge(var.tags, { Name = coalesce(var.route_table_vpn_gateway, "${var.name}-vgw") })
+
+  tags = merge(var.tags, { Name = coalesce(var.route_table_vpn_gateway, "${var.name}-vgw") })
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association
@@ -128,8 +118,9 @@ resource "aws_route_table_association" "from_vgw" {
 data "aws_subnet" "this" {
   for_each = { for k, v in var.subnets : k => v if v.create_subnet == false }
 
-  tags   = { Name = each.value.name }
   vpc_id = local.vpc.id
+
+  tags = { Name = each.value.name }
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet
@@ -141,7 +132,8 @@ resource "aws_subnet" "this" {
   availability_zone       = "${var.region}${each.value.az}"
   vpc_id                  = local.vpc.id
   map_public_ip_on_launch = var.subnets_map_public_ip_on_launch
-  tags                    = merge(var.tags, each.value.tags, { Name = each.value.name })
+
+  tags = merge(var.tags, each.value.tags, { Name = each.value.name })
 
   depends_on = [
     aws_vpc_ipv4_cidr_block_association.this
@@ -154,7 +146,8 @@ data "aws_route_table" "this" {
 
   vpc_id         = local.vpc.id
   route_table_id = each.value.existing_route_table_id
-  tags           = { Name = coalesce(each.value.route_table_name, each.value.name) }
+
+  tags = { Name = coalesce(each.value.route_table_name, each.value.name) }
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table
@@ -162,8 +155,9 @@ resource "aws_route_table" "this" {
   for_each = { for k, v in var.subnets : k => v if v.create_route_table }
 
   vpc_id           = local.vpc.id
-  tags             = merge(var.tags, each.value.tags, { Name = coalesce(each.value.route_table_name, each.value.name) })
   propagating_vgws = var.propagating_vgws
+
+  tags = merge(var.tags, each.value.tags, { Name = coalesce(each.value.route_table_name, each.value.name) })
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association
@@ -177,19 +171,29 @@ resource "aws_route_table_association" "this" {
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_acl
 resource "aws_network_acl" "this" {
   for_each = var.nacls
-  vpc_id   = local.vpc.id
+
+  vpc_id = local.vpc.id
 
   tags = merge(var.tags, { Name = each.value.name })
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_acl_rule
 resource "aws_network_acl_rule" "this" {
-  for_each       = { for nacl_rule in local.nacl_rules : "${nacl_rule.nacl}.${nacl_rule.rule_number}" => nacl_rule }
+  for_each = {
+    for item in flatten([
+      for key_nacl, nacl in var.nacls : [
+        for key_rule, rule in nacl.rules : merge(rule, {
+          nacl = key_nacl
+          rule = key_rule
+        })
+      ]
+    ]) : "${item.nacl}_${item.rule}" => item
+  }
   network_acl_id = aws_network_acl.this[each.value.nacl].id
   rule_number    = each.value.rule_number
-  egress         = each.value.egress
+  egress         = each.value.type == "egress"
   protocol       = each.value.protocol
-  rule_action    = each.value.rule_action
+  rule_action    = each.value.action
   cidr_block     = each.value.cidr_block
   from_port      = each.value.from_port
   to_port        = each.value.to_port
@@ -212,29 +216,25 @@ resource "aws_security_group" "this" {
 
   dynamic "ingress" {
     for_each = [
-      for rule in each.value.rules :
-      rule
-      if rule.type == "ingress"
+      for rule in each.value.rules : rule if rule.type == "ingress"
     ]
 
     content {
       from_port        = ingress.value.from_port
       to_port          = ingress.value.to_port
       protocol         = ingress.value.protocol
-      cidr_blocks      = try(ingress.value.cidr_blocks, null)
-      ipv6_cidr_blocks = try(ingress.value.ipv6_cidr_blocks, null)
-      prefix_list_ids  = try(ingress.value.prefix_list_ids, null)
-      self             = try(ingress.value.self, null)
-      security_groups  = try(ingress.value.source_security_groups, null)
-      description      = lookup(ingress.value, "description", "")
+      cidr_blocks      = ingress.value.cidr_blocks
+      ipv6_cidr_blocks = ingress.value.ipv6_cidr_blocks
+      prefix_list_ids  = ingress.value.prefix_list_ids
+      self             = ingress.value.self
+      security_groups  = ingress.value.source_security_groups
+      description      = ingress.value.description
     }
   }
 
   dynamic "egress" {
     for_each = [
-      for rule in each.value.rules :
-      rule
-      if rule.type == "egress"
+      for rule in each.value.rules : rule if rule.type == "egress"
     ]
 
     content {
@@ -244,7 +244,7 @@ resource "aws_security_group" "this" {
       cidr_blocks      = try(egress.value.cidr_blocks, null)
       ipv6_cidr_blocks = try(egress.value.ipv6_cidr_blocks, null)
       prefix_list_ids  = try(egress.value.prefix_list_ids, null)
-      description      = lookup(egress.value, "description", "")
+      description      = egress.value.description
     }
   }
 

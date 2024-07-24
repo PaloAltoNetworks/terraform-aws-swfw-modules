@@ -98,30 +98,30 @@ vpcs = {
         rules = {
           block_outbound_icmp_1 = {
             rule_number = 110
-            egress      = true
+            type        = "egress"
             protocol    = "icmp"
-            rule_action = "deny"
+            action      = "deny"
             cidr_block  = "10.100.1.0/24"
           }
           block_outbound_icmp_2 = {
             rule_number = 120
-            egress      = true
+            type        = "egress"
             protocol    = "icmp"
-            rule_action = "deny"
+            action      = "deny"
             cidr_block  = "10.100.65.0/24"
           }
           allow_other_outbound = {
             rule_number = 200
-            egress      = true
+            type        = "egress"
             protocol    = "-1"
-            rule_action = "allow"
+            action      = "allow"
             cidr_block  = "0.0.0.0/0"
           }
           allow_inbound = {
             rule_number = 300
-            egress      = false
+            type        = "ingress"
             protocol    = "-1"
-            rule_action = "allow"
+            action      = "allow"
             cidr_block  = "0.0.0.0/0"
           }
         }
