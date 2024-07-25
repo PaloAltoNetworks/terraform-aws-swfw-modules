@@ -12,7 +12,6 @@ ssh_key_name = "example-ssh-key" # TODO: update here
 
 ### VPC
 vpcs = {
-  # Do not use `-` in key for VPC as this character is used in concatation of VPC and subnet for module `subnet_set` in `main.tf`
   security_vpc = {
     name                             = "security-vpc"
     cidr                             = "10.100.0.0/16"
@@ -56,9 +55,8 @@ vpcs = {
       }
     }
     subnets = {
-      # Do not modify value of `set=`, it is an internal identifier referenced by main.tf
       # Value of `nacl` must match key of objects stored in `nacls`
-      "10.100.0.0/24" = { az = "eu-west-1a", set = "mgmt", nacl = null, ipv6_index = 1 }
+      "10.100.0.0/24" = { az = "eu-west-1a", subnet_group = "mgmt", nacl = null, ipv6_index = 1 }
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
@@ -66,7 +64,7 @@ vpcs = {
       # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       mgmt_default = {
         vpc              = "security_vpc"
-        subnet           = "mgmt"
+        subnet_group     = "mgmt"
         to_cidr          = "0.0.0.0/0"
         destination_type = "ipv4"
         next_hop_key     = "security_vpc"
@@ -74,7 +72,7 @@ vpcs = {
       }
       mgmt_default_ipv6 = {
         vpc              = "security_vpc"
-        subnet           = "mgmt"
+        subnet_group     = "mgmt"
         to_cidr          = "::/0"
         destination_type = "ipv6"
         next_hop_key     = "security_vpc"
@@ -118,7 +116,7 @@ vmseries = {
         }
         security_group     = "vmseries_mgmt"
         vpc                = "security_vpc"
-        subnet             = "mgmt"
+        subnet_group       = "mgmt"
         ipv6_address_count = 1
         create_public_ip   = true
         source_dest_check  = true

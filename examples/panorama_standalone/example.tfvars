@@ -12,7 +12,6 @@ ssh_key_name = "example-ssh-key" # TODO: update here
 
 ### VPC
 vpcs = {
-  # Do not use `-` in key for VPC as this character is used in concatation of VPC and subnet for module `subnet_set` in `main.tf`
   management_vpc = {
     name  = "management-vpc"
     cidr  = "10.255.0.0/16"
@@ -40,16 +39,15 @@ vpcs = {
       }
     }
     subnets = {
-      # Do not modify value of `set=`, it is an internal identifier referenced by main.tf
-      "10.255.0.0/24" = { az = "eu-west-1a", set = "mgmt" }
-      "10.255.1.0/24" = { az = "eu-west-1b", set = "mgmt" }
+      "10.255.0.0/24" = { az = "eu-west-1a", subnet_group = "mgmt" }
+      "10.255.1.0/24" = { az = "eu-west-1b", subnet_group = "mgmt" }
     }
     routes = {
       # Value of `next_hop_key` must match keys used to create TGW attachment, IGW, GWLB endpoint or other resources
       # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       mgmt_default = {
         vpc           = "management_vpc"
-        subnet        = "mgmt"
+        subnet_group  = "mgmt"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "management_vpc"
         next_hop_type = "internet_gateway"
@@ -76,7 +74,7 @@ panoramas = {
 
     network = {
       vpc              = "management_vpc"
-      subnet           = "mgmt"
+      subnet_group     = "mgmt"
       security_group   = "panorama_mgmt"
       create_public_ip = true
     }
