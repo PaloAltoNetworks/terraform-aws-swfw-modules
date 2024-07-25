@@ -135,7 +135,6 @@ vpcs = {
       }
     }
     subnets = {
-      # Do not modify value of `set=`, it is an internal identifier referenced by main.tf
       # Value of `nacl` must match key of objects stored in `nacls`
       "10.100.0.0/24"  = { az = "eu-west-1a", subnet_group = "mgmt", nacl = null }
       "10.100.64.0/24" = { az = "eu-west-1b", subnet_group = "mgmt", nacl = null }
@@ -224,7 +223,6 @@ vpcs = {
       }
     }
     subnets = {
-      # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
       "10.104.0.0/24"   = { az = "eu-west-1a", subnet_group = "app1_vm", nacl = null }
       "10.104.128.0/24" = { az = "eu-west-1b", subnet_group = "app1_vm", nacl = null }
       "10.104.2.0/24"   = { az = "eu-west-1a", subnet_group = "app1_lb", nacl = null }
@@ -310,7 +308,6 @@ vpcs = {
       }
     }
     subnets = {
-      # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
       "10.105.0.0/24"   = { az = "eu-west-1a", subnet_group = "app2_vm", nacl = null }
       "10.105.128.0/24" = { az = "eu-west-1b", subnet_group = "app2_vm", nacl = null }
       "10.105.2.0/24"   = { az = "eu-west-1a", subnet_group = "app2_lb", nacl = null }

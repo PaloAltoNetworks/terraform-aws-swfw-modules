@@ -68,7 +68,6 @@ vpcs = {
       }
     }
     subnets = {
-      # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
       "10.104.0.0/24"   = { az = "eu-west-1a", set = "app1_vm", nacl = null }
       "10.104.128.0/24" = { az = "eu-west-1b", set = "app1_vm", nacl = null }
       "10.104.2.0/24"   = { az = "eu-west-1a", set = "app1_lb", nacl = null }
@@ -180,7 +179,6 @@ vpcs = {
       }
     }
     subnets = {
-      # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
       "10.105.0.0/24"   = { az = "eu-west-1a", set = "app2_vm", nacl = null }
       "10.105.128.0/24" = { az = "eu-west-1b", set = "app2_vm", nacl = null }
       "10.105.2.0/24"   = { az = "eu-west-1a", set = "app2_lb", nacl = null }

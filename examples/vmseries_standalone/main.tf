@@ -26,7 +26,7 @@ locals {
       ipv6_cidr               = try(cidrsubnet(module.vpc[vk].vpc.ipv6_cidr_block, 8, sv.ipv6_index), null)
       nacl                    = sv.nacl
       az                      = sv.az
-      subnet                  = sv.set
+      subnet                  = sv.subnet_group
       vpc                     = vk
       create_subnet           = try(sv.create_subnet, true)
       create_route_table      = try(sv.create_route_table, sv.create_subnet, true)
@@ -109,7 +109,7 @@ locals {
     for vk, vv in var.vpcs : [
       for rk, rv in vv.routes : {
         vpc              = rv.vpc
-        subnet           = rv.subnet
+        subnet           = rv.subnet_group
         to_cidr          = rv.to_cidr
         destination_type = rv.destination_type
         next_hop_type    = rv.next_hop_type
@@ -218,7 +218,7 @@ module "vmseries" {
       private_ips        = [v.private_ip[each.value.instance]]
       security_group_ids = try([module.vpc[each.value.common.vpc].security_group_ids[v.security_group]], [])
       source_dest_check  = try(v.source_dest_check, false)
-      subnet_id          = module.subnet_sets["${v.vpc}-${v.subnet}"].subnets[each.value.az].id
+      subnet_id          = module.subnet_sets["${v.vpc}-${v.subnet_group}"].subnets[each.value.az].id
       create_public_ip   = try(v.create_public_ip, false)
       eip_allocation_id  = try(v.eip_allocation_id[each.value.instance], null)
       ipv6_address_count = try(v.ipv6_address_count, null)
