@@ -128,7 +128,7 @@ resource "aws_subnet" "this" {
   for_each = { for k, v in var.subnets : k => v if v.create_subnet }
 
   cidr_block              = each.value.cidr_block
-  ipv6_cidr_block         = try(each.value.ipv6_cidr_block, null)
+  ipv6_cidr_block         = each.value.ipv6_cidr_block
   availability_zone       = "${var.region}${each.value.az}"
   vpc_id                  = local.vpc.id
   map_public_ip_on_launch = var.subnets_map_public_ip_on_launch
@@ -211,7 +211,7 @@ resource "aws_security_group" "this" {
   for_each = var.security_groups
 
   name        = each.value.name
-  description = try(each.value.description, "Security group managed by Terraform")
+  description = each.value.description
   vpc_id      = local.vpc.id
 
   dynamic "ingress" {
@@ -241,9 +241,9 @@ resource "aws_security_group" "this" {
       from_port        = egress.value.from_port
       to_port          = egress.value.to_port
       protocol         = egress.value.protocol
-      cidr_blocks      = try(egress.value.cidr_blocks, null)
-      ipv6_cidr_blocks = try(egress.value.ipv6_cidr_blocks, null)
-      prefix_list_ids  = try(egress.value.prefix_list_ids, null)
+      cidr_blocks      = egress.value.cidr_blocks
+      ipv6_cidr_blocks = egress.value.ipv6_cidr_blocks
+      prefix_list_ids  = egress.value.prefix_list_ids
       description      = egress.value.description
     }
   }

@@ -103,7 +103,8 @@ variable "vpcs" {
       }))
     }))
     security_groups = map(object({
-      name = string
+      name        = string
+      description = optional(string, "Security group managed by Terraform")
       rules = map(object({
         description = string
         type        = string
@@ -118,6 +119,7 @@ variable "vpcs" {
       az                      = string
       name                    = string
       cidr_block              = string
+      ipv6_cidr_block         = optional(string)
       nacl                    = optional(string)
       create_subnet           = optional(bool, true)
       create_route_table      = optional(bool, true)

@@ -134,6 +134,7 @@ variable "subnets" {
   type = map(object({
     az                      = string
     cidr_block              = string
+    ipv6_cidr_block         = optional(string)
     group                   = string
     name                    = string
     nacl                    = optional(string)
@@ -255,7 +256,8 @@ variable "security_groups" {
 
   default = {}
   type = map(object({
-    name = string
+    name        = string
+    description = optional(string, "Security group managed by Terraform")
     rules = map(object({
       description            = string
       type                   = string
