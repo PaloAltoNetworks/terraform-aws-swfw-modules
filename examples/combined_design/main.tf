@@ -75,7 +75,7 @@ module "vpc_routes" {
 
   for_each = local.vpc_routes
 
-  route_table_ids = { for k, v in module.vpc[each.value.vpc].route_tables : k => v.id if v.group == each.value.subnet }
+  route_table_ids = { for k, v in module.vpc[each.value.vpc].route_tables : v.az => v.id if v.group == each.value.subnet }
   to_cidr         = each.value.to_cidr
   next_hop_set    = each.value.next_hop_set
 }
@@ -142,7 +142,7 @@ module "gwlb" {
 
   name    = "${var.name_prefix}${each.value.name}"
   vpc_id  = module.vpc[each.value.vpc].id
-  subnets = { for k, v in module.vpc[each.value.vpc].subnets : k => v if v.group == each.value.subnet }
+  subnets = { for k, v in module.vpc[each.value.vpc].subnets : v.az => v if v.group == each.value.subnet }
 }
 
 resource "aws_lb_target_group_attachment" "this" {
@@ -165,12 +165,12 @@ module "gwlbe_endpoint" {
   name              = "${var.name_prefix}${each.value.name}"
   gwlb_service_name = module.gwlb[each.value.gwlb].endpoint_service.service_name
   vpc_id            = module.vpc[each.value.vpc].id
-  subnets           = { for k, v in module.vpc[each.value.vpc].subnets : k => v if v.group == each.value.subnet }
+  subnets           = { for k, v in module.vpc[each.value.vpc].subnets : v.az => v if v.group == each.value.subnet }
 
   act_as_next_hop_for = each.value.act_as_next_hop ? {
     "from-igw-to-lb" = {
       route_table_id = module.vpc[each.value.vpc].internet_gateway_route_table.id
-      to_subnets     = { for k, v in module.vpc[each.value.from_igw_to_vpc].subnets : "${each.value.subnet}${v.az}" => v if v.group == each.value.from_igw_to_subnet }
+      to_subnets     = { for k, v in module.vpc[each.value.from_igw_to_vpc].subnets : v.az => v if v.group == each.value.from_igw_to_subnet }
     }
     # The routes in this section are special in that they are on the "edge", that is they are part of an IGW route table,
     # and AWS allows their destinations to only be:
