@@ -29,10 +29,10 @@ variable "vpcs" {
   - `security_groups`: map of security groups
   - `subnets`: map of subnets with properties:
      - `az`: availability zone
-     - `set`: internal identifier referenced by main.tf
+     - `subnet_group`: identity of the same purpose subnets group such as management
   - `routes`: map of routes with properties:
      - `vpc`: key of VPC
-     - `subnet`: key of subnet
+     - `subnet_group` - key of the subnet group
      - `to_cidr`: destination IP range
      - `next_hop_key`: must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
      - `next_hop_type`: internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
@@ -66,13 +66,13 @@ variable "vpcs" {
         }
       }
       subnets = {
-        "10.100.0.0/24"  = { az = "eu-central-1a", set = "mgmt" }
-        "10.100.64.0/24" = { az = "eu-central-1b", set = "mgmt" }
+        "10.100.0.0/24"  = { az = "eu-central-1a", subnet_group = "mgmt" }
+        "10.100.64.0/24" = { az = "eu-central-1b", subnet_group = "mgmt" }
       }
       routes = {
         mgmt_default = {
           vpc           = "security_vpc
-          subnet        = "mgmt"
+          subnet_group  = "mgmt"
           to_cidr       = "0.0.0.0/0"
           next_hop_key  = "security_vpc"
           next_hop_type = "internet_gateway"
@@ -111,7 +111,7 @@ variable "vpcs" {
     }))
     subnets = map(object({
       az                      = string
-      set                     = string
+      subnet_group            = string
       nacl                    = optional(string)
       create_subnet           = optional(bool, true)
       create_route_table      = optional(bool, true)
@@ -122,7 +122,7 @@ variable "vpcs" {
     }))
     routes = map(object({
       vpc           = string
-      subnet        = string
+      subnet_group  = string
       to_cidr       = string
       next_hop_key  = string
       next_hop_type = string
@@ -142,7 +142,7 @@ variable "panoramas" {
   - `panos_version`: PAN-OS version used for Panorama
   - `network`: definition of network settings in object with attributes:
     - `vpc`: name of the VPC (needs to be one of the keys in map `vpcs`)
-    - `subnet`: key of the subnet
+    - `subnet_group` - key of the subnet group
     - `security_group`: security group assigned to ENI used by Panorama
     - `create_public_ip`: true, if public IP address for management should be created
   - `ebs`: EBS settings defined in object with attributes:
@@ -172,7 +172,7 @@ variable "panoramas" {
 
       network = {
         vpc              = "management_vpc"
-        subnet           = "mgmt"
+        subnet_group     = "mgmt"
         security_group   = "panorama_mgmt"
         create_public_ip = true
       }
@@ -216,7 +216,7 @@ variable "panoramas" {
 
     network = object({
       vpc              = string
-      subnet           = string
+      subnet_group     = string
       security_group   = string
       create_public_ip = bool
     })

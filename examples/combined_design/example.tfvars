@@ -17,76 +17,76 @@ vpcs = {
     cidr = "10.100.0.0/16"
     subnets = {
       # Value of `nacl` must match key of objects stored in `nacls`
-      mgmta           = { az = "a", cidr_block = "10.100.0.0/24", group = "mgmt", name = "mgmt1" }
-      mgmtb           = { az = "b", cidr_block = "10.100.64.0/24", group = "mgmt", name = "mgmt2" }
-      privatea        = { az = "a", cidr_block = "10.100.1.0/24", group = "private", name = "private1", nacl = "trusted_path_monitoring" }
-      privateb        = { az = "b", cidr_block = "10.100.65.0/24", group = "private", name = "private2", nacl = "trusted_path_monitoring" }
-      publica         = { az = "a", cidr_block = "10.100.2.0/24", group = "public", name = "public1" }
-      publicb         = { az = "b", cidr_block = "10.100.66.0/24", group = "public", name = "public2" }
-      tgw_attacha     = { az = "a", cidr_block = "10.100.3.0/24", group = "tgw_attach", name = "tgw_attach1" }
-      tgw_attachb     = { az = "b", cidr_block = "10.100.67.0/24", group = "tgw_attach", name = "tgw_attach2" }
-      gwlbe_outbounda = { az = "a", cidr_block = "10.100.4.0/24", group = "gwlbe_outbound", name = "gwlbe_outbound1" }
-      gwlbe_outboundb = { az = "b", cidr_block = "10.100.68.0/24", group = "gwlbe_outbound", name = "gwlbe_outbound2" }
-      gwlba           = { az = "a", cidr_block = "10.100.5.0/24", group = "gwlb", name = "gwlb1" }
-      gwlbb           = { az = "b", cidr_block = "10.100.69.0/24", group = "gwlb", name = "gwlb2" }
-      gwlb_eastwesta  = { az = "a", cidr_block = "10.100.10.0/24", group = "gwlbe_eastwest", name = "gwlbe_eastwest1" }
-      gwlb_eastwestb  = { az = "b", cidr_block = "10.100.74.0/24", group = "gwlbe_eastwest", name = "gwlbe_eastwest2" }
+      mgmta           = { az = "a", cidr_block = "10.100.0.0/24", subnet_group = "mgmt", name = "mgmt1" }
+      mgmtb           = { az = "b", cidr_block = "10.100.64.0/24", subnet_group = "mgmt", name = "mgmt2" }
+      privatea        = { az = "a", cidr_block = "10.100.1.0/24", subnet_group = "private", name = "private1", nacl = "trusted_path_monitoring" }
+      privateb        = { az = "b", cidr_block = "10.100.65.0/24", subnet_group = "private", name = "private2", nacl = "trusted_path_monitoring" }
+      publica         = { az = "a", cidr_block = "10.100.2.0/24", subnet_group = "public", name = "public1" }
+      publicb         = { az = "b", cidr_block = "10.100.66.0/24", subnet_group = "public", name = "public2" }
+      tgw_attacha     = { az = "a", cidr_block = "10.100.3.0/24", subnet_group = "tgw_attach", name = "tgw_attach1" }
+      tgw_attachb     = { az = "b", cidr_block = "10.100.67.0/24", subnet_group = "tgw_attach", name = "tgw_attach2" }
+      gwlbe_outbounda = { az = "a", cidr_block = "10.100.4.0/24", subnet_group = "gwlbe_outbound", name = "gwlbe_outbound1" }
+      gwlbe_outboundb = { az = "b", cidr_block = "10.100.68.0/24", subnet_group = "gwlbe_outbound", name = "gwlbe_outbound2" }
+      gwlba           = { az = "a", cidr_block = "10.100.5.0/24", subnet_group = "gwlb", name = "gwlb1" }
+      gwlbb           = { az = "b", cidr_block = "10.100.69.0/24", subnet_group = "gwlb", name = "gwlb2" }
+      gwlb_eastwesta  = { az = "a", cidr_block = "10.100.10.0/24", subnet_group = "gwlbe_eastwest", name = "gwlbe_eastwest1" }
+      gwlb_eastwestb  = { az = "b", cidr_block = "10.100.74.0/24", subnet_group = "gwlbe_eastwest", name = "gwlbe_eastwest2" }
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
       # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       mgmt_default = {
         vpc           = "security_vpc"
-        subnet        = "mgmt"
+        subnet_group  = "mgmt"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "security_vpc"
         next_hop_type = "internet_gateway"
       }
       mgmt_panorama = {
         vpc           = "security_vpc"
-        subnet        = "mgmt"
+        subnet_group  = "mgmt"
         to_cidr       = "10.255.0.0/16"
         next_hop_key  = "security"
         next_hop_type = "transit_gateway_attachment"
       }
       mgmt_rfc1918 = {
         vpc           = "security_vpc"
-        subnet        = "mgmt"
+        subnet_group  = "mgmt"
         to_cidr       = "10.0.0.0/8"
         next_hop_key  = "security"
         next_hop_type = "transit_gateway_attachment"
       }
       tgw_rfc1918 = {
         vpc           = "security_vpc"
-        subnet        = "tgw_attach"
+        subnet_group  = "tgw_attach"
         to_cidr       = "10.0.0.0/8"
         next_hop_key  = "security_gwlb_eastwest"
         next_hop_type = "gwlbe_endpoint"
       }
       tgw_default = {
         vpc           = "security_vpc"
-        subnet        = "tgw_attach"
+        subnet_group  = "tgw_attach"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "security_gwlb_outbound"
         next_hop_type = "gwlbe_endpoint"
       }
       public_default = {
         vpc           = "security_vpc"
-        subnet        = "public"
+        subnet_group  = "public"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "security_vpc"
         next_hop_type = "internet_gateway"
       }
       gwlbe_outbound_rfc1918 = {
         vpc           = "security_vpc"
-        subnet        = "gwlbe_outbound"
+        subnet_group  = "gwlbe_outbound"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "security"
         next_hop_type = "transit_gateway_attachment"
       }
       gwlbe_eastwest_rfc1918 = {
         vpc           = "security_vpc"
-        subnet        = "gwlbe_eastwest"
+        subnet_group  = "gwlbe_eastwest"
         to_cidr       = "10.0.0.0/8"
         next_hop_key  = "security"
         next_hop_type = "transit_gateway_attachment"
@@ -208,33 +208,33 @@ vpcs = {
     name = "app1-spoke-vpc"
     cidr = "10.104.0.0/16"
     subnets = {
-      app1_vma    = { az = "a", cidr_block = "10.104.0.0/24", group = "app1_vm", name = "app1_vm1" }
-      app1_vmb    = { az = "b", cidr_block = "10.104.128.0/24", group = "app1_vm", name = "app1_vm2" }
-      app1_lba    = { az = "a", cidr_block = "10.104.2.0/24", group = "app1_lb", name = "app1_lb1" }
-      app1_lbb    = { az = "b", cidr_block = "10.104.130.0/24", group = "app1_lb", name = "app1_lb2" }
-      app1_gwlbea = { az = "a", cidr_block = "10.104.3.0/24", group = "app1_gwlbe", name = "app1_gwlbe1" }
-      app1_gwlbeb = { az = "b", cidr_block = "10.104.131.0/24", group = "app1_gwlbe", name = "app1_gwlbe2" }
+      app1_vma    = { az = "a", cidr_block = "10.104.0.0/24", subnet_group = "app1_vm", name = "app1_vm1" }
+      app1_vmb    = { az = "b", cidr_block = "10.104.128.0/24", subnet_group = "app1_vm", name = "app1_vm2" }
+      app1_lba    = { az = "a", cidr_block = "10.104.2.0/24", subnet_group = "app1_lb", name = "app1_lb1" }
+      app1_lbb    = { az = "b", cidr_block = "10.104.130.0/24", subnet_group = "app1_lb", name = "app1_lb2" }
+      app1_gwlbea = { az = "a", cidr_block = "10.104.3.0/24", subnet_group = "app1_gwlbe", name = "app1_gwlbe1" }
+      app1_gwlbeb = { az = "b", cidr_block = "10.104.131.0/24", subnet_group = "app1_gwlbe", name = "app1_gwlbe2" }
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
       # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       vm_default = {
         vpc           = "app1_vpc"
-        subnet        = "app1_vm"
+        subnet_group  = "app1_vm"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app1"
         next_hop_type = "transit_gateway_attachment"
       }
       gwlbe_default = {
         vpc           = "app1_vpc"
-        subnet        = "app1_gwlbe"
+        subnet_group  = "app1_gwlbe"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app1_vpc"
         next_hop_type = "internet_gateway"
       }
       lb_default = {
         vpc           = "app1_vpc"
-        subnet        = "app1_lb"
+        subnet_group  = "app1_lb"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app1_inbound"
         next_hop_type = "gwlbe_endpoint"
@@ -293,33 +293,33 @@ vpcs = {
     name = "app2-spoke-vpc"
     cidr = "10.105.0.0/16"
     subnets = {
-      app2_vma    = { az = "a", cidr_block = "10.105.0.0/24", group = "app2_vm", name = "app2_vm1" }
-      app2_vmb    = { az = "b", cidr_block = "10.105.128.0/24", group = "app2_vm", name = "app2_vm2" }
-      app2_lba    = { az = "a", cidr_block = "10.105.2.0/24", group = "app2_lb", name = "app2_lb1" }
-      app2_lbb    = { az = "b", cidr_block = "10.105.130.0/24", group = "app2_lb", name = "app2_lb2" }
-      app2_gwlbea = { az = "a", cidr_block = "10.105.3.0/24", group = "app2_gwlbe", name = "app2_gwlbe1" }
-      app2_gwlbeb = { az = "b", cidr_block = "10.105.131.0/24", group = "app2_gwlbe", name = "app2_gwlbe2" }
+      app2_vma    = { az = "a", cidr_block = "10.105.0.0/24", subnet_group = "app2_vm", name = "app2_vm1" }
+      app2_vmb    = { az = "b", cidr_block = "10.105.128.0/24", subnet_group = "app2_vm", name = "app2_vm2" }
+      app2_lba    = { az = "a", cidr_block = "10.105.2.0/24", subnet_group = "app2_lb", name = "app2_lb1" }
+      app2_lbb    = { az = "b", cidr_block = "10.105.130.0/24", subnet_group = "app2_lb", name = "app2_lb2" }
+      app2_gwlbea = { az = "a", cidr_block = "10.105.3.0/24", subnet_group = "app2_gwlbe", name = "app2_gwlbe1" }
+      app2_gwlbeb = { az = "b", cidr_block = "10.105.131.0/24", subnet_group = "app2_gwlbe", name = "app2_gwlbe2" }
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
       # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       vm_default = {
         vpc           = "app2_vpc"
-        subnet        = "app2_vm"
+        subnet_group  = "app2_vm"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app2"
         next_hop_type = "transit_gateway_attachment"
       }
       gwlbe_default = {
         vpc           = "app2_vpc"
-        subnet        = "app2_gwlbe"
+        subnet_group  = "app2_gwlbe"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app2_vpc"
         next_hop_type = "internet_gateway"
       }
       lb_default = {
         vpc           = "app2_vpc"
-        subnet        = "app2_lb"
+        subnet_group  = "app2_lb"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app2_inbound"
         next_hop_type = "gwlbe_endpoint"
@@ -398,21 +398,21 @@ tgw = {
     security = {
       name                = "vmseries"
       vpc                 = "security_vpc"
-      subnet              = "tgw_attach"
+      subnet_group        = "tgw_attach"
       route_table         = "from_security_vpc"
       propagate_routes_to = "from_spoke_vpc"
     }
     app1 = {
       name                = "app1-spoke-vpc"
       vpc                 = "app1_vpc"
-      subnet              = "app1_vm"
+      subnet_group        = "app1_vm"
       route_table         = "from_spoke_vpc"
       propagate_routes_to = "from_security_vpc"
     }
     app2 = {
       name                = "app2-spoke-vpc"
       vpc                 = "app2_vpc"
-      subnet              = "app2_vm"
+      subnet_group        = "app2_vm"
       route_table         = "from_spoke_vpc"
       propagate_routes_to = "from_security_vpc"
     }
@@ -425,9 +425,9 @@ natgws = {}
 ### GATEWAY LOADBALANCER
 gwlbs = {
   security_gwlb = {
-    name   = "security-gwlb"
-    vpc    = "security_vpc"
-    subnet = "gwlb"
+    name         = "security-gwlb"
+    vpc          = "security_vpc"
+    subnet_group = "gwlb"
   }
 }
 gwlb_endpoints = {
@@ -437,33 +437,33 @@ gwlb_endpoints = {
     name            = "eastwest-gwlb-endpoint"
     gwlb            = "security_gwlb"
     vpc             = "security_vpc"
-    subnet          = "gwlbe_eastwest"
+    subnet_group    = "gwlbe_eastwest"
     act_as_next_hop = false
   }
   security_gwlb_outbound = {
     name            = "outbound-gwlb-endpoint"
     gwlb            = "security_gwlb"
     vpc             = "security_vpc"
-    subnet          = "gwlbe_outbound"
+    subnet_group    = "gwlbe_outbound"
     act_as_next_hop = false
   }
   app1_inbound = {
-    name               = "app1-gwlb-endpoint"
-    gwlb               = "security_gwlb"
-    vpc                = "app1_vpc"
-    subnet             = "app1_gwlbe"
-    act_as_next_hop    = true
-    from_igw_to_vpc    = "app1_vpc"
-    from_igw_to_subnet = "app1_lb"
+    name                     = "app1-gwlb-endpoint"
+    gwlb                     = "security_gwlb"
+    vpc                      = "app1_vpc"
+    subnet_group             = "app1_gwlbe"
+    act_as_next_hop          = true
+    from_igw_to_vpc          = "app1_vpc"
+    from_igw_to_subnet_group = "app1_lb"
   }
   app2_inbound = {
-    name               = "app2-gwlb-endpoint"
-    gwlb               = "security_gwlb"
-    vpc                = "app2_vpc"
-    subnet             = "app2_gwlbe"
-    act_as_next_hop    = true
-    from_igw_to_vpc    = "app2_vpc"
-    from_igw_to_subnet = "app2_lb"
+    name                     = "app2-gwlb-endpoint"
+    gwlb                     = "security_gwlb"
+    vpc                      = "app2_vpc"
+    subnet_group             = "app2_gwlbe"
+    act_as_next_hop          = true
+    from_igw_to_vpc          = "app2_vpc"
+    from_igw_to_subnet_group = "app2_lb"
   }
 }
 
@@ -503,7 +503,7 @@ vmseries = {
         device_index      = 0
         security_group    = "vmseries_private"
         vpc               = "security_vpc"
-        subnet            = "private"
+        subnet_group      = "private"
         create_public_ip  = false
         source_dest_check = false
       }
@@ -511,7 +511,7 @@ vmseries = {
         device_index      = 1
         security_group    = "vmseries_mgmt"
         vpc               = "security_vpc"
-        subnet            = "mgmt"
+        subnet_group      = "mgmt"
         create_public_ip  = true
         source_dest_check = true
       }
@@ -519,7 +519,7 @@ vmseries = {
         device_index      = 2
         security_group    = "vmseries_public"
         vpc               = "security_vpc"
-        subnet            = "public"
+        subnet_group      = "public"
         create_public_ip  = true
         source_dest_check = false
       }
@@ -580,28 +580,28 @@ spoke_vms = {
   "app1_vm01" = {
     az             = "a"
     vpc            = "app1_vpc"
-    subnet         = "app1_vm"
+    subnet_group   = "app1_vm"
     security_group = "app1_vm"
     type           = "t2.micro"
   }
   "app1_vm02" = {
     az             = "b"
     vpc            = "app1_vpc"
-    subnet         = "app1_vm"
+    subnet_group   = "app1_vm"
     security_group = "app1_vm"
     type           = "t2.micro"
   }
   "app2_vm01" = {
     az             = "a"
     vpc            = "app2_vpc"
-    subnet         = "app2_vm"
+    subnet_group   = "app2_vm"
     security_group = "app2_vm"
     type           = "t2.micro"
   }
   "app2_vm02" = {
     az             = "b"
     vpc            = "app2_vpc"
-    subnet         = "app2_vm"
+    subnet_group   = "app2_vm"
     security_group = "app2_vm"
     type           = "t2.micro"
   }
@@ -610,14 +610,14 @@ spoke_vms = {
 ### SPOKE LOADBALANCERS
 spoke_nlbs = {
   "app1-nlb" = {
-    vpc    = "app1_vpc"
-    subnet = "app1_lb"
-    vms    = ["app1_vm01", "app1_vm02"]
+    vpc          = "app1_vpc"
+    subnet_group = "app1_lb"
+    vms          = ["app1_vm01", "app1_vm02"]
   }
   "app2-nlb" = {
-    vpc    = "app2_vpc"
-    subnet = "app2_lb"
-    vms    = ["app2_vm01", "app2_vm02"]
+    vpc          = "app2_vpc"
+    subnet_group = "app2_lb"
+    vms          = ["app2_vm01", "app2_vm02"]
   }
 }
 
@@ -642,7 +642,7 @@ spoke_albs = {
       }
     }
     vpc             = "app1_vpc"
-    subnet          = "app1_lb"
+    subnet_group    = "app1_lb"
     security_groups = "app1_lb"
   }
   "app2-alb" = {
@@ -665,7 +665,7 @@ spoke_albs = {
       }
     }
     vpc             = "app2_vpc"
-    subnet          = "app2_lb"
+    subnet_group    = "app2_lb"
     security_groups = "app2_lb"
   }
 }

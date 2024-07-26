@@ -57,15 +57,15 @@ output "vpn_gateway_as_next_hop_set" {
 
 output "subnets" {
   value = { for k, v in local.subnets : k => merge(v, {
-    group = var.subnets[k].group
-    az    = var.subnets[k].az
+    subnet_group = var.subnets[k].subnet_group
+    az           = var.subnets[k].az
   }) }
 }
 
 output "route_tables" {
   value = { for k, v in local.route_tables : k => merge(v, {
-    group = var.subnets[k].group
-    az    = var.subnets[k].az
+    subnet_group = var.subnets[k].subnet_group
+    az           = var.subnets[k].az
   }) }
 }
 

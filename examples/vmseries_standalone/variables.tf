@@ -28,12 +28,12 @@ variable "vpcs" {
   - `security_groups`: map of security groups
   - `subnets`: map of subnets with properties:
      - `az`: availability zone
-     - `set`: internal identifier referenced by main.tf
+     - `subnet_group` - key of the subnet group
      - `nacl`: key of NACL (can be null)
      - `ipv6_index` - choose index for auto-generated IPv6 CIDR, must be null while used with IPv4 only
   - `routes`: map of routes with properties:
      - `vpc` - key of VPC
-     - `subnet` - key of subnet
+     - `subnet_group` - key of the subnet group
      - `to_cidr` - CIDR for route
      - `next_hop_key` - must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
      - `next_hop_type` - internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
@@ -74,16 +74,16 @@ variable "vpcs" {
         }
       }
       subnets = {
-        "10.104.0.0/24"   = { az = "eu-central-1a", set = "vm", nacl = null }
+        "10.104.0.0/24"   = { az = "eu-central-1a", subnet_group = "vm", nacl = null }
       }
       routes = {
         vm_default = {
-          vpc           = "app1_vpc"
-          subnet        = "app1_vm"
-          to_cidr       = "0.0.0.0/0"
+          vpc              = "app1_vpc"
+          subnet_group     = "app1_vm"
+          to_cidr          = "0.0.0.0/0"
           destination_type = "ipv4"
-          next_hop_key  = "app1"
-          next_hop_type = "transit_gateway_attachment"
+          next_hop_key     = "app1"
+          next_hop_type    = "transit_gateway_attachment"
         }
       }
     }
@@ -121,7 +121,7 @@ variable "vpcs" {
     }))
     subnets = map(object({
       az                      = string
-      set                     = string
+      subnet_group            = string
       nacl                    = optional(string)
       create_subnet           = optional(bool, true)
       create_route_table      = optional(bool, true)
@@ -133,7 +133,7 @@ variable "vpcs" {
     }))
     routes = map(object({
       vpc              = string
-      subnet           = string
+      subnet_group     = string
       to_cidr          = string
       destination_type = string
       next_hop_key     = string
@@ -180,7 +180,7 @@ variable "vmseries" {
           private_ip        = "10.100.0.4"
           security_group    = "vmseries_mgmt"
           vpc               = "security_vpc"
-          subnet            = "mgmt"
+          subnet_group      = "mgmt"
           create_public_ip  = true
           source_dest_check = true
           eip_allocation_id = null
@@ -217,7 +217,7 @@ variable "vmseries" {
       device_index       = number
       security_group     = string
       vpc                = string
-      subnet             = string
+      subnet_group       = string
       create_public_ip   = bool
       private_ip         = map(string)
       ipv6_address_count = number

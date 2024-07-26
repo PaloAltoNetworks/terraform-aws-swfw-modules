@@ -135,7 +135,7 @@ variable "subnets" {
     az                      = string
     cidr_block              = string
     ipv6_cidr_block         = optional(string)
-    group                   = string
+    subnet_group            = string
     name                    = string
     nacl                    = optional(string)
     create_subnet           = optional(bool, true)
