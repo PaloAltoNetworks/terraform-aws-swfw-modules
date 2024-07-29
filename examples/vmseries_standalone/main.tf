@@ -194,7 +194,7 @@ module "bootstrap" {
   global_tags = var.global_tags
 
   bootstrap_options     = merge(each.value.common.bootstrap_options, { hostname = "${var.name_prefix}${each.key}" })
-  source_root_directory = "files-${each.key}/"
+  source_root_directory = "files"
 }
 
 ### VM-Series INSTANCES

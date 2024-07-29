@@ -83,7 +83,7 @@ locals {
 }
 
 resource "aws_s3_object" "bootstrap_files" {
-  for_each = fileset(local.source_root_directory, "**")
+  for_each = fileset(local.source_root_directory, "**/[^.]*")
 
   bucket = local.aws_s3_bucket.id
   key    = each.value
