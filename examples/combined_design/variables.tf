@@ -23,57 +23,26 @@ variable "vpcs" {
   Following properties are available:
   - `name`: VPC name
   - `cidr_block`: Object containing the IPv4 and IPv6 CIDR blocks to assign to a new VPC
+  - `subnets`: map of subnets with properties
+  - `routes`: map of routes with properties
   - `nacls`: map of network ACLs
   - `security_groups`: map of security groups
-  - `subnets`: map of subnets with properties:
-     - `az`: availability zone
-     - `subnet_group`: identity of the same purpose subnets group such as management
-     - `nacl`: key of NACL (can be null)
-  - `routes`: map of routes with properties:
-     - `vpc` - VPC key
-     - `subnet_group` - subnet_group key
-     - `next_hop_key` - must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
-     - `next_hop_type` - internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
 
   Example:
   ```
   vpcs = {
-    example_vpc = {
-      name = "example-spoke-vpc"
+    app1_vpc = {
+      name = "app1-spoke-vpc"
       cidr_block = {
-        ipv4 = "10.103.0.0/16"
-      }
-      nacls = {
-        trusted_path_monitoring = {
-          name               = "trusted-path-monitoring"
-          rules = {
-            allow_inbound = {
-              rule_number = 300
-              egress      = false
-              protocol    = "-1"
-              rule_action = "allow"
-              cidr_block  = "0.0.0.0/0"
-              from_port   = null
-              to_port     = null
-            }
-          }
-        }
-      }
-      security_groups = {
-        example_vm = {
-          name = "example_vm"
-          rules = {
-            all_outbound = {
-              description = "Permit All traffic outbound"
-              type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
-              cidr_blocks = ["0.0.0.0/0"]
-            }
-          }
-        }
+        ipv4 = "10.104.0.0/16"
       }
       subnets = {
-        "10.104.0.0/24"   = { az = "eu-central-1a", subnet_group = "vm", nacl = null }
-        "10.104.128.0/24" = { az = "eu-central-1b", subnet_group = "vm", nacl = null }
+        app1_vma    = { az = "a", cidr_block = "10.104.0.0/24", subnet_group = "app1_vm", name = "app1_vm1" }
+        app1_vmb    = { az = "b", cidr_block = "10.104.128.0/24", subnet_group = "app1_vm", name = "app1_vm2" }
+        app1_lba    = { az = "a", cidr_block = "10.104.2.0/24", subnet_group = "app1_lb", name = "app1_lb1" }
+        app1_lbb    = { az = "b", cidr_block = "10.104.130.0/24", subnet_group = "app1_lb", name = "app1_lb2" }
+        app1_gwlbea = { az = "a", cidr_block = "10.104.3.0/24", subnet_group = "app1_gwlbe", name = "app1_gwlbe1" }
+        app1_gwlbeb = { az = "b", cidr_block = "10.104.131.0/24", subnet_group = "app1_gwlbe", name = "app1_gwlbe2" }
       }
       routes = {
         vm_default = {
@@ -82,6 +51,48 @@ variable "vpcs" {
           to_cidr       = "0.0.0.0/0"
           next_hop_key  = "app1"
           next_hop_type = "transit_gateway_attachment"
+        }
+        gwlbe_default = {
+          vpc           = "app1_vpc"
+          subnet_group  = "app1_gwlbe"
+          to_cidr       = "0.0.0.0/0"
+          next_hop_key  = "app1_vpc"
+          next_hop_type = "internet_gateway"
+        }
+        lb_default = {
+          vpc           = "app1_vpc"
+          subnet_group  = "app1_lb"
+          to_cidr       = "0.0.0.0/0"
+          next_hop_key  = "app1_inbound"
+          next_hop_type = "gwlbe_endpoint"
+        }
+      }
+      nacls = {}
+      security_groups = {
+        app1_vm = {
+          name = "app1_vm"
+          rules = {
+            all_outbound = {
+              description = "Permit All traffic outbound"
+              type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+              cidr_blocks = ["0.0.0.0/0"]
+            }
+            ssh = {
+              description = "Permit SSH"
+              type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
+              cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"]
+            }
+            https = {
+              description = "Permit HTTPS"
+              type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
+              cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"]
+            }
+            http = {
+              description = "Permit HTTP"
+              type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
+              cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"]
+            }
+          }
         }
       }
     }

@@ -27,7 +27,7 @@ locals {
   #
   #    tgw_default = {
   #      vpc           = "security_vpc"
-  #      subnet        = "tgw_attach"
+  #      subnet_group  = "tgw_attach"
   #      to_cidr       = "0.0.0.0/0"
   #      next_hop_key  = "security_gwlb_outbound"
   #      next_hop_type = "gwlbe_endpoint"
@@ -88,7 +88,7 @@ module "natgw_set" {
 
   for_each = var.natgws
 
-  subnets = module.vpc[each.value.vpc].subnets["${each.value.subnet_group_group}${each.value.az}"]
+  subnets = module.vpc[each.value.vpc].subnets["${each.value.subnet_group}${each.value.az}"]
 }
 
 ### TGW ###
