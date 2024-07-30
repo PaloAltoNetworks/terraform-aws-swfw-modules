@@ -22,7 +22,7 @@ variable "vpcs" {
 
   Following properties are available:
   - `name`: VPC name
-  - `cidr`: CIDR for VPC
+  - `cidr_block`: Object containing the IPv4 and IPv6 CIDR blocks to assign to a new VPC
   - `nacls`: map of network ACLs
   - `security_groups`: map of security groups
   - `subnets`: map of subnets with properties:
@@ -40,7 +40,9 @@ variable "vpcs" {
   vpcs = {
     example_vpc = {
       name = "example-spoke-vpc"
-      cidr = "10.104.0.0/16"
+      cidr_block = {
+        ipv4 = "10.103.0.0/16"
+      }
       nacls = {
         trusted_path_monitoring = {
           name               = "trusted-path-monitoring"
@@ -89,7 +91,11 @@ variable "vpcs" {
   default     = {}
   type = map(object({
     name = string
-    cidr = string
+    cidr_block = object({
+      ipv4                  = optional(string)
+      secondary_ipv4        = optional(list(string), [])
+      assign_generated_ipv6 = optional(bool, false)
+    })
     nacls = map(object({
       name = string
       rules = map(object({

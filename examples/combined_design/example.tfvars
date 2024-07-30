@@ -14,7 +14,9 @@ ssh_key_name = "example-ssh-key" # TODO: update here
 vpcs = {
   security_vpc = {
     name = "security-vpc"
-    cidr = "10.100.0.0/16"
+    cidr_block = {
+      ipv4 = "10.100.0.0/16"
+    }
     subnets = {
       # Value of `nacl` must match key of objects stored in `nacls`
       mgmta           = { az = "a", cidr_block = "10.100.0.0/24", subnet_group = "mgmt", name = "mgmt1" }
@@ -206,7 +208,9 @@ vpcs = {
   }
   app1_vpc = {
     name = "app1-spoke-vpc"
-    cidr = "10.104.0.0/16"
+    cidr_block = {
+      ipv4 = "10.104.0.0/16"
+    }
     subnets = {
       app1_vma    = { az = "a", cidr_block = "10.104.0.0/24", subnet_group = "app1_vm", name = "app1_vm1" }
       app1_vmb    = { az = "b", cidr_block = "10.104.128.0/24", subnet_group = "app1_vm", name = "app1_vm2" }
@@ -291,7 +295,9 @@ vpcs = {
   }
   app2_vpc = {
     name = "app2-spoke-vpc"
-    cidr = "10.105.0.0/16"
+    cidr_block = {
+      ipv4 = "10.105.0.0/16"
+    }
     subnets = {
       app2_vma    = { az = "a", cidr_block = "10.105.0.0/24", subnet_group = "app2_vm", name = "app2_vm1" }
       app2_vmb    = { az = "b", cidr_block = "10.105.128.0/24", subnet_group = "app2_vm", name = "app2_vm2" }
