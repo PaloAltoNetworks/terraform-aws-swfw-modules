@@ -261,7 +261,7 @@ module "vm_series_asg" {
   ssh_key_name                    = var.ssh_key_name
   region                          = var.region
   name_prefix                     = var.name_prefix
-  global_tags                     = var.global_tags
+  global_tags                     = var.tags
   vmseries_version                = each.value.panos_version
   max_size                        = each.value.asg.max_size
   min_size                        = each.value.asg.min_size
@@ -358,7 +358,7 @@ resource "aws_instance" "spoke_vms" {
   key_name               = var.ssh_key_name
   subnet_id              = module.vpc[each.value.vpc].subnets["${each.value.subnet_group}${each.value.az}"].id
   vpc_security_group_ids = [module.vpc[each.value.vpc].security_group_ids[each.value.security_group]]
-  tags                   = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
+  tags                   = merge({ Name = "${var.name_prefix}${each.key}" }, var.tags)
   iam_instance_profile   = aws_iam_instance_profile.spoke_vm_iam_instance_profile.name
 
   root_block_device {
@@ -422,5 +422,5 @@ module "app_lb" {
     }
   }
 
-  tags = var.global_tags
+  tags = var.tags
 }

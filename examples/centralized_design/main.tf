@@ -289,7 +289,7 @@ module "vmseries" {
 
   iam_instance_profile = aws_iam_instance_profile.vm_series_iam_instance_profile.name
   ssh_key_name         = var.ssh_key_name
-  tags                 = var.global_tags
+  tags                 = var.tags
 }
 
 ### Public ALB and NLB used in centralized model ###
@@ -306,7 +306,7 @@ module "public_alb" {
   rules           = each.value.application_lb.rules
   targets         = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => module.vmseries["${vmseries.group}-${vmseries.instance}"].interfaces["public"].private_ip }
 
-  tags = var.global_tags
+  tags = var.tags
 }
 
 module "public_nlb" {
@@ -328,7 +328,7 @@ module "public_nlb" {
     targets            = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => module.vmseries["${vmseries.group}-${vmseries.instance}"].interfaces["public"].private_ip }
   } }
 
-  tags = var.global_tags
+  tags = var.tags
 }
 
 ### SPOKE VM INSTANCES ####
@@ -392,7 +392,7 @@ resource "aws_instance" "spoke_vms" {
   key_name               = var.ssh_key_name
   subnet_id              = module.vpc[each.value.vpc].subnets["${each.value.subnet_group}${each.value.az}"].id
   vpc_security_group_ids = [module.vpc[each.value.vpc].security_group_ids[each.value.security_group]]
-  tags                   = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
+  tags                   = merge({ Name = "${var.name_prefix}${each.key}" }, var.tags)
   iam_instance_profile   = aws_iam_instance_profile.spoke_vm_iam_instance_profile.name
 
   root_block_device {
@@ -456,5 +456,5 @@ module "app_lb" {
     }
   }
 
-  tags = var.global_tags
+  tags = var.tags
 }

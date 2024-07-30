@@ -2,7 +2,7 @@
 region      = "eu-west-1" # TODO: update here
 name_prefix = "example-"  # TODO: update here
 
-global_tags = {
+tags = {
   ManagedBy   = "terraform"
   Application = "Palo Alto Networks VM-Series NGFW"
   Owner       = "PS Team"
