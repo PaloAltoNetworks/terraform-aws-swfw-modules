@@ -5,74 +5,18 @@ module "vpc" {
 
   for_each = var.vpcs
 
-  name                    = "${var.name_prefix}${each.value.name}"
-  cidr_block              = each.value.cidr
-  nacls                   = each.value.nacls
-  security_groups         = each.value.security_groups
-  create_internet_gateway = true
-  enable_dns_hostnames    = true
-  enable_dns_support      = true
-  instance_tenancy        = "default"
-}
+  region          = var.region
+  name            = "${var.name_prefix}${each.value.name}"
+  cidr_block      = each.value.cidr_block
+  subnets         = each.value.subnets
+  nacls           = each.value.nacls
+  security_groups = each.value.security_groups
 
-### SUBNETS ###
-
-locals {
-  # Flatten the VPCs and their subnets into a list of maps, each containing the VPC name, subnet name, and subnet details.
-  subnets_in_vpcs = flatten([for vk, vv in var.vpcs : [for sk, sv in vv.subnets :
-    {
-      cidr                    = sk
-      nacl                    = sv.nacl
-      az                      = sv.az
-      subnet                  = sv.subnet_group
-      vpc                     = vk
-      create_subnet           = try(sv.create_subnet, true)
-      create_route_table      = try(sv.create_route_table, sv.create_subnet, true)
-      existing_route_table_id = try(sv.existing_route_table_id, null)
-      associate_route_table   = try(sv.associate_route_table, true)
-      route_table_name        = try(sv.route_table_name, null)
-      local_tags              = try(sv.local_tags, {})
-    }
-  ]])
-  # Create a map of subnets, keyed by the VPC name and subnet name.
-  subnets_with_lists = { for subnet_in_vpc in local.subnets_in_vpcs : "${subnet_in_vpc.vpc}-${subnet_in_vpc.subnet}" => subnet_in_vpc... }
-  subnets = { for key, value in local.subnets_with_lists : key => {
-    vpc                     = distinct([for v in value : v.vpc])[0]                               # VPC name (always take first from the list as key is limitting number of VPCs)
-    subnet                  = distinct([for v in value : v.subnet])[0]                            # Subnet name (always take first from the list as key is limitting number of subnets)
-    az                      = [for v in value : v.az]                                             # List of AZs
-    cidr                    = [for v in value : v.cidr]                                           # List of CIDRs
-    nacl                    = compact([for v in value : v.nacl])                                  # List of NACLs
-    create_subnet           = [for v in value : try(v.create_subnet, true)]                       # List of create_subnet flags
-    create_route_table      = [for v in value : try(v.create_route_table, v.create_subnet, true)] # List of create_route_table flags
-    existing_route_table_id = [for v in value : try(v.existing_route_table_id, null)]             # List of existing_route_table_id values
-    associate_route_table   = [for v in value : try(v.associate_route_table, true)]               # List of associate_route_table flags
-    route_table_name        = [for v in value : try(v.route_table_name, null)]                    # List of route_table_name values
-    local_tags              = [for v in value : try(v.local_tags, {})]                            # List of local_tags maps
-  } }
-}
-
-module "subnet_sets" {
-  source = "../../modules/subnet_set"
-
-  for_each = local.subnets
-
-  name                = each.value.subnet
-  vpc_id              = module.vpc[each.value.vpc].id
-  has_secondary_cidrs = module.vpc[each.value.vpc].has_secondary_cidrs
-  nacl_associations = {
-    for index, az in each.value.az : az =>
-    lookup(module.vpc[each.value.vpc].nacl_ids, each.value.nacl[index], null) if length(each.value.nacl) > 0
+  options = {
+    enable_dns_hostnames = true
+    enable_dns_support   = true
+    instance_tenancy     = "default"
   }
-  cidrs = {
-    for index, cidr in each.value.cidr : cidr => {
-      az                      = each.value.az[index]
-      create_subnet           = each.value.create_subnet[index]
-      create_route_table      = each.value.create_route_table[index]
-      existing_route_table_id = each.value.existing_route_table_id[index]
-      associate_route_table   = each.value.associate_route_table[index]
-      route_table_name        = each.value.route_table_name[index]
-      local_tags              = each.value.local_tags[index]
-  } }
 }
 
 ### ROUTES ###
@@ -83,7 +27,7 @@ locals {
   #
   #    tgw_default = {
   #      vpc           = "security_vpc"
-  #      subnet        = "tgw_attach"
+  #      subnet_group  = "tgw_attach"
   #      to_cidr       = "0.0.0.0/0"
   #      next_hop_key  = "security_gwlb_outbound"
   #      next_hop_type = "gwlbe_endpoint"
@@ -106,7 +50,7 @@ locals {
     for vk, vv in var.vpcs : [
       for rk, rv in vv.routes : {
         vpc           = rv.vpc
-        subnet        = rv.subnet_group
+        subnet_group  = rv.subnet_group
         to_cidr       = rv.to_cidr
         next_hop_type = rv.next_hop_type
         next_hop_map = {
@@ -118,9 +62,9 @@ locals {
       }
   ]]))
   vpc_routes = {
-    for route in local.vpc_routes_with_next_hop_map : "${route.vpc}-${route.subnet}-${route.to_cidr}" => {
+    for route in local.vpc_routes_with_next_hop_map : "${route.vpc}-${route.subnet_group}-${route.to_cidr}" => {
       vpc          = route.vpc
-      subnet       = route.subnet
+      subnet_group = route.subnet_group
       to_cidr      = route.to_cidr
       next_hop_set = lookup(route.next_hop_map, route.next_hop_type, null)
     }
@@ -132,7 +76,7 @@ module "vpc_routes" {
 
   for_each = local.vpc_routes
 
-  route_table_ids = module.subnet_sets["${each.value.vpc}-${each.value.subnet}"].unique_route_table_ids
+  route_table_ids = { for k, v in module.vpc[each.value.vpc].route_tables : v.az => v.id if v.subnet_group == each.value.subnet_group }
   to_cidr         = each.value.to_cidr
   next_hop_set    = each.value.next_hop_set
 }
@@ -144,7 +88,7 @@ module "natgw_set" {
 
   for_each = var.natgws
 
-  subnets = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets
+  subnets = { for k, v in module.vpc[each.value.vpc].subnets : k => v if v.subnet_group == each.value.subnet_group }
 }
 
 ### TGW ###
@@ -167,8 +111,8 @@ module "transit_gateway_attachment" {
   for_each = var.tgw.attachments
 
   name                        = "${var.name_prefix}${each.value.name}"
-  vpc_id                      = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].vpc_id
-  subnets                     = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets
+  vpc_id                      = module.vpc[each.value.vpc].id
+  subnets                     = { for k, v in module.vpc[each.value.vpc].subnets : k => v if v.subnet_group == each.value.subnet_group }
   transit_gateway_route_table = module.transit_gateway.route_tables[each.value.route_table]
   propagate_routes_to = {
     to1 = module.transit_gateway.route_tables[each.value.propagate_routes_to].id
@@ -198,8 +142,8 @@ module "gwlb" {
   for_each = var.gwlbs
 
   name    = "${var.name_prefix}${each.value.name}"
-  vpc_id  = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].vpc_id
-  subnets = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets
+  vpc_id  = module.vpc[each.value.vpc].id
+  subnets = { for k, v in module.vpc[each.value.vpc].subnets : v.az => v if v.subnet_group == each.value.subnet_group }
 }
 
 ### GWLB ENDPOINTS ###
@@ -211,13 +155,13 @@ module "gwlbe_endpoint" {
 
   name              = "${var.name_prefix}${each.value.name}"
   gwlb_service_name = module.gwlb[each.value.gwlb].endpoint_service.service_name
-  vpc_id            = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].vpc_id
-  subnets           = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets
+  vpc_id            = module.vpc[each.value.vpc].id
+  subnets           = { for k, v in module.vpc[each.value.vpc].subnets : v.az => v if v.subnet_group == each.value.subnet_group }
 
   act_as_next_hop_for = each.value.act_as_next_hop ? {
     "from-igw-to-lb" = {
       route_table_id = module.vpc[each.value.vpc].internet_gateway_route_table.id
-      to_subnets     = module.subnet_sets["${each.value.from_igw_to_vpc}-${each.value.from_igw_to_subnet_group}"].subnets
+      to_subnets     = { for k, v in module.vpc[each.value.from_igw_to_vpc].subnets : v.az => v if v.subnet_group == each.value.from_igw_to_subnet_group }
     }
     # The routes in this section are special in that they are on the "edge", that is they are part of an IGW route table,
     # and AWS allows their destinations to only be:
@@ -326,14 +270,14 @@ module "vm_series_asg" {
   instance_refresh                = each.value.instance_refresh
   launch_template_version         = each.value.launch_template_version
   vmseries_iam_instance_profile   = aws_iam_instance_profile.vm_series_iam_instance_profile.name
-  subnet_ids                      = [for i, j in var.vpcs[each.value.vpc].subnets : module.subnet_sets[format("%s-lambda", each.value.vpc)].subnets[j.az].id if j.subnet_group == "lambda"]
+  subnet_ids                      = [for i, j in var.vpcs[each.value.vpc].subnets : module.vpc[each.value.vpc].subnets["lambda${j.az}"].id if j.subnet_group == "lambda"]
   security_group_ids              = contains(keys(module.vpc[each.value.vpc].security_group_ids), "lambda") ? [module.vpc[each.value.vpc].security_group_ids["lambda"]] : []
   interfaces = {
     for k, v in each.value.interfaces : k => {
       device_index       = v.device_index
       security_group_ids = try([module.vpc[each.value.vpc].security_group_ids[v.security_group]], [])
       source_dest_check  = try(v.source_dest_check, false)
-      subnet_id          = { for z, c in each.value.zones : c => module.subnet_sets[format("%s-%s", each.value.vpc, v.subnet_group)].subnets[c].id }
+      subnet_id          = { for z, c in each.value.zones : c => module.vpc[each.value.vpc].subnets["${v.subnet_group}${c}"].id }
       create_public_ip   = try(v.create_public_ip, false)
     }
   }
@@ -362,7 +306,7 @@ module "public_alb" {
   for_each = { for k, v in var.vmseries_asgs : k => v }
 
   lb_name         = "${var.name_prefix}${each.value.application_lb.name}"
-  subnets         = { for k, v in module.subnet_sets["${each.value.vpc}-${each.value.application_lb.subnet_group}"].subnets : k => { id = v.id } }
+  subnets         = { for k, v in module.vpc[each.value.vpc].subnets : k => { id = v.id } if v.subnet_group == each.value.application_lb.subnet_group }
   vpc_id          = module.vpc[each.value.vpc].id
   security_groups = [module.vpc[each.value.vpc].security_group_ids[each.value.application_lb.security_group]]
   rules           = each.value.application_lb.rules
@@ -378,7 +322,7 @@ module "public_nlb" {
 
   name        = "${var.name_prefix}${each.value.network_lb.name}"
   internal_lb = false
-  subnets     = { for k, v in module.subnet_sets["${each.value.vpc}-${each.value.network_lb.subnet_group}"].subnets : k => { id = v.id } }
+  subnets     = { for k, v in module.vpc[each.value.vpc].subnets : k => { id = v.id } if v.subnet_group == each.value.network_lb.subnet_group }
   vpc_id      = module.vpc[each.value.vpc].id
 
   balance_rules = { for k, v in each.value.network_lb.rules : k => {
@@ -452,7 +396,7 @@ resource "aws_instance" "spoke_vms" {
   ami                    = data.aws_ami.this.id
   instance_type          = each.value.type
   key_name               = var.ssh_key_name
-  subnet_id              = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets[each.value.az].id
+  subnet_id              = module.vpc[each.value.vpc].subnets["${each.value.subnet_group}${each.value.az}"].id
   vpc_security_group_ids = [module.vpc[each.value.vpc].security_group_ids[each.value.security_group]]
   tags                   = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
   iam_instance_profile   = aws_iam_instance_profile.spoke_vm_iam_instance_profile.name
@@ -491,7 +435,7 @@ module "app_lb" {
 
   name        = "${var.name_prefix}${each.key}"
   internal_lb = true
-  subnets     = { for k, v in module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets : k => { id = v.id } }
+  subnets     = { for k, v in module.vpc[each.value.vpc].subnets : k => { id = v.id } if v.subnet_group == each.value.subnet_group }
   vpc_id      = module.vpc[each.value.vpc].id
 
   balance_rules = {
