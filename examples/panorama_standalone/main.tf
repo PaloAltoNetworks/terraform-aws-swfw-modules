@@ -168,7 +168,7 @@ module "panorama" {
   for_each = { for panorama in local.panorama_instances : "${panorama.group}-${panorama.instance}" => panorama }
 
   name                   = "${var.name_prefix}${each.key}"
-  availability_zone      = each.value.az
+  availability_zone      = "${var.region}${each.value.az}"
   create_public_ip       = each.value.common.network.create_public_ip
   private_ip_address     = each.value.private_ip_address
   ebs_volumes            = each.value.common.ebs.volumes
