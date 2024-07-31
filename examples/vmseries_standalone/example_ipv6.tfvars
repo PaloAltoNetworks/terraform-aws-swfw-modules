@@ -15,12 +15,12 @@ vpcs = {
   security_vpc = {
     name = "security-vpc"
     cidr_block = {
-      ipv4                             = "10.100.0.0/16"
-      assign_generated_ipv6_cidr_block = true
+      ipv4                  = "10.100.0.0/16"
+      assign_generated_ipv6 = true
     }
     subnets = {
       # Value of `nacl` must match key of objects stored in `nacls`
-      mgmta = { az = "a", cidr_block = "10.100.0.0/24", subnet_group = "mgmt", name = "mgmt" }
+      mgmta = { az = "a", cidr_block = "10.100.0.0/24", ipv6_index = 1, subnet_group = "mgmt", name = "mgmt" }
     }
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`

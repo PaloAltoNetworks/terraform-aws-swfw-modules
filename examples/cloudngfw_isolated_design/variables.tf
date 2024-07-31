@@ -146,6 +146,7 @@ variable "vpcs" {
       name                    = string
       cidr_block              = string
       ipv6_cidr_block         = optional(string)
+      ipv6_index              = optional(number)
       nacl                    = optional(string)
       create_subnet           = optional(bool, true)
       create_route_table      = optional(bool, true)

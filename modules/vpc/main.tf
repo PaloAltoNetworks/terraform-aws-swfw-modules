@@ -128,7 +128,7 @@ resource "aws_subnet" "this" {
   for_each = { for k, v in var.subnets : k => v if v.create_subnet }
 
   cidr_block              = each.value.cidr_block
-  ipv6_cidr_block         = each.value.ipv6_cidr_block
+  ipv6_cidr_block         = try(cidrsubnet(local.vpc.ipv6_cidr_block, 8, each.value.ipv6_index), each.value.ipv6_cidr_block)
   availability_zone       = "${var.region}${each.value.az}"
   vpc_id                  = local.vpc.id
   map_public_ip_on_launch = var.options.map_public_ip_on_launch

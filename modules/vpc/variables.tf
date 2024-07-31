@@ -150,6 +150,7 @@ variable "subnets" {
   - `az`                      - (`string`) the availability zone for the subnet.
   - `cidr_block`              - (`string`) the CIDR block for the subnet.
   - `ipv6_cidr_block`         - (`string`, optional) the IPv6 CIDR block for the subnet.
+  - `ipv6_index`              - (`number`, optional) the index of the IPv6 CIDR block.
   - `subnet_group`            - (`string`) the name of the subnet group.
   - `name`                    - (`string`) the name of the subnet.
   - `nacl`                    - (`string`, optional) the name of the NACL to associate with the subnet.
@@ -176,6 +177,7 @@ variable "subnets" {
     az                      = string
     cidr_block              = string
     ipv6_cidr_block         = optional(string)
+    ipv6_index              = optional(number)
     subnet_group            = string
     name                    = string
     nacl                    = optional(string)
