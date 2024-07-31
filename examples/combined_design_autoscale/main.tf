@@ -88,7 +88,7 @@ module "natgw_set" {
 
   for_each = var.natgws
 
-  subnets = { for k, v in module.vpc[each.value.vpc].subnets : k => v if v.subnet_group == each.value.subnet_group }
+  subnets = { for k, v in module.vpc[each.value.vpc].subnets : v.az => v if v.subnet_group == each.value.subnet_group }
 }
 
 ### TGW ###
