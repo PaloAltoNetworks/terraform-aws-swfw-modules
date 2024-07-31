@@ -52,33 +52,48 @@ func TestValidate(t *testing.T) {
 
 func TestPlan(t *testing.T) {
 	if checkIfTerraformVersionIsSupported(t) {
+		// IPv4
 		// define options for Terraform
-		terraformOptions := CreateTerraformOptions(t)
+		terraformOptionsIpv4 := CreateTerraformOptions(t, []string{"example.tfvars"})
 		// prepare list of items to check
 		assertList := []testskeleton.AssertExpression{}
 		// plan test infrastructure and verify outputs
-		testskeleton.PlanInfraCheckErrors(t, terraformOptions, assertList, "No errors are expected")
+		testskeleton.PlanInfraCheckErrors(t, terraformOptionsIpv4, assertList, "No errors are expected")
+
+		// IPv6
+		terraformOptionsIpv6 := CreateTerraformOptions(t, []string{"example_ipv6.tfvars"})
+		testskeleton.PlanInfraCheckErrors(t, terraformOptionsIpv6, assertList, "No errors are expected")
 	}
 }
 
 func TestApply(t *testing.T) {
 	if checkIfTerraformVersionIsSupported(t) {
+		// IPv4
 		// define options for Terraform
-		terraformOptions := CreateTerraformOptions(t)
+		terraformOptionsIpv4 := CreateTerraformOptions(t, []string{"example.tfvars"})
 		// prepare list of items to check
 		assertList := []testskeleton.AssertExpression{}
 		// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
-		testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
+		testskeleton.DeployInfraCheckOutputs(t, terraformOptionsIpv4, assertList)
+
+		// IPv6
+		terraformOptionsIpv6 := CreateTerraformOptions(t, []string{"example_ipv6.tfvars"})
+		testskeleton.DeployInfraCheckOutputs(t, terraformOptionsIpv6, assertList)
 	}
 }
 
 func TestIdempotence(t *testing.T) {
 	if checkIfTerraformVersionIsSupported(t) {
+		// IPv4
 		// define options for Terraform
-		terraformOptions := CreateTerraformOptions(t)
+		terraformOptionsIpv4 := CreateTerraformOptions(t, []string{"example.tfvars"})
 		// prepare list of items to check
 		assertList := []testskeleton.AssertExpression{}
 		// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
-		testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
+		testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptionsIpv4, assertList)
+
+		//IPv6
+		terraformOptionsIpv6 := CreateTerraformOptions(t, []string{"example_ipv6.tfvars"})
+		testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptionsIpv6, assertList)
 	}
 }
