@@ -1,47 +1,85 @@
 data "aws_caller_identity" "current" {}
 
+### VPCS ###
+
 module "vpc" {
   source = "../../modules/vpc"
 
   for_each = var.vpcs
 
-  name                    = "${var.name_prefix}${each.value.name}"
-  cidr_block              = each.value.cidr
-  nacls                   = each.value.nacls
-  security_groups         = each.value.security_groups
-  create_internet_gateway = true
-  enable_dns_hostnames    = true
-  enable_dns_support      = true
-  instance_tenancy        = "default"
+  region          = var.region
+  name            = "${var.name_prefix}${each.value.name}"
+  cidr_block      = each.value.cidr_block
+  subnets         = each.value.subnets
+  nacls           = each.value.nacls
+  security_groups = each.value.security_groups
+
+  options = {
+    enable_dns_hostnames = true
+    enable_dns_support   = true
+    instance_tenancy     = "default"
+  }
 }
 
-module "subnet_sets" {
-  for_each = toset(flatten([for _, v in { for vk, vv in var.vpcs : vk => distinct([for sk, sv in vv.subnets : "${vk}-${sv.set}"]) } : v]))
-  source   = "../../modules/subnet_set"
+### ROUTES ###
 
-  name                = split("-", each.key)[1]
-  vpc_id              = module.vpc[split("-", each.key)[0]].id
-  has_secondary_cidrs = module.vpc[split("-", each.key)[0]].has_secondary_cidrs
-  nacl_associations = {
-    for i in flatten([
-      for vk, vv in var.vpcs : [
-        for sk, sv in vv.subnets :
-        {
-          az : sv.az,
-          nacl_id : lookup(module.vpc[split("-", each.key)[0]].nacl_ids, sv.nacl, null)
-        } if sv.nacl != null && each.key == "${vk}-${sv.set}"
-    ]]) : i.az => i.nacl_id
+locals {
+  # Flatten the VPCs and their routes into a list of maps, each containing the VPC name, subnet name, and route details.
+  # In TFVARS there is no possibility to define ID of the next hop, so we need to use the key of the next hop e.g.name =
+  #
+  #    tgw_default = {
+  #      vpc           = "security_vpc"
+  #      subnet_group  = "tgw_attach"
+  #      to_cidr       = "0.0.0.0/0"
+  #      next_hop_key  = "security_gwlb_outbound"
+  #      next_hop_type = "gwlbe_endpoint"
+  #    }
+  #
+  # Value of `next_hop_type` defines the type of the next hop. It can be one of the following:
+  # - internet_gateway
+  # - nat_gateway
+  # - transit_gateway_attachment
+  # - gwlbe_endpoint
+  #
+  # If more next hop types are needed, they can be added below.
+  #
+  # Value of `next_hop_key` is the key of the next hop.
+  # It is used to reference the next hop in the module that manages it.
+  #
+  # Value of `to_cidr` is the CIDR of the destination.
+
+  vpc_routes_with_next_hop_map = flatten(concat([
+    for vk, vv in var.vpcs : [
+      for rk, rv in vv.routes : {
+        vpc           = rv.vpc
+        subnet_group  = rv.subnet_group
+        to_cidr       = rv.to_cidr
+        next_hop_type = rv.next_hop_type
+        next_hop_map = {
+          "internet_gateway" = try(module.vpc[rv.next_hop_key].igw_as_next_hop_set, null)
+          "nat_gateway"      = try(module.natgw_set[rv.next_hop_key].next_hop_set, null)
+          "gwlbe_endpoint"   = try(module.gwlbe_endpoint[rv.next_hop_key].next_hop_set, null)
+        }
+      }
+  ]]))
+  vpc_routes = {
+    for route in local.vpc_routes_with_next_hop_map : "${route.vpc}-${route.subnet_group}-${route.to_cidr}" => {
+      vpc          = route.vpc
+      subnet_group = route.subnet_group
+      to_cidr      = route.to_cidr
+      next_hop_set = lookup(route.next_hop_map, route.next_hop_type, null)
+    }
   }
-  cidrs = {
-    for i in flatten([
-      for vk, vv in var.vpcs : [
-        for sk, sv in vv.subnets :
-        {
-          cidr : sk,
-          subnet : sv
-        } if each.key == "${vk}-${sv.set}"
-    ]]) : i.cidr => i.subnet
-  }
+}
+
+module "vpc_routes" {
+  source = "../../modules/vpc_route"
+
+  for_each = local.vpc_routes
+
+  route_table_ids = { for k, v in module.vpc[each.value.vpc].route_tables : v.az => v.id if v.subnet_group == each.value.subnet_group }
+  to_cidr         = each.value.to_cidr
+  next_hop_set    = each.value.next_hop_set
 }
 
 ### NATGW ###
@@ -51,77 +89,7 @@ module "natgw_set" {
 
   for_each = var.natgws
 
-  subnets = module.subnet_sets[each.value.vpc_subnet].subnets
-}
-
-### ROUTES ###
-
-locals {
-  vpc_routes = flatten(concat([
-    for vk, vv in var.vpcs : [
-      for rk, rv in vv.routes : {
-        subnet_key = rv.vpc_subnet
-        to_cidr    = rv.to_cidr
-        next_hop_set = (
-          rv.next_hop_type == "internet_gateway" ? module.vpc[rv.next_hop_key].igw_as_next_hop_set : (
-            rv.next_hop_type == "nat_gateway" ? module.natgw_set[rv.next_hop_key].next_hop_set : (
-              rv.next_hop_type == "gwlbe_endpoint" ? module.gwlbe_endpoint[rv.next_hop_key].next_hop_set : null
-            )
-          )
-        )
-      }
-    ]
-  ]))
-}
-
-module "vpc_routes" {
-  for_each = { for route in local.vpc_routes : "${route.subnet_key}_${route.to_cidr}" => route }
-  source   = "../../modules/vpc_route"
-
-  route_table_ids = module.subnet_sets[each.value.subnet_key].unique_route_table_ids
-  to_cidr         = each.value.to_cidr
-  next_hop_set    = each.value.next_hop_set
-}
-
-
-### SPOKE INBOUND APPLICATION LOAD BALANCER ###
-
-module "public_alb" {
-  source   = "../../modules/alb"
-  for_each = var.spoke_albs
-
-  lb_name         = "${var.name_prefix}${each.key}"
-  subnets         = { for k, v in module.subnet_sets[each.value.vpc_subnet].subnets : k => { id = v.id } }
-  vpc_id          = module.vpc[each.value.vpc].id
-  security_groups = [module.vpc[each.value.vpc].security_group_ids[each.value.security_groups]]
-  rules           = each.value.rules
-  targets         = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].private_ip }
-
-  tags = var.global_tags
-}
-
-### SPOKE INBOUND NETWORK LOAD BALANCER ###
-
-module "public_nlb" {
-  source   = "../../modules/nlb"
-  for_each = var.spoke_nlbs
-
-  name        = "${var.name_prefix}${each.key}"
-  internal_lb = false
-  subnets     = { for k, v in module.subnet_sets[each.value.vpc_subnet].subnets : k => { id = v.id } }
-  vpc_id      = module.subnet_sets[each.value.vpc_subnet].vpc_id
-
-  balance_rules = {
-    "SSH-traffic" = {
-      protocol    = "TCP"
-      port        = "22"
-      target_type = "instance"
-      stickiness  = true
-      targets     = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].id }
-    }
-  }
-
-  tags = var.global_tags
+  subnets = { for k, v in module.vpc[each.value.vpc].subnets : k => v if v.subnet_group == each.value.subnet_group }
 }
 
 ### CloudNGFW ###
@@ -132,7 +100,7 @@ module "cloudngfw" {
   for_each = var.cloudngfws
 
   name           = "${var.name_prefix}${each.value.name}"
-  subnets        = module.subnet_sets[each.value.vpc_subnet].subnets
+  subnets        = { for k, v in module.vpc[each.value.vpc].subnets : k => v if v.subnet_group == each.value.subnet_group }
   vpc_id         = module.vpc[each.value.vpc].id
   rulestack_name = "${var.name_prefix}${each.value.name}"
   description    = each.value.description
@@ -150,14 +118,14 @@ module "gwlbe_endpoint" {
 
   name              = "${var.name_prefix}${each.value.name}"
   gwlb_service_name = module.cloudngfw[each.value.cloudngfw].cloudngfw_service_name
-  vpc_id            = module.subnet_sets[each.value.vpc_subnet].vpc_id
-  subnets           = module.subnet_sets[each.value.vpc_subnet].subnets
+  vpc_id            = module.vpc[each.value.vpc].id
+  subnets           = { for k, v in module.vpc[each.value.vpc].subnets : v.az => v if v.subnet_group == each.value.subnet_group }
   delay             = each.value.delay
 
   act_as_next_hop_for = each.value.act_as_next_hop ? {
     "from-igw-to-lb" = {
       route_table_id = module.vpc[each.value.vpc].internet_gateway_route_table.id
-      to_subnets     = module.subnet_sets[each.value.to_vpc_subnets].subnets
+      to_subnets     = { for k, v in module.vpc[each.value.to_vpc].subnets : v.az => v if v.subnet_group == each.value.to_subnet_group }
     }
     # The routes in this section are special in that they are on the "edge", that is they are part of an IGW route table,
     # and AWS allows their destinations to only be:
@@ -226,9 +194,9 @@ resource "aws_instance" "spoke_vms" {
   ami                    = data.aws_ami.this.id
   instance_type          = each.value.type
   key_name               = var.ssh_key_name
-  subnet_id              = module.subnet_sets[each.value.vpc_subnet].subnets[each.value.az].id
+  subnet_id              = module.vpc[each.value.vpc].subnets["${each.value.subnet_group}${each.value.az}"].id
   vpc_security_group_ids = [module.vpc[each.value.vpc].security_group_ids[each.value.security_group]]
-  tags                   = merge({ Name = "${var.name_prefix}${each.key}" }, var.global_tags)
+  tags                   = merge({ Name = "${var.name_prefix}${each.key}" }, var.tags)
   iam_instance_profile   = aws_iam_instance_profile.spoke_vm_iam_instance_profile.name
 
   root_block_device {
@@ -254,4 +222,46 @@ resource "aws_instance" "spoke_vms" {
   find /var/www -type d -exec chmod 2775 {} \;
   find /var/www -type f -exec chmod 0664 {} \;
   EOF
+}
+
+### SPOKE INBOUND APPLICATION LOAD BALANCER ###
+
+module "public_alb" {
+  source = "../../modules/alb"
+
+  for_each = var.spoke_albs
+
+  lb_name         = "${var.name_prefix}${each.key}"
+  subnets         = { for k, v in module.vpc[each.value.vpc].subnets : k => { id = v.id } if v.subnet_group == each.value.subnet_group }
+  vpc_id          = module.vpc[each.value.vpc].id
+  security_groups = [module.vpc[each.value.vpc].security_group_ids[each.value.security_groups]]
+  rules           = each.value.rules
+  targets         = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].private_ip }
+
+  tags = var.tags
+}
+
+### SPOKE INBOUND NETWORK LOAD BALANCER ###
+
+module "public_nlb" {
+  source = "../../modules/nlb"
+
+  for_each = var.spoke_nlbs
+
+  name        = "${var.name_prefix}${each.key}"
+  internal_lb = false
+  subnets     = { for k, v in module.vpc[each.value.vpc].subnets : k => { id = v.id } if v.subnet_group == each.value.subnet_group }
+  vpc_id      = module.vpc[each.value.vpc].id
+
+  balance_rules = {
+    "SSH-traffic" = {
+      protocol    = "TCP"
+      port        = "22"
+      target_type = "instance"
+      stickiness  = true
+      targets     = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].id }
+    }
+  }
+
+  tags = var.tags
 }

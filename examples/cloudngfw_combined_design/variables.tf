@@ -292,6 +292,7 @@ variable "gwlb_endpoints" {
   }))
 }
 
+### CLOUD NGFW
 variable "cloudngfws" {
   description = <<-EOF
   A map defining Cloud NGFWs.
