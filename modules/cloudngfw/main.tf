@@ -28,6 +28,14 @@ resource "cloudngfwaws_ngfw" "this" {
 
 resource "cloudngfwaws_commit_rulestack" "this" {
   rulestack = cloudngfwaws_rulestack.this.name
+
+  state = "Running"
+
+  timeouts {
+    create = "20m"
+    read   = "10m"
+    update = "20m"
+  }
 }
 
 resource "cloudngfwaws_rulestack" "this" {
@@ -86,7 +94,7 @@ resource "cloudngfwaws_ngfw_log_profile" "this" {
     for_each = var.log_profiles
     content {
       destination_type = log_destination.value.destination_type
-      destination      = log_destination.value.destination_type == "CloudWatchLogs" ? aws_cloudwatch_log_group.this[log_destination.value.name].name : log_destination.value.name
+      destination      = log_destination.value.name
       log_type         = log_destination.value.log_type
     }
   }
