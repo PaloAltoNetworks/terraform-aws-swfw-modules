@@ -40,6 +40,7 @@ No modules.
 | [cloudngfwaws_rulestack.this](https://registry.terraform.io/providers/PaloAltoNetworks/cloudngfwaws/2.0.6/docs/resources/rulestack) | resource |
 | [cloudngfwaws_security_rule.this](https://registry.terraform.io/providers/PaloAltoNetworks/cloudngfwaws/2.0.6/docs/resources/security_rule) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+| [aws_cloudwatch_log_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/cloudwatch_log_group) | data source |
 
 ### Inputs
 

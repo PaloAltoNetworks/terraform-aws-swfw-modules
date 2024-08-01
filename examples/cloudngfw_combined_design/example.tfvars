@@ -345,20 +345,20 @@ cloudngfws = {
     }
     log_profiles = {
       dest_1 = {
-        create_cw        = true
-        name             = "PaloAltoCloudNGFWCombined"
+        create_cw        = false
+        name             = "PaloAltoCloudNGFW"
         destination_type = "CloudWatchLogs"
         log_type         = "THREAT"
       }
       dest_2 = {
-        create_cw        = true
-        name             = "PaloAltoCloudNGFWCombined"
+        create_cw        = false
+        name             = "PaloAltoCloudNGFW"
         destination_type = "CloudWatchLogs"
         log_type         = "TRAFFIC"
       }
       dest_3 = {
-        create_cw        = true
-        name             = "PaloAltoCloudNGFWCombined"
+        create_cw        = false
+        name             = "PaloAltoCloudNGFW"
         destination_type = "CloudWatchLogs"
         log_type         = "DECRYPTION"
       }

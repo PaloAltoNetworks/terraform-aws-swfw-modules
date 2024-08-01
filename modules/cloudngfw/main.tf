@@ -1,7 +1,8 @@
 data "aws_caller_identity" "current" {}
 
 locals {
-  new_log_cw = toset(distinct([for _, v in var.log_profiles : v.name if v.create_cw]))
+  new_log_cw      = toset(distinct([for _, v in var.log_profiles : v.name if v.create_cw]))
+  existing_log_cw = toset(distinct([for _, v in var.log_profiles : v.name if !v.create_cw]))
 }
 
 resource "cloudngfwaws_ngfw" "this" {
@@ -86,8 +87,10 @@ resource "cloudngfwaws_ngfw_log_profile" "this" {
     for_each = var.log_profiles
     content {
       destination_type = log_destination.value.destination_type
-      destination      = log_destination.value.destination_type == "CloudWatchLogs" ? aws_cloudwatch_log_group.this[log_destination.value.name].name : log_destination.value.name
-      log_type         = log_destination.value.log_type
+      destination = log_destination.value.destination_type == "CloudWatchLogs" ? (
+        log_destination.value.create_cw ? aws_cloudwatch_log_group.this[log_destination.value.name].name : data.aws_cloudwatch_log_group.this[log_destination.value.name].name
+      ) : log_destination.value.name
+      log_type = log_destination.value.log_type
     }
   }
 
@@ -105,6 +108,12 @@ resource "aws_cloudwatch_log_group" "this" {
   retention_in_days = var.retention_in_days
 
   tags = var.tags
+}
+
+data "aws_cloudwatch_log_group" "this" {
+  for_each = local.existing_log_cw
+
+  name = each.value
 }
 
 resource "aws_cloudwatch_log_stream" "this" {
