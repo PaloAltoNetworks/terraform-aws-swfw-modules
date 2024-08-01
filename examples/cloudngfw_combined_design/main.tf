@@ -136,7 +136,7 @@ module "cloudngfw" {
   for_each = var.cloudngfws
 
   name           = "${var.name_prefix}${each.value.name}"
-  subnets        = { for k, v in module.vpc[each.value.vpc].subnets : k => v if v.subnet_group == each.value.subnet_group }
+  subnets        = { for k, v in module.vpc[each.value.vpc].subnets : "${var.region}${v.az}" => v if v.subnet_group == each.value.subnet_group }
   vpc_id         = module.vpc[each.value.vpc].id
   rulestack_name = "${var.name_prefix}${each.value.name}"
   description    = each.value.description
