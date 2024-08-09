@@ -6,6 +6,7 @@ import (
 	"github.com/PaloAltoNetworks/terraform-modules-swfw-tests-skeleton/pkg/testskeleton"
 	"github.com/gruntwork-io/terratest/modules/logger"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	"gotest.tools/v3/assert"
 )
 
 func CreateTerraformOptions(t *testing.T) *terraform.Options {
@@ -29,33 +30,55 @@ func CreateTerraformOptions(t *testing.T) *terraform.Options {
 	return terraformOptions
 }
 
+func checkIfTerraformVersionIsSupported(t *testing.T) bool {
+	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
+		TerraformDir: ".",
+		Logger:       logger.Discard,
+		Lock:         true,
+	})
+	_, err := terraform.InitE(t, terraformOptions)
+	if err != nil {
+		assert.ErrorContains(t, err, "Unsupported Terraform Core version")
+		return false
+	}
+	return true
+}
+
 func TestValidate(t *testing.T) {
-	testskeleton.ValidateCode(t, nil)
+	if checkIfTerraformVersionIsSupported(t) {
+		testskeleton.ValidateCode(t, nil)
+	}
 }
 
 func TestPlan(t *testing.T) {
-	// define options for Terraform
-	terraformOptions := CreateTerraformOptions(t)
-	// prepare list of items to check
-	assertList := []testskeleton.AssertExpression{}
-	// plan test infrastructure and verify outputs
-	testskeleton.PlanInfraCheckErrors(t, terraformOptions, assertList, "No errors are expected")
+	if checkIfTerraformVersionIsSupported(t) {
+		// define options for Terraform
+		terraformOptions := CreateTerraformOptions(t)
+		// prepare list of items to check
+		assertList := []testskeleton.AssertExpression{}
+		// plan test infrastructure and verify outputs
+		testskeleton.PlanInfraCheckErrors(t, terraformOptions, assertList, "No errors are expected")
+	}
 }
 
 func TestApply(t *testing.T) {
-	// define options for Terraform
-	terraformOptions := CreateTerraformOptions(t)
-	// prepare list of items to check
-	assertList := []testskeleton.AssertExpression{}
-	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
-	testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
+	if checkIfTerraformVersionIsSupported(t) {
+		// define options for Terraform
+		terraformOptions := CreateTerraformOptions(t)
+		// prepare list of items to check
+		assertList := []testskeleton.AssertExpression{}
+		// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
+		testskeleton.DeployInfraCheckOutputs(t, terraformOptions, assertList)
+	}
 }
 
 func TestIdempotence(t *testing.T) {
-	// define options for Terraform
-	terraformOptions := CreateTerraformOptions(t)
-	// prepare list of items to check
-	assertList := []testskeleton.AssertExpression{}
-	// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
-	testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
+	if checkIfTerraformVersionIsSupported(t) {
+		// define options for Terraform
+		terraformOptions := CreateTerraformOptions(t)
+		// prepare list of items to check
+		assertList := []testskeleton.AssertExpression{}
+		// deploy test infrastructure and verify outputs and check if there are no planned changes after deployment
+		testskeleton.DeployInfraCheckOutputsVerifyChanges(t, terraformOptions, assertList)
+	}
 }

@@ -2,7 +2,7 @@
 region      = "eu-central-1" # TODO: update here
 name_prefix = "example-"     # TODO: update here
 
-global_tags = {
+tags = {
   ManagedBy   = "terraform"
   Application = "Palo Alto Networks VM-Series NGFW"
   Owner       = "PS Team"
@@ -14,153 +14,29 @@ ssh_key_name = "example-frankfurt" # TODO: update here
 vpcs = {
   security_vpc = {
     name = "security-vpc"
-    cidr = "10.100.0.0/16"
-    nacls = {
-      trusted_path_monitoring = {
-        name = "trusted-path-monitoring"
-        rules = {
-          block_outbound_icmp_1 = {
-            rule_number = 110
-            egress      = true
-            protocol    = "icmp"
-            rule_action = "deny"
-            cidr_block  = "10.100.1.0/24"
-          }
-          block_outbound_icmp_2 = {
-            rule_number = 120
-            egress      = true
-            protocol    = "icmp"
-            rule_action = "deny"
-            cidr_block  = "10.100.65.0/24"
-          }
-          allow_other_outbound = {
-            rule_number = 200
-            egress      = true
-            protocol    = "-1"
-            rule_action = "allow"
-            cidr_block  = "0.0.0.0/0"
-          }
-          allow_inbound = {
-            rule_number = 300
-            egress      = false
-            protocol    = "-1"
-            rule_action = "allow"
-            cidr_block  = "0.0.0.0/0"
-          }
-        }
-      }
-    }
-    security_groups = {
-      lambda = {
-        name = "lambda"
-        rules = {
-          all_outbound = {
-            description = "Permit All traffic outbound"
-            type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
-            cidr_blocks = ["0.0.0.0/0"]
-          }
-          all_inbound = {
-            description = "Permit All traffic inbound"
-            type        = "ingress", from_port = "0", to_port = "0", protocol = "-1"
-            cidr_blocks = ["0.0.0.0/0"]
-          }
-        }
-      }
-      vmseries_private = {
-        name = "vmseries_private"
-        rules = {
-          all_outbound = {
-            description = "Permit All traffic outbound"
-            type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
-            cidr_blocks = ["0.0.0.0/0"]
-          }
-          geneve = {
-            description = "Permit GENEVE to GWLB subnets"
-            type        = "ingress", from_port = "6081", to_port = "6081", protocol = "udp"
-            cidr_blocks = [
-              "10.100.5.0/24", "10.100.69.0/24"
-            ]
-          }
-          health_probe = {
-            description = "Permit Port 80 Health Probe to GWLB subnets"
-            type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
-            cidr_blocks = [
-              "10.100.5.0/24", "10.100.69.0/24"
-            ]
-          }
-        }
-      }
-      vmseries_mgmt = {
-        name = "vmseries_mgmt"
-        rules = {
-          all_outbound = {
-            description = "Permit All traffic outbound"
-            type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
-            cidr_blocks = ["0.0.0.0/0"]
-          }
-          https = {
-            description = "Permit HTTPS"
-            type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-            cidr_blocks = ["0.0.0.0/0"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
-          }
-          ssh = {
-            description = "Permit SSH"
-            type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-            cidr_blocks = ["0.0.0.0/0"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
-          }
-          panorama_ssh = {
-            description = "Permit Panorama SSH (Optional)"
-            type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-            cidr_blocks = ["10.0.0.0/8"]
-          }
-        }
-      }
-      vmseries_public = {
-        name = "vmseries_public"
-        rules = {
-          all_outbound = {
-            description = "Permit All traffic outbound"
-            type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
-            cidr_blocks = ["0.0.0.0/0"]
-          }
-          ssh = {
-            description = "Permit SSH"
-            type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
-          }
-          https = {
-            description = "Permit HTTPS"
-            type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
-          }
-          http = {
-            description = "Permit HTTP"
-            type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
-            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
-          }
-        }
-      }
+    cidr_block = {
+      ipv4 = "10.100.0.0/16"
     }
     subnets = {
       # Value of `nacl` must match key of objects stored in `nacls`
-      "10.100.0.0/24"  = { az = "eu-central-1a", subnet_group = "mgmt" }
-      "10.100.64.0/24" = { az = "eu-central-1b", subnet_group = "mgmt" }
-      "10.100.1.0/24"  = { az = "eu-central-1a", subnet_group = "private", nacl = "trusted_path_monitoring" }
-      "10.100.65.0/24" = { az = "eu-central-1b", subnet_group = "private", nacl = "trusted_path_monitoring" }
-      "10.100.2.0/24"  = { az = "eu-central-1a", subnet_group = "public" }
-      "10.100.66.0/24" = { az = "eu-central-1b", subnet_group = "public" }
-      "10.100.3.0/24"  = { az = "eu-central-1a", subnet_group = "tgw_attach" }
-      "10.100.67.0/24" = { az = "eu-central-1b", subnet_group = "tgw_attach" }
-      "10.100.4.0/24"  = { az = "eu-central-1a", subnet_group = "gwlbe_outbound" }
-      "10.100.68.0/24" = { az = "eu-central-1b", subnet_group = "gwlbe_outbound" }
-      "10.100.5.0/24"  = { az = "eu-central-1a", subnet_group = "gwlb" }
-      "10.100.69.0/24" = { az = "eu-central-1b", subnet_group = "gwlb" }
-      "10.100.10.0/24" = { az = "eu-central-1a", subnet_group = "gwlbe_eastwest" }
-      "10.100.74.0/24" = { az = "eu-central-1b", subnet_group = "gwlbe_eastwest" }
-      "10.100.11.0/24" = { az = "eu-central-1a", subnet_group = "natgw" }
-      "10.100.75.0/24" = { az = "eu-central-1b", subnet_group = "natgw" }
-      "10.100.12.0/24" = { az = "eu-central-1a", subnet_group = "lambda" }
-      "10.100.76.0/24" = { az = "eu-central-1b", subnet_group = "lambda" }
+      mgmta           = { az = "a", cidr_block = "10.100.0.0/24", subnet_group = "mgmt", name = "mgmt1" }
+      mgmtb           = { az = "b", cidr_block = "10.100.64.0/24", subnet_group = "mgmt", name = "mgmt2" }
+      privatea        = { az = "a", cidr_block = "10.100.1.0/24", subnet_group = "private", name = "private1", nacl = "trusted_path_monitoring" }
+      privateb        = { az = "b", cidr_block = "10.100.65.0/24", subnet_group = "private", name = "private2", nacl = "trusted_path_monitoring" }
+      publica         = { az = "a", cidr_block = "10.100.2.0/24", subnet_group = "public", name = "public1" }
+      publicb         = { az = "b", cidr_block = "10.100.66.0/24", subnet_group = "public", name = "public2" }
+      tgw_attacha     = { az = "a", cidr_block = "10.100.3.0/24", subnet_group = "tgw_attach", name = "tgw_attach1" }
+      tgw_attachb     = { az = "b", cidr_block = "10.100.67.0/24", subnet_group = "tgw_attach", name = "tgw_attach2" }
+      gwlbe_outbounda = { az = "a", cidr_block = "10.100.4.0/24", subnet_group = "gwlbe_outbound", name = "gwlbe_outbound1" }
+      gwlbe_outboundb = { az = "b", cidr_block = "10.100.68.0/24", subnet_group = "gwlbe_outbound", name = "gwlbe_outbound2" }
+      gwlba           = { az = "a", cidr_block = "10.100.5.0/24", subnet_group = "gwlb", name = "gwlb1" }
+      gwlbb           = { az = "b", cidr_block = "10.100.69.0/24", subnet_group = "gwlb", name = "gwlb2" }
+      gwlbe_eastwesta = { az = "a", cidr_block = "10.100.10.0/24", subnet_group = "gwlbe_eastwest", name = "gwlbe_eastwest1" }
+      gwlbe_eastwestb = { az = "b", cidr_block = "10.100.74.0/24", subnet_group = "gwlbe_eastwest", name = "gwlbe_eastwest2" }
+      natgwa          = { az = "a", cidr_block = "10.100.11.0/24", subnet_group = "natgw", name = "natgw1" }
+      natgwb          = { az = "b", cidr_block = "10.100.75.0/24", subnet_group = "natgw", name = "natgw2" }
+      lambdaa         = { az = "a", cidr_block = "10.100.12.0/24", subnet_group = "lambda", name = "lambda1" }
+      lambdab         = { az = "b", cidr_block = "10.100.76.0/24", subnet_group = "lambda", name = "lambda2" }
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
@@ -257,10 +133,171 @@ vpcs = {
         next_hop_type = "gwlbe_endpoint"
       }
     }
+    nacls = {
+      trusted_path_monitoring = {
+        name = "trusted-path-monitoring"
+        rules = {
+          block_outbound_icmp_1 = {
+            rule_number = 110
+            type        = "egress"
+            protocol    = "icmp"
+            action      = "deny"
+            cidr_block  = "10.100.1.0/24"
+          }
+          block_outbound_icmp_2 = {
+            rule_number = 120
+            type        = "egress"
+            protocol    = "icmp"
+            action      = "deny"
+            cidr_block  = "10.100.65.0/24"
+          }
+          allow_other_outbound = {
+            rule_number = 200
+            type        = "egress"
+            protocol    = "-1"
+            action      = "allow"
+            cidr_block  = "0.0.0.0/0"
+          }
+          allow_inbound = {
+            rule_number = 300
+            type        = "ingress"
+            protocol    = "-1"
+            action      = "allow"
+            cidr_block  = "0.0.0.0/0"
+          }
+        }
+      }
+    }
+    security_groups = {
+      lambda = {
+        name = "lambda"
+        rules = {
+          all_outbound = {
+            description = "Permit All traffic outbound"
+            type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+            cidr_blocks = ["0.0.0.0/0"]
+          }
+          all_inbound = {
+            description = "Permit All traffic inbound"
+            type        = "ingress", from_port = "0", to_port = "0", protocol = "-1"
+            cidr_blocks = ["0.0.0.0/0"]
+          }
+        }
+      }
+      vmseries_private = {
+        name = "vmseries_private"
+        rules = {
+          all_outbound = {
+            description = "Permit All traffic outbound"
+            type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+            cidr_blocks = ["0.0.0.0/0"]
+          }
+          geneve = {
+            description = "Permit GENEVE to GWLB subnets"
+            type        = "ingress", from_port = "6081", to_port = "6081", protocol = "udp"
+            cidr_blocks = [
+              "10.100.5.0/24", "10.100.69.0/24"
+            ]
+          }
+          health_probe = {
+            description = "Permit Port 80 Health Probe to GWLB subnets"
+            type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
+            cidr_blocks = [
+              "10.100.5.0/24", "10.100.69.0/24"
+            ]
+          }
+        }
+      }
+      vmseries_mgmt = {
+        name = "vmseries_mgmt"
+        rules = {
+          all_outbound = {
+            description = "Permit All traffic outbound"
+            type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+            cidr_blocks = ["0.0.0.0/0"]
+          }
+          https = {
+            description = "Permit HTTPS"
+            type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
+            cidr_blocks = ["0.0.0.0/0"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
+          }
+          ssh = {
+            description = "Permit SSH"
+            type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
+            cidr_blocks = ["0.0.0.0/0"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
+          }
+          panorama_ssh = {
+            description = "Permit Panorama SSH (Optional)"
+            type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
+            cidr_blocks = ["10.0.0.0/8"]
+          }
+        }
+      }
+      vmseries_public = {
+        name = "vmseries_public"
+        rules = {
+          all_outbound = {
+            description = "Permit All traffic outbound"
+            type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+            cidr_blocks = ["0.0.0.0/0"]
+          }
+          ssh = {
+            description = "Permit SSH"
+            type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
+            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
+          }
+          https = {
+            description = "Permit HTTPS"
+            type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
+            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
+          }
+          http = {
+            description = "Permit HTTP"
+            type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
+            cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
+          }
+        }
+      }
+    }
   }
   app1_vpc = {
-    name  = "app1-spoke-vpc"
-    cidr  = "10.104.0.0/16"
+    name = "app1-spoke-vpc"
+    cidr_block = {
+      ipv4 = "10.104.0.0/16"
+    }
+    subnets = {
+      app1_vma    = { az = "a", cidr_block = "10.104.0.0/24", subnet_group = "app1_vm", name = "app1_vm1" }
+      app1_vmb    = { az = "b", cidr_block = "10.104.128.0/24", subnet_group = "app1_vm", name = "app1_vm1" }
+      app1_lba    = { az = "a", cidr_block = "10.104.2.0/24", subnet_group = "app1_lb", name = "app1_lb1" }
+      app1_lbb    = { az = "b", cidr_block = "10.104.130.0/24", subnet_group = "app1_lb", name = "app1_lb2" }
+      app1_gwlbea = { az = "a", cidr_block = "10.104.3.0/24", subnet_group = "app1_gwlbe", name = "app1_gwlbe1" }
+      app1_gwlbeb = { az = "b", cidr_block = "10.104.131.0/24", subnet_group = "app1_gwlbe", name = "app1_gwlbe2" }
+    }
+    routes = {
+      # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
+      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
+      vm_default = {
+        vpc           = "app1_vpc"
+        subnet_group  = "app1_vm"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "app1"
+        next_hop_type = "transit_gateway_attachment"
+      }
+      gwlbe_default = {
+        vpc           = "app1_vpc"
+        subnet_group  = "app1_gwlbe"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "app1_vpc"
+        next_hop_type = "internet_gateway"
+      }
+      lb_default = {
+        vpc           = "app1_vpc"
+        subnet_group  = "app1_lb"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "app1_inbound"
+        next_hop_type = "gwlbe_endpoint"
+      }
+    }
     nacls = {}
     security_groups = {
       app1_vm = {
@@ -289,43 +326,45 @@ vpcs = {
         }
       }
     }
+  }
+  app2_vpc = {
+    name = "app2-spoke-vpc"
+    cidr_block = {
+      ipv4 = "10.105.0.0/16"
+    }
     subnets = {
-      "10.104.0.0/24"   = { az = "eu-central-1a", subnet_group = "app1_vm" }
-      "10.104.128.0/24" = { az = "eu-central-1b", subnet_group = "app1_vm" }
-      "10.104.2.0/24"   = { az = "eu-central-1a", subnet_group = "app1_lb" }
-      "10.104.130.0/24" = { az = "eu-central-1b", subnet_group = "app1_lb" }
-      "10.104.3.0/24"   = { az = "eu-central-1a", subnet_group = "app1_gwlbe" }
-      "10.104.131.0/24" = { az = "eu-central-1b", subnet_group = "app1_gwlbe" }
+      app2_vma    = { az = "a", cidr_block = "10.105.0.0/24", subnet_group = "app2_vm", name = "app2_vm1" }
+      app2_vmb    = { az = "b", cidr_block = "10.105.128.0/24", subnet_group = "app2_vm", name = "app2_vm2" }
+      app2_lba    = { az = "a", cidr_block = "10.105.2.0/24", subnet_group = "app2_lb", name = "app2_lb1" }
+      app2_lbb    = { az = "b", cidr_block = "10.105.130.0/24", subnet_group = "app2_lb", name = "app2_lb2" }
+      app2_gwlbea = { az = "a", cidr_block = "10.105.3.0/24", subnet_group = "app2_gwlbe", name = "app2_gwlbe1" }
+      app2_gwlbeb = { az = "b", cidr_block = "10.105.131.0/24", subnet_group = "app2_gwlbe", name = "app2_gwlbe2" }
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
       # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       vm_default = {
-        vpc           = "app1_vpc"
-        subnet_group  = "app1_vm"
+        vpc           = "app2_vpc"
+        subnet_group  = "app2_vm"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app1"
+        next_hop_key  = "app2"
         next_hop_type = "transit_gateway_attachment"
       }
       gwlbe_default = {
-        vpc           = "app1_vpc"
-        subnet_group  = "app1_gwlbe"
+        vpc           = "app2_vpc"
+        subnet_group  = "app2_gwlbe"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app1_vpc"
+        next_hop_key  = "app2_vpc"
         next_hop_type = "internet_gateway"
       }
       lb_default = {
-        vpc           = "app1_vpc"
-        subnet_group  = "app1_lb"
+        vpc           = "app2_vpc"
+        subnet_group  = "app2_lb"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app1_inbound"
+        next_hop_key  = "app2_inbound"
         next_hop_type = "gwlbe_endpoint"
       }
     }
-  }
-  app2_vpc = {
-    name  = "app2-spoke-vpc"
-    cidr  = "10.105.0.0/16"
     nacls = {}
     security_groups = {
       app2_vm = {
@@ -352,39 +391,6 @@ vpcs = {
             cidr_blocks = ["0.0.0.0/0", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
           }
         }
-      }
-    }
-    subnets = {
-      "10.105.0.0/24"   = { az = "eu-central-1a", subnet_group = "app2_vm" }
-      "10.105.128.0/24" = { az = "eu-central-1b", subnet_group = "app2_vm" }
-      "10.105.2.0/24"   = { az = "eu-central-1a", subnet_group = "app2_lb" }
-      "10.105.130.0/24" = { az = "eu-central-1b", subnet_group = "app2_lb" }
-      "10.105.3.0/24"   = { az = "eu-central-1a", subnet_group = "app2_gwlbe" }
-      "10.105.131.0/24" = { az = "eu-central-1b", subnet_group = "app2_gwlbe" }
-    }
-    routes = {
-      # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
-      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
-      vm_default = {
-        vpc           = "app2_vpc"
-        subnet_group  = "app2_vm"
-        to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app2"
-        next_hop_type = "transit_gateway_attachment"
-      }
-      gwlbe_default = {
-        vpc           = "app2_vpc"
-        subnet_group  = "app2_gwlbe"
-        to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app2_vpc"
-        next_hop_type = "internet_gateway"
-      }
-      lb_default = {
-        vpc           = "app2_vpc"
-        subnet_group  = "app2_lb"
-        to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app2_inbound"
-        next_hop_type = "gwlbe_endpoint"
       }
     }
   }
@@ -439,6 +445,7 @@ natgws = {
     name         = "natgw"
     vpc          = "security_vpc"
     subnet_group = "natgw"
+    az           = "a"
   }
 }
 
@@ -514,8 +521,8 @@ vmseries_asgs = {
     gwlb = "security_gwlb"
 
     zones = {
-      "01" = "eu-central-1a"
-      "02" = "eu-central-1b"
+      "01" = "a"
+      "02" = "b"
     }
 
     interfaces = {
@@ -606,28 +613,28 @@ panorama_attachment = {
 ### SPOKE VMS
 spoke_vms = {
   "app1_vm01" = {
-    az             = "eu-central-1a"
+    az             = "a"
     vpc            = "app1_vpc"
     subnet_group   = "app1_vm"
     security_group = "app1_vm"
     type           = "t2.micro"
   }
   "app1_vm02" = {
-    az             = "eu-central-1b"
+    az             = "b"
     vpc            = "app1_vpc"
     subnet_group   = "app1_vm"
     security_group = "app1_vm"
     type           = "t2.micro"
   }
   "app2_vm01" = {
-    az             = "eu-central-1a"
+    az             = "a"
     vpc            = "app2_vpc"
     subnet_group   = "app2_vm"
     security_group = "app2_vm"
     type           = "t2.micro"
   }
   "app2_vm02" = {
-    az             = "eu-central-1b"
+    az             = "b"
     vpc            = "app2_vpc"
     subnet_group   = "app2_vm"
     security_group = "app2_vm"

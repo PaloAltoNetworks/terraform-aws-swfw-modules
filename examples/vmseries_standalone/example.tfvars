@@ -2,7 +2,7 @@
 region      = "eu-west-1" # TODO: update here
 name_prefix = "example-"  # TODO: update here
 
-global_tags = {
+tags = {
   ManagedBy   = "terraform"
   Application = "Palo Alto Networks VM-Series NGFW"
   Owner       = "PS Team"
@@ -13,10 +13,28 @@ ssh_key_name = "example-ssh-key" # TODO: update here
 ### VPC
 vpcs = {
   security_vpc = {
-    name                             = "security-vpc"
-    cidr                             = "10.100.0.0/16"
-    assign_generated_ipv6_cidr_block = false
-    nacls                            = {}
+    name = "security-vpc"
+    cidr_block = {
+      ipv4                             = "10.100.0.0/16"
+      assign_generated_ipv6_cidr_block = false
+    }
+    subnets = {
+      # Value of `nacl` must match key of objects stored in `nacls`
+      mgmta = { az = "a", cidr_block = "10.100.0.0/24", subnet_group = "mgmt", name = "mgmt" }
+    }
+    routes = {
+      # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
+      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
+      mgmt_default = {
+        vpc              = "security_vpc"
+        subnet_group     = "mgmt"
+        to_cidr          = "0.0.0.0/0"
+        destination_type = "ipv4"
+        next_hop_key     = "security_vpc"
+        next_hop_type    = "internet_gateway"
+      }
+    }
+    nacls = {}
     security_groups = {
       vmseries_mgmt = {
         name = "vmseries_mgmt"
@@ -39,22 +57,6 @@ vpcs = {
         }
       }
     }
-    subnets = {
-      # Value of `nacl` must match key of objects stored in `nacls`
-      "10.100.0.0/24" = { az = "eu-west-1a", subnet_group = "mgmt", nacl = null, ipv6_index = null }
-    }
-    routes = {
-      # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
-      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
-      mgmt_default = {
-        vpc              = "security_vpc"
-        subnet_group     = "mgmt"
-        to_cidr          = "0.0.0.0/0"
-        destination_type = "ipv4"
-        next_hop_key     = "security_vpc"
-        next_hop_type    = "internet_gateway"
-      }
-    }
   }
 }
 
@@ -62,7 +64,7 @@ vpcs = {
 vmseries = {
   vmseries = {
     instances = {
-      "01" = { az = "eu-west-1a" }
+      "01" = { az = "a" }
     }
 
     # Value of `panorama-server`, `auth-key`, `dgname`, `tplname` can be taken from plugin `sw_fw_license`
