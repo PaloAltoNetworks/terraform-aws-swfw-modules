@@ -47,6 +47,21 @@ variable "cidr_block" {
     secondary_ipv4        = optional(list(string), [])
     assign_generated_ipv6 = optional(bool, false)
   })
+  validation { # ipv4
+    condition     = can(regex("^(\\d{1,3}\\.){3}\\d{1,3}\\/[12]?[0-9]$", var.cidr_block.ipv4))
+    error_message = <<-EOF
+    The CIDR block should be in CIDR notation, with the maximum subnet of /28.
+    EOF
+  }
+  validation { # secondary_ipv4
+    condition = alltrue([
+      for v in var.cidr_block.secondary_ipv4 :
+      can(regex("^(\\d{1,3}\\.){3}\\d{1,3}\\/[12]?[0-9]$", v))
+    ])
+    error_message = <<-EOF
+    All items in secondary_ipv4 should be in CIDR notation, with the maximum subnet of /28.
+    EOF
+  }
 }
 
 variable "options" {
@@ -80,10 +95,16 @@ variable "options" {
     domain_name             = optional(string)
     domain_name_servers     = optional(list(string), [])
     ntp_servers             = optional(list(string), [])
-    instance_tenancy        = optional(string)
+    instance_tenancy        = optional(string, "default")
     map_public_ip_on_launch = optional(bool, false)
     propagating_vgws        = optional(list(string), [])
   })
+  validation { # instance_tenancy
+    condition     = contains(["default", "dedicated"], var.options.instance_tenancy)
+    error_message = <<-EOF
+    The `instance_tenancy` property should be one of default or dedicated.
+    EOF
+  }
 }
 
 variable "internet_gateway" {
@@ -188,6 +209,24 @@ variable "subnets" {
     associate_route_table   = optional(bool, true)
     tags                    = optional(map(string))
   }))
+  validation { # cidr_block
+    condition = alltrue(flatten([
+      for _, subnet in var.subnets :
+      can(regex("^(\\d{1,3}\\.){3}\\d{1,3}\\/[123]?[0-9]$", subnet.cidr_block))
+    ]))
+    error_message = <<-EOF
+    The CIDR block should be in CIDR notation.
+    EOF
+  }
+  validation { # az
+    condition = alltrue(flatten([
+      for _, subnet in var.subnets :
+      can(regex("^[a-z]$", subnet.az))
+    ]))
+    error_message = <<-EOF
+    The availability zone should be a single lowercase letter.
+    EOF
+  }
 }
 
 variable "nacls" {
@@ -244,6 +283,46 @@ variable "nacls" {
       to_port     = optional(string)
     }))
   }))
+  validation { # type
+    condition = alltrue(flatten([
+      for _, nacl in var.nacls : [
+        for _, rule in nacl.rules :
+        contains(["ingress", "egress"], rule.type)
+    ]]))
+    error_message = <<-EOF
+    The rule type should be either ingress or egress.
+    EOF
+  }
+  validation { # action
+    condition = alltrue(flatten([
+      for _, nacl in var.nacls : [
+        for _, rule in nacl.rules :
+        contains(["allow", "deny"], rule.action)
+    ]]))
+    error_message = <<-EOF
+    The rule action should be either allow or deny.
+    EOF
+  }
+  validation { # cidr_block
+    condition = alltrue(flatten([
+      for _, nacl in var.nacls : [
+        for _, rule in nacl.rules :
+        can(regex("^(\\d{1,3}\\.){3}\\d{1,3}\\/[123]?[0-9]$", rule.cidr_block))
+    ]]))
+    error_message = <<-EOF
+    The CIDR block should be in CIDR notation.
+    EOF
+  }
+  validation { # protocol
+    condition = alltrue(flatten([
+      for _, nacl in var.nacls : [
+        for _, rule in nacl.rules :
+        can(regex("^(tcp|udp|icmp|-1)$", rule.protocol))
+    ]]))
+    error_message = <<-EOF
+    The protocol should be either tcp, udp, icmp or -1.
+    EOF
+  }
 }
 
 variable "security_groups" {
@@ -316,4 +395,25 @@ variable "security_groups" {
       source_security_groups = optional(list(string))
     }))
   }))
+  validation { # cidr_block
+    condition = alltrue(flatten([
+      for _, security_group in var.security_groups : [
+        for _, rule in security_group.rules : [
+          for _, cidr_block in rule.cidr_blocks :
+          can(regex("^(\\d{1,3}\\.){3}\\d{1,3}\\/[123]?[0-9]$", cidr_block))
+    ]]]))
+    error_message = <<-EOF
+    The CIDR block should be in CIDR notation.
+    EOF
+  }
+  validation { # protocol
+    condition = alltrue(flatten([
+      for _, security_group in var.security_groups : [
+        for _, rule in security_group.rules :
+        can(regex("^(tcp|udp|icmp|-1)$", rule.protocol))
+    ]]))
+    error_message = <<-EOF
+    The protocol should be either tcp, udp, icmp or -1.
+    EOF
+  }
 }

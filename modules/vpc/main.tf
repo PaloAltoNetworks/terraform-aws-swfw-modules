@@ -17,11 +17,12 @@ resource "aws_vpc" "this" {
   count = var.create_vpc ? 1 : 0
 
   cidr_block                       = var.cidr_block.ipv4
-  tags                             = merge(var.tags, var.vpc_tags, { Name = var.name })
+  assign_generated_ipv6_cidr_block = var.cidr_block.assign_generated_ipv6
   enable_dns_support               = var.options.enable_dns_support
   enable_dns_hostnames             = var.options.enable_dns_hostnames
   instance_tenancy                 = var.options.instance_tenancy
-  assign_generated_ipv6_cidr_block = var.cidr_block.assign_generated_ipv6
+
+  tags = merge(var.tags, var.vpc_tags, { Name = var.name })
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_ipv4_cidr_block_association
