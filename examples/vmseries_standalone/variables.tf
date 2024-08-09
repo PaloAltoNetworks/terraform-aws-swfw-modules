@@ -128,7 +128,7 @@ variable "vpcs" {
         from_port        = string
         to_port          = string
         protocol         = string
-        cidr_blocks      = optional(list(string))
+        cidr_blocks      = optional(list(string), [])
         ipv6_cidr_blocks = optional(list(string))
       }))
     }))
