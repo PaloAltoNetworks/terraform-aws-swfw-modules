@@ -24,6 +24,9 @@ func CreateTerraformOptions(t *testing.T, varFiles []string) *terraform.Options 
 		Lock:                 true,
 		Upgrade:              true,
 		SetVarsAfterVarFiles: true,
+		RetryableTerraformErrors: map[string]string{
+			"The specified key does not exist": "Temporary solution for problem with listing tags for S3 (Simple Storage) Object - operation error S3: GetObjectTagging, https response error StatusCode: 404, api error NoSuchKey: The specified key does not exist",
+		},
 	})
 
 	return terraformOptions
