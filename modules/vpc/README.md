@@ -2,27 +2,6 @@
 
 A Terraform module for deploying a VPC in AWS.
 
-One advantage of this module over the [terraform-aws-vpc](https://github.com/terraform-aws-modules/terraform-aws-vpc)
-module is that it does not create multiple resources based on Terraform `count` iterator. This allows for example
-[easier removal](https://github.com/PaloAltoNetworks/terraform-best-practices#22-looping) of any single subnet,
-without the need to briefly destroy and re-create any other subnet.
-
-## Usage
-
-```hcl
-module "vpc" {
-  source = "../../modules/vpc"
-
-  name                    = var.name
-  cidr_block              = var.vpc_cidr_block
-  secondary_cidr_blocks   = var.vpc_secondary_cidr_blocks
-  create_internet_gateway = true
-  global_tags             = var.global_tags
-  vpc_tags                = var.vpc_tags
-  security_groups         = var.security_groups
-}
-```
-
 ## Reference
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ### Requirements
