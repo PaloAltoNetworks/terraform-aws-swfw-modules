@@ -1,10 +1,10 @@
-variable "to_cidr" {
-  description = "The CIDR to match the packet's destination field. If they match, the route can be used for the packet. For example \"0.0.0.0/0\"."
+variable "route_table_id" {
+  description = "ID of the route table"
   type        = string
 }
 
-variable "az" {
-  description = "The Availability Zone of the route table"
+variable "to_cidr" {
+  description = "The CIDR to match the packet's destination field. If they match, the route can be used for the packet. For example \"0.0.0.0/0\"."
   type        = string
 }
 
@@ -26,21 +26,12 @@ variable "core_network_arn" {
   type        = string
 }
 
-variable "route_tables" {
-  description = "Map of route tables to create routes in."
-  type = map(object({
-    id           = string
-    subnet_group = string
-    az           = string
-  }))
-}
-
 variable "next_hop_type" {
   description = "Type of next hop."
   type        = string
   validation {
-    condition     = can(regex("^(carrier_gateway|internet_gateway|vpn_gateway|transit_gateway_attachment|nat_gateway|network_interface|vpc_endpoint|gwlbe_endpoint|vpc_peering_connection|egress_only_gateway|local_gateway)$", var.next_hop_type))
-    error_message = "Invalid next_hop_type. Possible values: carrier_gateway, internet_gateway, vpn_gateway, transit_gateway_attachment, nat_gateway, network_interface, vpc_endpoint, gwlbe_endpoint, vpc_peering_connection, egress_only_gateway, local_gateway."
+    condition     = can(regex("^(carrier_gateway|internet_gateway|vpn_gateway|transit_gateway|nat_gateway|network_interface|vpc_endpoint|gwlbe_endpoint|vpc_peering_connection|egress_only_gateway|local_gateway)$", var.next_hop_type))
+    error_message = "Invalid next_hop_type. Possible values: carrier_gateway, internet_gateway, vpn_gateway, transit_gateway, nat_gateway, network_interface, vpc_endpoint, gwlbe_endpoint, vpc_peering_connection, egress_only_gateway, local_gateway."
   }
 }
 
@@ -62,34 +53,22 @@ variable "transit_gateway_id" {
   type        = string
 }
 
-variable "nat_gateways" {
-  description = "Map of NAT Gateways to use as next hop."
-  default     = {}
-  type = map(object({
-    id           = string
-    subnet_group = string
-    az           = string
-  }))
+variable "nat_gateway_id" {
+  description = "ID of the NAT Gateway"
+  default     = null
+  type        = string
 }
 
-variable "network_interfaces" {
-  description = "Map of network interfaces to use as next hop."
-  default     = {}
-  type = map(object({
-    id           = string
-    subnet_group = string
-    az           = string
-  }))
+variable "network_interface_id" {
+  description = "ID of the network interface"
+  default     = null
+  type        = string
 }
 
-variable "vpc_endpoints" {
-  description = "Map of VPC Endpoints to use as next hop."
-  default     = {}
-  type = map(object({
-    id           = string
-    subnet_group = string
-    az           = string
-  }))
+variable "vpc_endpoint_id" {
+  description = "ID of the VPC Endpoint"
+  default     = null
+  type        = string
 }
 
 variable "vpc_peering_connection_id" {
