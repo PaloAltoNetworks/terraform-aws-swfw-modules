@@ -169,6 +169,26 @@ resource "aws_route_table_association" "this" {
   route_table_id = local.route_tables[each.key].id
 }
 
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table
+resource "aws_route_table" "shared" {
+  for_each = { for k, v in var.shared_route_tables : k => v }
+
+  vpc_id           = local.vpc.id
+  propagating_vgws = var.options.propagating_vgws
+
+  tags = merge(var.tags, each.value.tags, { Name = each.value.name })
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association
+resource "aws_route_table_association" "shared" {
+  for_each = { for k, v in var.subnets : k => v if try(length(v.shared_route_table) > 0, false) }
+
+  subnet_id      = local.subnets[each.key].id
+  route_table_id = aws_route_table.shared[each.value.shared_route_table].id
+
+  depends_on = [aws_route_table.shared]
+}
+
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_acl
 resource "aws_network_acl" "this" {
   for_each = var.nacls

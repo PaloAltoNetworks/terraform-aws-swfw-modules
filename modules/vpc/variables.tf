@@ -207,6 +207,7 @@ variable "subnets" {
     route_table_name        = optional(string)
     existing_route_table_id = optional(string)
     associate_route_table   = optional(bool, true)
+    shared_route_table      = optional(string)
     tags                    = optional(map(string))
   }))
   validation { # cidr_block
@@ -227,6 +228,21 @@ variable "subnets" {
     The availability zone should be a single lowercase letter.
     EOF
   }
+}
+
+variable "shared_route_tables" {
+  description = <<EOF
+  The `shared_route_tables` variable is a map of objects, where each object represents an shared AWS Route Table.
+
+  Properties:
+  - `name` - (`string`) the name of the shared route table.
+  - `tags` - (`map(string)`, optional) a map of arbitrary tags to apply to the shared route table.
+  EOF
+  default     = {}
+  type = map(object({
+    name = string
+    tags = optional(map(string))
+  }))
 }
 
 variable "nacls" {
