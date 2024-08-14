@@ -69,6 +69,11 @@ output "route_tables" {
   }) }
 }
 
+output "shared_route_tables" {
+  description = "Shared route tables (if any) created by the module."
+  value       = aws_route_table.shared
+}
+
 output "nacl_ids" {
   description = "Map of NACL -> ID (newly created)."
   value = {
