@@ -60,6 +60,11 @@ resource "aws_lb_target_group" "this" {
   #
   # tags = merge(var.global_tags, { Name = var.name }, var.lb_target_group_tags)
   tags = var.lb_target_group_tags
+  target_failover {
+    on_deregistration = var.on_deregistration
+    on_unhealthy = var.on_unhealthy
+  }
+  
 
   health_check {
     enabled             = var.health_check_enabled
