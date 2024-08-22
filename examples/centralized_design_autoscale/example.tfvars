@@ -39,90 +39,174 @@ vpcs = {
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
-      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
-      mgmt_default = {
-        vpc           = "security_vpc"
-        subnet_group  = "mgmt"
+      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway or gwlbe_endpoint
+      mgmt_defaulta = {
+        route_table   = "mgmta"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "security_vpc"
+        az            = "a"
         next_hop_type = "internet_gateway"
+        next_hop_key  = "security_vpc"
       }
-      mgmt_panorama = {
-        vpc           = "security_vpc"
-        subnet_group  = "mgmt"
+      mgmt_defaultb = {
+        route_table   = "mgmtb"
+        to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "internet_gateway"
+        next_hop_key  = "security_vpc"
+      }
+      mgmt_panoramaa = {
+        route_table   = "mgmta"
         to_cidr       = "10.255.0.0/16"
+        az            = "a"
+        next_hop_type = "transit_gateway"
         next_hop_key  = "security"
-        next_hop_type = "transit_gateway_attachment"
       }
-      mgmt_rfc1918 = {
-        vpc           = "security_vpc"
-        subnet_group  = "mgmt"
+      mgmt_panoramab = {
+        route_table   = "mgmtb"
+        to_cidr       = "10.255.0.0/16"
+        az            = "b"
+        next_hop_type = "transit_gateway"
+        next_hop_key  = "security"
+      }
+      mgmt_rfc1918a = {
+        route_table   = "mgmta"
         to_cidr       = "10.0.0.0/8"
+        az            = "a"
+        next_hop_type = "transit_gateway"
         next_hop_key  = "security"
-        next_hop_type = "transit_gateway_attachment"
       }
-      tgw_default = {
-        vpc           = "security_vpc"
-        subnet_group  = "tgw_attach"
+      mgmt_rfc1918b = {
+        route_table   = "mgmtb"
+        to_cidr       = "10.0.0.0/8"
+        az            = "b"
+        next_hop_type = "transit_gateway"
+        next_hop_key  = "security"
+      }
+      tgw_defaulta = {
+        route_table   = "tgw_attacha"
         to_cidr       = "0.0.0.0/0"
+        az            = "a"
+        next_hop_type = "gwlbe_endpoint"
         next_hop_key  = "security_gwlb_outbound"
-        next_hop_type = "gwlbe_endpoint"
       }
-      tgw_rfc1918 = {
-        vpc           = "security_vpc"
-        subnet_group  = "tgw_attach"
+      tgw_defaultb = {
+        route_table   = "tgw_attachb"
+        to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "security_gwlb_outbound"
+      }
+      tgw_rfc1918a = {
+        route_table   = "tgw_attacha"
         to_cidr       = "10.0.0.0/8"
+        az            = "a"
+        next_hop_type = "gwlbe_endpoint"
         next_hop_key  = "security_gwlb_eastwest"
+      }
+      tgw_rfc1918b = {
+        route_table   = "tgw_attachb"
+        to_cidr       = "10.0.0.0/8"
+        az            = "b"
         next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "security_gwlb_eastwest"
       }
-      public_default = {
-        vpc           = "security_vpc"
-        subnet_group  = "public"
+      public_defaulta = {
+        route_table   = "publica"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "security_vpc"
+        az            = "a"
         next_hop_type = "internet_gateway"
+        next_hop_key  = "security_vpc"
       }
-      gwlbe_outbound_rfc1918 = {
-        vpc           = "security_vpc"
-        subnet_group  = "gwlbe_outbound"
+      public_defaultb = {
+        route_table   = "publicb"
+        to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "internet_gateway"
+        next_hop_key  = "security_vpc"
+      }
+      gwlbe_outbound_rfc1918a = {
+        route_table   = "gwlbe_outbounda"
         to_cidr       = "10.0.0.0/8"
+        az            = "a"
+        next_hop_type = "transit_gateway"
         next_hop_key  = "security"
-        next_hop_type = "transit_gateway_attachment"
       }
-      gwlbe_eastwest_rfc1918 = {
-        vpc           = "security_vpc"
-        subnet_group  = "gwlbe_eastwest"
+      gwlbe_outbound_rfc1918b = {
+        route_table   = "gwlbe_outboundb"
         to_cidr       = "10.0.0.0/8"
+        az            = "b"
+        next_hop_type = "transit_gateway"
         next_hop_key  = "security"
-        next_hop_type = "transit_gateway_attachment"
       }
-      private_app1 = {
-        vpc           = "security_vpc"
-        subnet_group  = "private"
+      gwlbe_eastwest_rfc1918a = {
+        route_table   = "gwlbe_eastwesta"
+        to_cidr       = "10.0.0.0/8"
+        az            = "a"
+        next_hop_type = "transit_gateway"
+        next_hop_key  = "security"
+      }
+      gwlbe_eastwest_rfc1918b = {
+        route_table   = "gwlbe_eastwestb"
+        to_cidr       = "10.0.0.0/8"
+        az            = "b"
+        next_hop_type = "transit_gateway"
+        next_hop_key  = "security"
+      }
+      private_app1a = {
+        route_table   = "privatea"
         to_cidr       = "10.104.0.0/16"
+        az            = "a"
+        next_hop_type = "transit_gateway"
         next_hop_key  = "security"
-        next_hop_type = "transit_gateway_attachment"
       }
-      private_app2 = {
-        vpc           = "security_vpc"
-        subnet_group  = "private"
+      private_app1b = {
+        route_table   = "privateb"
+        to_cidr       = "10.104.0.0/16"
+        az            = "b"
+        next_hop_type = "transit_gateway"
+        next_hop_key  = "security"
+      }
+      private_app2a = {
+        route_table   = "privatea"
         to_cidr       = "10.105.0.0/16"
+        az            = "a"
+        next_hop_type = "transit_gateway"
         next_hop_key  = "security"
-        next_hop_type = "transit_gateway_attachment"
       }
-      alb_default = {
-        vpc           = "security_vpc"
-        subnet_group  = "alb"
-        to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "security_vpc"
-        next_hop_type = "internet_gateway"
+      private_app2b = {
+        route_table   = "privateb"
+        to_cidr       = "10.105.0.0/16"
+        az            = "b"
+        next_hop_type = "transit_gateway"
+        next_hop_key  = "security"
       }
-      nlb_default = {
-        vpc           = "security_vpc"
-        subnet_group  = "nlb"
+      alb_defaulta = {
+        route_table   = "alba"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "security_vpc"
+        az            = "a"
         next_hop_type = "internet_gateway"
+        next_hop_key  = "security_vpc"
+      }
+      alb_defaultb = {
+        route_table   = "albb"
+        to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "internet_gateway"
+        next_hop_key  = "security_vpc"
+      }
+      nlb_defaulta = {
+        route_table   = "nlba"
+        to_cidr       = "0.0.0.0/0"
+        az            = "a"
+        next_hop_type = "internet_gateway"
+        next_hop_key  = "security_vpc"
+      }
+      nlb_defaultb = {
+        route_table   = "nlbb"
+        to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "internet_gateway"
+        next_hop_key  = "security_vpc"
       }
     }
     nacls = {
@@ -290,20 +374,34 @@ vpcs = {
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
-      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
-      vm_default = {
-        vpc           = "app1_vpc"
-        subnet_group  = "app1_vm"
+      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway or gwlbe_endpoint
+      vm_defaulta = {
+        route_table   = "app1_vma"
         to_cidr       = "0.0.0.0/0"
+        az            = "a"
+        next_hop_type = "transit_gateway"
         next_hop_key  = "app1"
-        next_hop_type = "transit_gateway_attachment"
       }
-      lb_default = {
-        vpc           = "app1_vpc"
-        subnet_group  = "app1_lb"
+      vm_defaultb = {
+        route_table   = "app1_vmb"
         to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "transit_gateway"
         next_hop_key  = "app1"
-        next_hop_type = "transit_gateway_attachment"
+      }
+      lb_defaulta = {
+        route_table   = "app1_lba"
+        to_cidr       = "0.0.0.0/0"
+        az            = "a"
+        next_hop_type = "transit_gateway"
+        next_hop_key  = "app1"
+      }
+      lb_defaultb = {
+        route_table   = "app1_lbb"
+        to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "transit_gateway"
+        next_hop_key  = "app1"
       }
     }
     nacls = {}
@@ -353,20 +451,34 @@ vpcs = {
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
-      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
-      vm_default = {
-        vpc           = "app2_vpc"
-        subnet_group  = "app2_vm"
+      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway or gwlbe_endpoint
+      vm_defaulta = {
+        route_table   = "app2_vma"
         to_cidr       = "0.0.0.0/0"
+        az            = "a"
+        next_hop_type = "transit_gateway"
         next_hop_key  = "app2"
-        next_hop_type = "transit_gateway_attachment"
       }
-      lb_default = {
-        vpc           = "app2_vpc"
-        subnet_group  = "app2_lb"
+      vm_defaultb = {
+        route_table   = "app2_vmb"
         to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "transit_gateway"
         next_hop_key  = "app2"
-        next_hop_type = "transit_gateway_attachment"
+      }
+      lb_defaulta = {
+        route_table   = "app2_lba"
+        to_cidr       = "0.0.0.0/0"
+        az            = "a"
+        next_hop_type = "transit_gateway"
+        next_hop_key  = "app2"
+      }
+      lb_defaultb = {
+        route_table   = "app2_lbb"
+        to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "transit_gateway"
+        next_hop_key  = "app2"
       }
     }
     nacls = {}
