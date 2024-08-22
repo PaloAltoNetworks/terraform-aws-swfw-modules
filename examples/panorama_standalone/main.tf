@@ -19,62 +19,20 @@ module "vpc" {
   }
 }
 
-### ROUTES ###
-
-locals {
-  # Flatten the VPCs and their routes into a list of maps, each containing the VPC name, subnet name, and route details.
-  # In TFVARS there is no possibility to define ID of the next hop, so we need to use the key of the next hop e.g.name =
-  #
-  #    tgw_default = {
-  #      vpc           = "security_vpc"
-  #      subnet        = "tgw_attach"
-  #      to_cidr       = "0.0.0.0/0"
-  #      next_hop_key  = "security_gwlb_outbound"
-  #      next_hop_type = "gwlbe_endpoint"
-  #    }
-  #
-  # Value of `next_hop_type` defines the type of the next hop. It can be one of the following:
-  # - internet_gateway
-  #
-  # Please note, that in this example only internet_gateway is allowed, because no NAT Gateway, TGW or GWLB endpoints are created in main.tf
-  #
-  # If more next hop types are needed, they can be added below.
-  #
-  # Value of `next_hop_key` is the key of the next hop.
-  # It is used to reference the next hop in the module that manages it.
-  #
-  # Value of `to_cidr` is the CIDR of the destination.
-
-  vpc_routes_with_next_hop_map = flatten(concat([
-    for vk, vv in var.vpcs : [
-      for rk, rv in vv.routes : {
-        vpc           = rv.vpc
-        subnet_group  = rv.subnet_group
-        to_cidr       = rv.to_cidr
-        next_hop_type = rv.next_hop_type
-        next_hop_map = {
-          "internet_gateway" = try(module.vpc[rv.next_hop_key].igw_as_next_hop_set, null)
-        }
-      }
-  ]]))
-  vpc_routes = {
-    for route in local.vpc_routes_with_next_hop_map : "${route.vpc}-${route.subnet_group}-${route.to_cidr}" => {
-      vpc          = route.vpc
-      subnet_group = route.subnet_group
-      to_cidr      = route.to_cidr
-      next_hop_set = lookup(route.next_hop_map, route.next_hop_type, null)
-    }
-  }
-}
-
 module "vpc_routes" {
   source = "../../modules/vpc_route"
 
-  for_each = local.vpc_routes
+  for_each = merge([
+    for k, v in var.vpcs : {
+      for i, j in v.routes : "${k}${i}" => merge(j, { vpc = k })
+    }
+  ]...)
 
-  route_table_ids = { for k, v in module.vpc[each.value.vpc].route_tables : v.az => v.id if v.subnet_group == each.value.subnet_group }
-  to_cidr         = each.value.to_cidr
-  next_hop_set    = each.value.next_hop_set
+  route_table_id = module.vpc[each.value.vpc].route_tables[each.value.route_table].id
+  to_cidr        = each.value.to_cidr
+  next_hop_type  = each.value.next_hop_type
+
+  internet_gateway_id = each.value.next_hop_type == "internet_gateway" ? module.vpc[each.value.next_hop_key].internet_gateway.id : null
 }
 
 ### IAM ROLES AND POLICIES ###
