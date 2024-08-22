@@ -36,55 +36,104 @@ vpcs = {
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
-      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
-      gwlbe_default = {
-        vpc           = "app1_vpc"
-        subnet_group  = "app1_gwlbe"
+      # Value of `next_hop_type` is internet_gateway, nat_gateway or gwlbe_endpoint
+      gwlbe_defaulta = {
+        route_table   = "app1_gwlbea"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app1_vpc"
+        az            = "a"
         next_hop_type = "internet_gateway"
+        next_hop_key  = "app1_vpc"
       }
-      lb_default = {
-        vpc           = "app1_vpc"
-        subnet_group  = "app1_lb"
+      gwlbe_defaultb = {
+        route_table   = "app1_gwlbeb"
         to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "internet_gateway"
+        next_hop_key  = "app1_vpc"
+      }
+      lb_defaulta = {
+        route_table   = "app1_lba"
+        to_cidr       = "0.0.0.0/0"
+        az            = "a"
+        next_hop_type = "gwlbe_endpoint"
         next_hop_key  = "app1_inbound"
-        next_hop_type = "gwlbe_endpoint"
       }
-      nat_default = {
-        vpc           = "app1_vpc"
-        subnet_group  = "app1_natgw"
+      lb_defaultb = {
+        route_table   = "app1_lbb"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app1_vpc"
+        az            = "b"
+        next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "app1_inbound"
+      }
+      nat_defaulta = {
+        route_table   = "app1_natgwa"
+        to_cidr       = "0.0.0.0/0"
+        az            = "a"
         next_hop_type = "internet_gateway"
+        next_hop_key  = "app1_vpc"
       }
-      nat_app_az1 = {
-        vpc           = "app1_vpc"
-        subnet_group  = "app1_natgw"
+      nat_defaultb = {
+        route_table   = "app1_natgwb"
+        to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "internet_gateway"
+        next_hop_key  = "app1_vpc"
+      }
+      nat_app_az1a = {
+        route_table   = "app1_natgwa"
         to_cidr       = "10.104.0.0/24"
-        next_hop_key  = "app1_outbound"
+        az            = "a"
         next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "app1_outbound"
       }
-      nat_app_az2 = {
-        vpc           = "app1_vpc"
-        subnet_group  = "app1_natgw"
+      nat_app_az1b = {
+        route_table   = "app1_natgwb"
+        to_cidr       = "10.104.0.0/24"
+        az            = "b"
+        next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "app1_outbound"
+      }
+      nat_app_az2a = {
+        route_table   = "app1_natgwa"
         to_cidr       = "10.104.128.0/24"
-        next_hop_key  = "app1_outbound"
+        az            = "a"
         next_hop_type = "gwlbe_endpoint"
-      }
-      app_default = {
-        vpc           = "app1_vpc"
-        subnet_group  = "app1_vm"
-        to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app1_outbound"
-        next_hop_type = "gwlbe_endpoint"
       }
-      gwlbe1_default = {
-        vpc           = "app1_vpc"
-        subnet_group  = "app1_gwlbe2"
+      nat_app_az2b = {
+        route_table   = "app1_natgwb"
+        to_cidr       = "10.104.128.0/24"
+        az            = "b"
+        next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "app1_outbound"
+      }
+      app_defaulta = {
+        route_table   = "app1_vma"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app1_nat_gw"
+        az            = "a"
+        next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "app1_outbound"
+      }
+      app_defaultb = {
+        route_table   = "app1_vmb"
+        to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "app1_outbound"
+      }
+      gwlbe1_defaulta = {
+        route_table   = "app1_gwlbe2a"
+        to_cidr       = "0.0.0.0/0"
+        az            = "a"
         next_hop_type = "nat_gateway"
+        next_hop_key  = "app1_nat_gw"
+      }
+      gwlbe1_defaultb = {
+        route_table   = "app1_gwlbe2b"
+        to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "nat_gateway"
+        next_hop_key  = "app1_nat_gw"
       }
     }
     nacls = {}
@@ -156,55 +205,104 @@ vpcs = {
     routes = {
       # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
-      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
-      gwlbe_default = {
-        vpc           = "app2_vpc"
-        subnet_group  = "app2_gwlbe"
+      # Value of `next_hop_type` is internet_gateway, nat_gateway or gwlbe_endpoint
+      gwlbe_defaulta = {
+        route_table   = "app2_gwlbea"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app2_vpc"
+        az            = "a"
         next_hop_type = "internet_gateway"
+        next_hop_key  = "app2_vpc"
       }
-      lb_default = {
-        vpc           = "app2_vpc"
-        subnet_group  = "app2_lb"
+      gwlbe_defaultb = {
+        route_table   = "app2_gwlbeb"
         to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "internet_gateway"
+        next_hop_key  = "app2_vpc"
+      }
+      lb_defaulta = {
+        route_table   = "app2_lba"
+        to_cidr       = "0.0.0.0/0"
+        az            = "a"
+        next_hop_type = "gwlbe_endpoint"
         next_hop_key  = "app2_inbound"
-        next_hop_type = "gwlbe_endpoint"
       }
-      nat_default = {
-        vpc           = "app2_vpc"
-        subnet_group  = "app2_natgw"
+      lb_defaultb = {
+        route_table   = "app2_lbb"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app2_vpc"
+        az            = "b"
+        next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "app2_inbound"
+      }
+      nat_defaulta = {
+        route_table   = "app2_natgwa"
+        to_cidr       = "0.0.0.0/0"
+        az            = "a"
         next_hop_type = "internet_gateway"
+        next_hop_key  = "app2_vpc"
       }
-      nat_app_az1 = {
-        vpc           = "app2_vpc"
-        subnet_group  = "app2_natgw"
+      nat_defaultb = {
+        route_table   = "app2_natgwb"
+        to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "internet_gateway"
+        next_hop_key  = "app2_vpc"
+      }
+      nat_app_az1a = {
+        route_table   = "app2_natgwa"
         to_cidr       = "10.105.0.0/24"
-        next_hop_key  = "app2_outbound"
+        az            = "a"
         next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "app2_outbound"
       }
-      nat_app_az2 = {
-        vpc           = "app2_vpc"
-        subnet_group  = "app2_natgw"
+      nat_app_az1b = {
+        route_table   = "app2_natgwb"
+        to_cidr       = "10.105.0.0/24"
+        az            = "b"
+        next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "app2_outbound"
+      }
+      nat_app_az2a = {
+        route_table   = "app2_natgwa"
         to_cidr       = "10.105.128.0/24"
-        next_hop_key  = "app2_outbound"
+        az            = "a"
         next_hop_type = "gwlbe_endpoint"
-      }
-      app_default = {
-        vpc           = "app2_vpc"
-        subnet_group  = "app2_vm"
-        to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app2_outbound"
-        next_hop_type = "gwlbe_endpoint"
       }
-      gwlbe2_default = {
-        vpc           = "app2_vpc"
-        subnet_group  = "app2_gwlbe2"
+      nat_app_az2b = {
+        route_table   = "app2_natgwb"
+        to_cidr       = "10.105.128.0/24"
+        az            = "b"
+        next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "app2_outbound"
+      }
+      app_defaulta = {
+        route_table   = "app2_vma"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app2_nat_gw"
+        az            = "a"
+        next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "app2_outbound"
+      }
+      app_defaultb = {
+        route_table   = "app2_vmb"
+        to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "app2_outbound"
+      }
+      gwlbe2_defaulta = {
+        route_table   = "app2_gwlbe2a"
+        to_cidr       = "0.0.0.0/0"
+        az            = "a"
         next_hop_type = "nat_gateway"
+        next_hop_key  = "app2_nat_gw"
+      }
+      gwlbe2_defaultb = {
+        route_table   = "app2_gwlbe2b"
+        to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "nat_gateway"
+        next_hop_key  = "app2_nat_gw"
       }
     }
     nacls = {}
