@@ -32,41 +32,76 @@ vpcs = {
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
-      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
-      tgw_default = {
-        vpc           = "security_vpc"
-        subnet_group  = "tgw_attach"
+      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway or gwlbe_endpoint
+      tgw_defaulta = {
+        route_table   = "tgw_attacha"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "cngfw_endpoint"
+        az            = "a"
         next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "cngfw_endpoint"
       }
-      eastwest_rfc1918 = {
-        vpc           = "security_vpc"
-        subnet_group  = "cngfw_subnet"
+      tgw_defaultb = {
+        route_table   = "tgw_attachb"
+        to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "cngfw_endpoint"
+      }
+      eastwest_rfc1918a = {
+        route_table   = "cngfw_subneta"
         to_cidr       = "10.0.0.0/8"
+        az            = "a"
+        next_hop_type = "transit_gateway"
         next_hop_key  = "security"
-        next_hop_type = "transit_gateway_attachment"
       }
-      cngfw_default = {
-        vpc           = "security_vpc"
-        subnet_group  = "cngfw_subnet"
+      eastwest_rfc1918b = {
+        route_table   = "cngfw_subnetb"
+        to_cidr       = "10.0.0.0/8"
+        az            = "b"
+        next_hop_type = "transit_gateway"
+        next_hop_key  = "security"
+      }
+      cngfw_defaulta = {
+        route_table   = "cngfw_subneta"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "security_nat_gw"
+        az            = "a"
         next_hop_type = "nat_gateway"
+        next_hop_key  = "security_nat_gw"
       }
-      nat_default = {
-        vpc           = "security_vpc"
-        subnet_group  = "natgw"
+      cngfw_defaultb = {
+        route_table   = "cngfw_subnetb"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "security_vpc"
-        next_hop_type = "internet_gateway"
+        az            = "b"
+        next_hop_type = "nat_gateway"
+        next_hop_key  = "security_nat_gw"
       }
-      nat_app = {
-        vpc           = "security_vpc"
-        subnet_group  = "natgw"
+      nat_defaulta = {
+        route_table   = "natgwa"
+        to_cidr       = "0.0.0.0/0"
+        az            = "a"
+        next_hop_type = "internet_gateway"
+        next_hop_key  = "security_vpc"
+      }
+      nat_defaultb = {
+        route_table   = "natgwb"
+        to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "internet_gateway"
+        next_hop_key  = "security_vpc"
+      }
+      nat_appa = {
+        route_table   = "natgwa"
         to_cidr       = "10.104.0.0/23"
-        next_hop_key  = "cngfw_endpoint"
+        az            = "a"
         next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "cngfw_endpoint"
+      }
+      nat_appb = {
+        route_table   = "natgwb"
+        to_cidr       = "10.104.0.0/23"
+        az            = "b"
+        next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "cngfw_endpoint"
       }
     }
     nacls           = {}
@@ -88,27 +123,48 @@ vpcs = {
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
-      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
-      vm_default = {
-        vpc           = "app1_vpc"
-        subnet_group  = "app1_vm"
+      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway or gwlbe_endpoint
+      vm_defaulta = {
+        route_table   = "app1_vma"
         to_cidr       = "0.0.0.0/0"
+        az            = "a"
+        next_hop_type = "transit_gateway"
         next_hop_key  = "app1"
-        next_hop_type = "transit_gateway_attachment"
       }
-      gwlbe_default = {
-        vpc           = "app1_vpc"
-        subnet_group  = "app1_gwlbe"
+      vm_defaultb = {
+        route_table   = "app1_vmb"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app1_vpc"
+        az            = "b"
+        next_hop_type = "transit_gateway"
+        next_hop_key  = "app1"
+      }
+      gwlbe_defaulta = {
+        route_table   = "app1_gwlbea"
+        to_cidr       = "0.0.0.0/0"
+        az            = "a"
         next_hop_type = "internet_gateway"
+        next_hop_key  = "app1_vpc"
       }
-      lb_default = {
-        vpc           = "app1_vpc"
-        subnet_group  = "app1_lb"
+      gwlbe_defaultb = {
+        route_table   = "app1_gwlbeb"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app1_inbound"
+        az            = "b"
+        next_hop_type = "internet_gateway"
+        next_hop_key  = "app1_vpc"
+      }
+      lb_defaulta = {
+        route_table   = "app1_lba"
+        to_cidr       = "0.0.0.0/0"
+        az            = "a"
         next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "app1_inbound"
+      }
+      lb_defaultb = {
+        route_table   = "app1_lbb"
+        to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "app1_inbound"
       }
     }
     nacls = {}
@@ -176,27 +232,48 @@ vpcs = {
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
-      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
-      vm_default = {
-        vpc           = "app2_vpc"
-        subnet_group  = "app2_vm"
+      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway or gwlbe_endpoint
+      vm_defaulta = {
+        route_table   = "app2_vma"
         to_cidr       = "0.0.0.0/0"
+        az            = "a"
+        next_hop_type = "transit_gateway"
         next_hop_key  = "app2"
-        next_hop_type = "transit_gateway_attachment"
       }
-      gwlbe_default = {
-        vpc           = "app2_vpc"
-        subnet_group  = "app2_gwlbe"
+      vm_defaultb = {
+        route_table   = "app2_vmb"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app2_vpc"
+        az            = "b"
+        next_hop_type = "transit_gateway"
+        next_hop_key  = "app2"
+      }
+      gwlbe_defaulta = {
+        route_table   = "app2_gwlbea"
+        to_cidr       = "0.0.0.0/0"
+        az            = "a"
         next_hop_type = "internet_gateway"
+        next_hop_key  = "app2_vpc"
       }
-      lb_default = {
-        vpc           = "app2_vpc"
-        subnet_group  = "app2_lb"
+      gwlbe_defaultb = {
+        route_table   = "app2_gwlbeb"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app2_inbound"
+        az            = "b"
+        next_hop_type = "internet_gateway"
+        next_hop_key  = "app2_vpc"
+      }
+      lb_defaulta = {
+        route_table   = "app2_lba"
+        to_cidr       = "0.0.0.0/0"
+        az            = "a"
         next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "app2_inbound"
+      }
+      lb_defaultb = {
+        route_table   = "app2_lbb"
+        to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "gwlbe_endpoint"
+        next_hop_key  = "app2_inbound"
       }
     }
     nacls = {}
