@@ -149,12 +149,12 @@ variable "vpcs" {
       tags                    = optional(map(string), {})
     }))
     routes = map(object({
-      vpc              = string
-      subnet_group     = string
+      route_table      = string
       to_cidr          = string
+      az               = string
       destination_type = string
-      next_hop_key     = string
       next_hop_type    = string
+      next_hop_key     = string
     }))
   }))
 }
