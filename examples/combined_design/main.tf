@@ -34,7 +34,7 @@ module "vpc_routes" {
 
   transit_gateway_id  = each.value.next_hop_type == "transit_gateway" ? module.transit_gateway.transit_gateway.id : null
   internet_gateway_id = each.value.next_hop_type == "internet_gateway" ? module.vpc[each.value.next_hop_key].internet_gateway.id : null
-  nat_gateway_id      = each.value.next_hop_type == "nat_gateway" ? module.natgw_set[each.value.next_hop_key].nat_gateway.id : null
+  nat_gateway_id      = each.value.next_hop_type == "nat_gateway" ? module.natgw_set[each.value.next_hop_key].next_hop_set.ids[each.value.az] : null
   vpc_endpoint_id     = each.value.next_hop_type == "gwlbe_endpoint" ? module.gwlbe_endpoint[each.value.next_hop_key].next_hop_set.ids[each.value.az] : null
 }
 

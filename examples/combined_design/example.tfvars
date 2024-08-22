@@ -36,7 +36,7 @@ vpcs = {
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
-      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
+      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway or gwlbe_endpoint
       mgmt_defaulta = {
         route_table   = "mgmta"
         to_cidr       = "0.0.0.0/0"
@@ -277,7 +277,7 @@ vpcs = {
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
-      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
+      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway or gwlbe_endpoint
       vm_defaulta = {
         route_table   = "app1_vma"
         to_cidr       = "0.0.0.0/0"
@@ -385,7 +385,7 @@ vpcs = {
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
-      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
+      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway or gwlbe_endpoint
       vm_defaulta = {
         route_table   = "app2_vma"
         to_cidr       = "0.0.0.0/0"
