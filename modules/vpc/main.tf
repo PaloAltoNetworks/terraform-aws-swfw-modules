@@ -99,7 +99,7 @@ resource "aws_vpn_gateway" "this" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table
-resource "aws_route_table" "from_vgw" {
+resource "aws_route_table" "vgw" {
   count = var.vpn_gateway.create ? 1 : 0
 
   vpc_id = local.vpc.id
