@@ -27,7 +27,7 @@ resource "aws_vpc" "this" {
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_ipv4_cidr_block_association
 resource "aws_vpc_ipv4_cidr_block_association" "this" {
-  for_each = { for _, v in var.cidr_block.secondary_ipv4 : v => "ipv4" }
+  for_each = { for _, v in var.cidr_block.ipv4_secondary : v => "ipv4" }
 
   vpc_id     = local.vpc.id
   cidr_block = each.key
@@ -72,7 +72,7 @@ resource "aws_internet_gateway" "this" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table
-resource "aws_route_table" "from_igw" {
+resource "aws_route_table" "igw" {
   count = var.internet_gateway.create ? 1 : 0
 
   vpc_id = local.vpc.id
@@ -81,10 +81,10 @@ resource "aws_route_table" "from_igw" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association
-resource "aws_route_table_association" "from_igw" {
+resource "aws_route_table_association" "igw" {
   count = var.internet_gateway.create ? 1 : 0
 
-  route_table_id = aws_route_table.from_igw[0].id
+  route_table_id = aws_route_table.igw[0].id
   gateway_id     = local.internet_gateway.id
 }
 
@@ -99,7 +99,7 @@ resource "aws_vpn_gateway" "this" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table
-resource "aws_route_table" "from_vgw" {
+resource "aws_route_table" "vgw" {
   count = var.vpn_gateway.create ? 1 : 0
 
   vpc_id = local.vpc.id
@@ -108,11 +108,11 @@ resource "aws_route_table" "from_vgw" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association
-resource "aws_route_table_association" "from_vgw" {
+resource "aws_route_table_association" "vgw" {
   count = var.vpn_gateway.create ? 1 : 0
 
   gateway_id     = aws_vpn_gateway.this[0].id
-  route_table_id = aws_route_table.from_vgw[0].id
+  route_table_id = aws_route_table.vgw[0].id
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet
