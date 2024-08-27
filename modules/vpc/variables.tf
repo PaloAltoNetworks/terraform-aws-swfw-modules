@@ -44,7 +44,7 @@ variable "cidr_block" {
   EOF
   type = object({
     ipv4                  = optional(string)
-    secondary_ipv4        = optional(list(string), [])
+    ipv4_secondary        = optional(list(string), [])
     assign_generated_ipv6 = optional(bool, false)
   })
   validation { # ipv4
