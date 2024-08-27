@@ -81,7 +81,7 @@ resource "aws_route_table" "igw" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association
-resource "aws_route_table_association" "from_igw" {
+resource "aws_route_table_association" "igw" {
   count = var.internet_gateway.create ? 1 : 0
 
   route_table_id = aws_route_table.from_igw[0].id
