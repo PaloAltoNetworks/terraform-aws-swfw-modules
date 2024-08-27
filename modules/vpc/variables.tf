@@ -32,7 +32,7 @@ variable "cidr_block" {
 
   Properties:
   - `ipv4`                  - (`string`, optional) the IPv4 CIDR block to assign to the VPC.
-  - `secondary_ipv4`        - (`list(string)`, optional, defaults to `[]`) a list of secondary IPv4 CIDR blocks to assign to VPC.
+  - `ipv4_secondary`        - (`list(string)`, optional, defaults to `[]`) a list of secondary IPv4 CIDR blocks to assign to VPC.
   - `assign_generated_ipv6` - (`bool`, optional, defaults to `false`) a boolean flag to assign AWS-provided /56 IPv6 CIDR block.
 
   Example:
@@ -53,13 +53,13 @@ variable "cidr_block" {
     The CIDR block should be in CIDR notation, with the maximum subnet of /28.
     EOF
   }
-  validation { # secondary_ipv4
+  validation { # ipv4_secondary
     condition = alltrue([
-      for v in var.cidr_block.secondary_ipv4 :
+      for v in var.cidr_block.ipv4_secondary :
       can(regex("^(\\d{1,3}\\.){3}\\d{1,3}\\/[12]?[0-9]$", v))
     ])
     error_message = <<-EOF
-    All items in secondary_ipv4 should be in CIDR notation, with the maximum subnet of /28.
+    All items in ipv4_secondary should be in CIDR notation, with the maximum subnet of /28.
     EOF
   }
 }

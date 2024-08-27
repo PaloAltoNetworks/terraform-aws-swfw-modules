@@ -24,7 +24,7 @@ output "internet_gateway" {
 
 output "internet_gateway_route_table" {
   description = "The Route Table object created to handle traffic from Internet Gateway (IGW)."
-  value       = var.internet_gateway.create ? try(aws_route_table.from_igw[0], null) : null
+  value       = var.internet_gateway.create ? try(aws_route_table.igw[0], null) : null
 }
 
 output "vpn_gateway" {
@@ -34,7 +34,7 @@ output "vpn_gateway" {
 
 output "vpn_gateway_route_table" {
   description = "The Route Table object created to handle traffic from Virtual Private Gateway (VGW). It is null when `create_vpn_gateway` is false."
-  value       = var.vpn_gateway.create ? try(aws_route_table.from_vgw[0], null) : null
+  value       = var.vpn_gateway.create ? try(aws_route_table.vgw[0], null) : null
 }
 
 output "igw_as_next_hop_set" {
