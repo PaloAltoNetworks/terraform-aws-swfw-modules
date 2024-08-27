@@ -72,7 +72,7 @@ resource "aws_internet_gateway" "this" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table
-resource "aws_route_table" "from_igw" {
+resource "aws_route_table" "igw" {
   count = var.internet_gateway.create ? 1 : 0
 
   vpc_id = local.vpc.id
