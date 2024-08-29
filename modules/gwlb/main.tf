@@ -62,8 +62,8 @@ resource "aws_lb_target_group" "this" {
   tags = var.lb_target_group_tags
 
   target_failover {
-    on_deregistration = var.on_deregistration
-    on_unhealthy      = var.on_unhealthy
+    on_deregistration = var.rebalance_flows
+    on_unhealthy      = var.rebalance_flows
   }
 
 
