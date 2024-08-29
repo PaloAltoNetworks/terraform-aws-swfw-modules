@@ -2,7 +2,7 @@
 region      = "eu-west-1" # TODO: update here
 name_prefix = "example-"  # TODO: update here
 
-global_tags = {
+tags = {
   ManagedBy   = "terraform"
   Application = "Palo Alto Networks VM-Series NGFW"
   Owner       = "PS Team"
@@ -13,8 +13,25 @@ ssh_key_name = "example-ssh-key" # TODO: update here
 ### VPC
 vpcs = {
   management_vpc = {
-    name  = "management-vpc"
-    cidr  = "10.255.0.0/16"
+    name = "management-vpc"
+    cidr_block = {
+      ipv4 = "10.255.0.0/16"
+    }
+    subnets = {
+      mgmta = { az = "a", cidr_block = "10.255.0.0/24", subnet_group = "mgmt", name = "mgmt1" }
+      mgmtb = { az = "b", cidr_block = "10.255.1.0/24", subnet_group = "mgmt", name = "mgmt2" }
+    }
+    routes = {
+      # Value of `next_hop_key` must match keys used to create TGW attachment, IGW, GWLB endpoint or other resources
+      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
+      mgmt_default = {
+        vpc           = "management_vpc"
+        subnet_group  = "mgmt"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "management_vpc"
+        next_hop_type = "internet_gateway"
+      }
+    }
     nacls = {}
     security_groups = {
       panorama_mgmt = {
@@ -38,21 +55,6 @@ vpcs = {
         }
       }
     }
-    subnets = {
-      "10.255.0.0/24" = { az = "eu-west-1a", subnet_group = "mgmt" }
-      "10.255.1.0/24" = { az = "eu-west-1b", subnet_group = "mgmt" }
-    }
-    routes = {
-      # Value of `next_hop_key` must match keys used to create TGW attachment, IGW, GWLB endpoint or other resources
-      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
-      mgmt_default = {
-        vpc           = "management_vpc"
-        subnet_group  = "mgmt"
-        to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "management_vpc"
-        next_hop_type = "internet_gateway"
-      }
-    }
   }
 }
 
@@ -61,11 +63,11 @@ panoramas = {
   panorama_ha_pair = {
     instances = {
       "primary" = {
-        az                 = "eu-west-1a"
+        az                 = "a"
         private_ip_address = "10.255.0.4"
       }
       "secondary" = {
-        az                 = "eu-west-1b"
+        az                 = "b"
         private_ip_address = "10.255.1.4"
       }
     }
