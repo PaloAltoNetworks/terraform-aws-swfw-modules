@@ -117,24 +117,10 @@ variable "unhealthy_threshold" {
   type        = number
 }
 
-variable "on_deregistration" {
-  description = "Indicates how the GWLB handles existing flows when a target is deregistered. Possible values are `rebalance` and `no_rebalance`. Must match the attribute value set for `on_unhealthy`. Default: `no_rebalance`"
-  default     = "no_rebalance"
-  validation {
-    condition     = var.on_unhealthy == var.on_deregistration
-    error_message = "Variable on_deregistration must be the same as variable on_unhealthy"
-  }
-  type = string
-}
-
-variable "on_unhealthy" {
-  description = "Indicates how the GWLB handles existing flows when a target is unhealthy. Possible values are `rebalance` and `no_rebalance`. Must match the attribute value set for `on_deregistration`. Default: `no_rebalance`"
-  default     = "no_rebalance"
-  validation {
-    condition     = var.on_deregistration == var.on_unhealthy
-    error_message = "Variable on_unhealthy must be the same as variable on_deregistration"
-  }
-  type = string
+variable "rebalance_flows" {
+  description = "Indicates how the GWLB handles existing flows when a target is deregistered. True is equivalent to `rebalance` and false to `no_rebalance`."
+  default     = false
+  type        = bool
 }
 
 variable "stickiness_type" {

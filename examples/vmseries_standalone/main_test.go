@@ -26,6 +26,9 @@ func CreateTerraformOptions(t *testing.T, varFiles []string) *terraform.Options 
 		SetVarsAfterVarFiles: true,
 	})
 
+	terraformOptions.RetryableTerraformErrors[".*The specified key does not exist.*"] = "Solution for problem with listing tags for S3 - HTTPS response error 404 returned while getting S3 object tags"
+	terraformOptions.RetryableTerraformErrors[".*couldn't find resource.*"] = "Solution for problem with reading objects from S3 - couldn't find resource while reading S3 object"
+
 	return terraformOptions
 }
 
