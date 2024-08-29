@@ -163,8 +163,8 @@ variable "enable_instance_termination_protection" {
 
 variable "enable_monitoring" {
   description = "(Optional) If true, the launched EC2 instance will have detailed monitoring enabled."
-  default = false
-  type = bool
+  default     = false
+  type        = bool
 }
 
 variable "eip_domain" {
