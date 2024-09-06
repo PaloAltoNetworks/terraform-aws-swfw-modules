@@ -39,6 +39,16 @@ module "vpc_routes" {
   vpc_endpoint_id     = each.value.next_hop_type == "gwlbe_endpoint" ? module.gwlbe_endpoint[each.value.next_hop_key].next_hop_set.ids[each.value.az] : null
 }
 
+module "vpc_routes" {
+  source = "../../modules/vpc_route"
+
+  for_each = local.vpc_routes
+
+  route_table_ids = { for k, v in module.vpc[each.value.vpc].route_tables : v.az => v.id if v.subnet_group == each.value.subnet_group }
+  to_cidr         = each.value.to_cidr
+  next_hop_set    = each.value.next_hop_set
+}
+
 ### NATGW ###
 
 module "natgw_set" {
