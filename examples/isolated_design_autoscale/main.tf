@@ -23,8 +23,8 @@ module "vpc_routes" {
   source = "../../modules/vpc_route"
 
   for_each = merge([
-    for k, v in var.vpcs : {
-      for i, j in v.routes : "${k}${i}" => merge(j, { vpc = k })
+    for vk, vv in var.vpcs : {
+      for rk, rv in vv.routes : "${vk}${rk}" => merge(rv, { vpc = vk })
     }
   ]...)
 
