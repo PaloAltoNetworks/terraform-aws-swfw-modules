@@ -24,12 +24,19 @@ vpcs = {
     routes = {
       # Value of `next_hop_key` must match keys used to create TGW attachment, IGW, GWLB endpoint or other resources
       # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
-      mgmt_default = {
-        vpc           = "management_vpc"
-        subnet_group  = "mgmt"
+      mgmt_defaulta = {
+        route_table   = "mgmta"
         to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "management_vpc"
+        az            = "a"
         next_hop_type = "internet_gateway"
+        next_hop_key  = "management_vpc"
+      }
+      mgmt_defaultb = {
+        route_table   = "mgmtb"
+        to_cidr       = "0.0.0.0/0"
+        az            = "b"
+        next_hop_type = "internet_gateway"
+        next_hop_key  = "management_vpc"
       }
     }
     nacls = {}

@@ -1,18 +1,20 @@
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route
 resource "aws_route" "this" {
-  for_each = var.route_table_ids
+  route_table_id = var.route_table_id
 
-  route_table_id              = each.value
   destination_cidr_block      = var.destination_type == "ipv4" ? var.to_cidr : null
   destination_ipv6_cidr_block = var.destination_type == "ipv6" ? var.to_cidr : null
   destination_prefix_list_id  = var.destination_type == "mpl" ? var.managed_prefix_list_id : null
-  # carrier_gateway_id would require aws provider version ~> 3.35
 
-  transit_gateway_id        = var.next_hop_set.type == "transit_gateway" ? var.next_hop_set.id : null
-  gateway_id                = var.next_hop_set.type == "internet_gateway" || var.next_hop_set.type == "vpn_gateway" ? var.next_hop_set.id : null
-  nat_gateway_id            = var.next_hop_set.type == "nat_gateway" ? var.next_hop_set.ids[each.key] : null
-  network_interface_id      = var.next_hop_set.type == "interface" ? var.next_hop_set.ids[each.key] : null
-  vpc_endpoint_id           = var.next_hop_set.type == "vpc_endpoint" ? var.next_hop_set.ids[each.key] : null
-  vpc_peering_connection_id = var.next_hop_set.type == "vpc_peer" ? var.next_hop_set.id : null
-  egress_only_gateway_id    = var.next_hop_set.type == "egress_only_gateway" ? var.next_hop_set.id : null # for non-SNAT IPv6 egress only
-  local_gateway_id          = var.next_hop_set.type == "local_gateway" ? var.next_hop_set.id : null       # for an AWS Outpost only
+  core_network_arn = var.core_network_arn
+
+  carrier_gateway_id        = var.next_hop_type == "carrier_gateway" ? var.carrier_gateway_id : null
+  transit_gateway_id        = var.next_hop_type == "transit_gateway" ? var.transit_gateway_id : null
+  gateway_id                = var.next_hop_type == "internet_gateway" || var.next_hop_type == "vpn_gateway" ? var.internet_gateway_id : null
+  nat_gateway_id            = var.next_hop_type == "nat_gateway" ? var.nat_gateway_id : null
+  network_interface_id      = var.next_hop_type == "interface" ? var.network_interface_id : null
+  vpc_endpoint_id           = var.next_hop_type == "vpc_endpoint" || var.next_hop_type == "gwlbe_endpoint" ? var.vpc_endpoint_id : null
+  vpc_peering_connection_id = var.next_hop_type == "vpc_peer" ? var.vpc_peering_connection_id : null
+  egress_only_gateway_id    = var.next_hop_type == "egress_only_gateway" ? var.egress_only_gateway_id : null # for non-SNAT IPv6 egress only
+  local_gateway_id          = var.next_hop_type == "local_gateway" ? var.local_gateway_id : null             # for an AWS Outpost only
 }
