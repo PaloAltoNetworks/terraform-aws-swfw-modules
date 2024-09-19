@@ -193,7 +193,7 @@ module "bootstrap" {
   prefix      = var.name_prefix
   global_tags = var.global_tags
 
-  bootstrap_options     = merge(each.value.common.bootstrap_options, { hostname = "${var.name_prefix}${each.key}" })
+  bootstrap_options     = merge({ for k, v in each.value.common.bootstrap_options : k => v if v != null }, { hostname = "${var.name_prefix}${each.key}" })
   source_root_directory = "files"
 }
 

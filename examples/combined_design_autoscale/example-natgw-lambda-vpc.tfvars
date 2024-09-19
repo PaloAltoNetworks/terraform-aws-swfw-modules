@@ -490,7 +490,7 @@ gwlb_endpoints = {
 ### VM-SERIES
 vmseries_asgs = {
   main_asg = {
-    # Value of `panorama-server`, `auth-key`, `dgname`, `tplname` can be taken from plugin `sw_fw_license`
+    # Value of `panorama-server`, `auth-key`, `dgname`, `tplname` can be taken from plugin `sw_fw_license`. Delete map if SCM bootstrap required.
     bootstrap_options = {
       mgmt-interface-swap         = "enable"
       plugin-op-commands          = "panorama-licensing-mode-on,aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable" # TODO: update here
@@ -503,6 +503,23 @@ vmseries_asgs = {
       dhcp-accept-server-hostname = "yes"                                                                                # TODO: update here
       dhcp-accept-server-domain   = "yes"                                                                                # TODO: update here
     }
+
+    /* Uncomment this section if SCM bootstrap required (PAN-OS version 11.0 or higher) 
+
+    bootstrap_options = {
+      mgmt-interface-swap                   = "enable"
+      panorama-server                       = "cloud"                                                                          # TODO: update here
+      dgname                                = "scm_folder_name"                                                                # TODO: update here
+      dhcp-send-hostname                    = "yes"                                                                            # TODO: update here
+      dhcp-send-client-id                   = "yes"                                                                            # TODO: update here
+      dhcp-accept-server-hostname           = "yes"                                                                            # TODO: update here
+      dhcp-accept-server-domain             = "yes"                                                                            # TODO: update here
+      plugin-op-commands                    = "aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable,advance-routing:enable" # TODO: update here
+      vm-series-auto-registration-pin-id    = "1234ab56-1234-12a3-a1bc-a1bc23456de7"                                           # TODO: update here
+      vm-series-auto-registration-pin-value = "12ab3c456d78901e2f3abc456d78ef9a"                                               # TODO: update here
+      authcodes                             = "D1234567"                                                                       # TODO: update here
+    }
+    */
 
     panos_version = "10.2.9-h1"     # TODO: update here
     ebs_kms_id    = "alias/aws/ebs" # TODO: update here
