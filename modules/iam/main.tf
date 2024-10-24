@@ -153,7 +153,7 @@ locals {
       definition = try(var.custom_policy, null)
     },
     "lambda_execute" = {
-      enable     = var.create_lambda_policy && var.delicense_ssm_param_name != null ? true : false
+      enable     = var.create_lambda_policy ? true : false
       definition = try(local.lambda_execute_policy, null)
     },
     "lambda_delicense" = {
