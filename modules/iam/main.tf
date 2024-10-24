@@ -154,19 +154,19 @@ locals {
     },
     "lambda_execute" = {
       enable     = var.create_lambda_policy ? true : false
-      definition = try(local.lambda_execute_policy, null)
+      definition = local.lambda_execute_policy
     },
     "lambda_delicense" = {
       enable     = var.create_lambda_policy && var.delicense_ssm_param_name != null ? true : false
-      definition = try(local.lambda_delicense_policy, null)
+      definition = local.lambda_delicense_policy
     },
     "vmseries" = {
       enable     = var.create_vmseries_policy
-      definition = try(local.vmseries_policy, null)
+      definition = local.vmseries_policy
     },
     "bootstrap" = {
       enable     = var.create_bootrap_policy && var.aws_s3_bucket != null ? true : false
-      definition = try(local.bootstrap_policy, null)
+      definition = local.bootstrap_policy
     }
   }
 }
@@ -194,8 +194,8 @@ data "aws_iam_policy_document" "this" {
 }
 
 resource "aws_iam_role" "this" {
-  count              = var.create_role ? 1 : 0
-  
+  count = var.create_role ? 1 : 0
+
   name               = "${var.name_prefix}${var.role_name}"
   assume_role_policy = <<-EOF
 {
@@ -214,8 +214,8 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "this" {
-  count      = var.policy_arn == null ? 0 : 1
-  
+  count = var.policy_arn == null ? 0 : 1
+
   role       = aws_iam_role.this[0].name
   policy_arn = var.policy_arn
 }
@@ -230,7 +230,7 @@ resource "aws_iam_role_policy" "this" {
 
 resource "aws_iam_instance_profile" "this" {
   count = var.create_instance_profile ? 1 : 0
-  
-  name  = "${var.name_prefix}${var.profile_instance_name}"
-  role  = aws_iam_role.this[0].name
+
+  name = "${var.name_prefix}${var.instance_profile_name}"
+  role = aws_iam_role.this[0].name
 }
