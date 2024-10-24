@@ -195,6 +195,7 @@ data "aws_iam_policy_document" "this" {
 
 resource "aws_iam_role" "this" {
   count              = var.create_role ? 1 : 0
+  
   name               = "${var.name_prefix}${var.role_name}"
   assume_role_policy = <<-EOF
 {
@@ -214,6 +215,7 @@ EOF
 
 resource "aws_iam_role_policy_attachment" "this" {
   count      = var.policy_arn == null ? 0 : 1
+  
   role       = aws_iam_role.this[0].name
   policy_arn = var.policy_arn
 }
@@ -228,6 +230,7 @@ resource "aws_iam_role_policy" "this" {
 
 resource "aws_iam_instance_profile" "this" {
   count = var.create_instance_profile ? 1 : 0
+  
   name  = "${var.name_prefix}${var.profile_instance_name}"
   role  = aws_iam_role.this[0].name
 }

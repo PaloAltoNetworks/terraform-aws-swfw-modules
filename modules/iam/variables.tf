@@ -31,8 +31,8 @@ variable "create_instance_profile" {
   default     = false
 }
 
-variable "profile_instance_name" {
-  description = "A profile instance name."
+variable "instance_profile_name" {
+  description = "Instance profile name."
   type        = string
   default     = null
 }
@@ -130,8 +130,8 @@ variable "custom_policy" {
 
 variable "delicense_ssm_param_name" {
   description = <<-EOF
-  It is required for IAM de-licensing permission IAM settings.
-  Secure string in Parameter Store with value in below format:
+  Required for IAM de-licensing permissions.
+  String in Parameter Store with value in below format:
   ```
   {"username":"ACCOUNT","password":"PASSWORD","panorama1":"IP_ADDRESS1","panorama2":"IP_ADDRESS2","license_manager":"LICENSE_MANAGER_NAME"}"
   ```
