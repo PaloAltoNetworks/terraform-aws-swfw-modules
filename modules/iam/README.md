@@ -1,12 +1,12 @@
 # Palo Alto Networks IAM Module for AWS
 
-One instance of module supports one policy type.
-IAM Module is policy use-case for:
-* lambda policies
-* vmseries policy
-* spokes with managed AWS SSM 
-* bootstrap for S3 bucket access
-* custom policy 
+One instance of the module is designed to create one policy.
+It supports policies for following use cases:
+* VM-Series
+* S3 based bootstrap
+* Lambda
+* spokes with managed AWS SSM
+* custom policy
 
 ## Usage
 
