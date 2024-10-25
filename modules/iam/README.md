@@ -40,6 +40,7 @@ No modules.
 | [aws_caller_identity.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy_document.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_partition.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
+| [aws_region.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 
 ### Inputs
 
@@ -58,7 +59,7 @@ No modules.
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Prefix used in names for the resources. (IAM Role, Instance Profile) | `string` | n/a | yes |
 | <a name="input_policy_arn"></a> [policy\_arn](#input\_policy\_arn) | The AWS or Customer managed policy arn. It should be used for spoke VM scenario using the AWS managed<pre>arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore</pre>policy. | `string` | `null` | no |
 | <a name="input_principal_role"></a> [principal\_role](#input\_principal\_role) | The type of entity that can take actions in AWS. | `string` | `"ec2.amazonaws.com"` | no |
-| <a name="input_region"></a> [region](#input\_region) | AWS region where SSM or CloudWatch is located. | `string` | n/a | yes |
+| <a name="input_region"></a> [region](#input\_region) | AWS region where SSM or CloudWatch is located. | `string` | `null` | no |
 | <a name="input_role_name"></a> [role\_name](#input\_role\_name) | A role name, required for the service. | `string` | n/a | yes |
 
 ### Outputs

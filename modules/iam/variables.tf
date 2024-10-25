@@ -11,6 +11,7 @@ variable "global_tags" {
 variable "region" {
   description = "AWS region where SSM or CloudWatch is located."
   type        = string
+  default     = null
 }
 
 variable "principal_role" {
@@ -58,7 +59,7 @@ variable "create_bootrap_policy" {
 variable "policy_arn" {
   description = "The AWS or Customer managed policy arn. It should be used for spoke VM scenario using the AWS managed ```arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore``` policy."
   type        = string
-  default     = null # 
+  default     = null
 }
 
 variable "custom_policy" {

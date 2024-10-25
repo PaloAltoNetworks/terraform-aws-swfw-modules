@@ -10,6 +10,12 @@ tags = {
 
 ssh_key_name = "example-ssh-key" # TODO: update here
 
+### IAM Spoke definition
+create_instance_profile = true
+instance_profile_name   = "spoke_instance_profile"
+role_name               = "spoke_role"
+policy_arn              = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+
 ### VPC
 vpcs = {
   security_vpc = {

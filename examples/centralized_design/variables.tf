@@ -14,7 +14,27 @@ variable "ssh_key_name" {
   description = "Name of the SSH key pair existing in AWS key pairs and used to authenticate to VM-Series or test boxes"
   type        = string
 }
+variable "role_name" {
+  description = "A role name, required for the service."
+  type        = string
+}
+variable "policy_arn" {
+  description = "The AWS or Customer managed policy arn. It should be used for spoke VM scenario using the AWS managed ```arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore``` policy."
+  type        = string
+  default     = null
+}
 
+variable "create_instance_profile" {
+  description = "Create an instance profile."
+  type        = bool
+  default     = false
+}
+
+variable "instance_profile_name" {
+  description = "Instance profile name."
+  type        = string
+  default     = null
+}
 ### VPC
 variable "vpcs" {
   description = <<-EOF

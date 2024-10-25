@@ -2,11 +2,15 @@
 
 data "aws_caller_identity" "this" {}
 
+data "aws_region" "this" {}
+
 data "aws_partition" "this" {}
 
 locals {
+  region          = var.region != null ? var.region : data.aws_region.this.name
+  aws_s3_bucket   = var.aws_s3_bucket != null ? var.aws_s3_bucket : ""
   account_id      = data.aws_caller_identity.this.account_id
-  delicense_param = try(startswith(var.delicense_ssm_param_name, "/") ? var.delicense_ssm_param_name : "/${var.delicense_ssm_param_name}", null)
+  delicense_param = try(startswith(var.delicense_ssm_param_name, "/") ? var.delicense_ssm_param_name : "/${var.delicense_ssm_param_name}", "")
 
   lambda_execute_policy = {
     statement1 = {
@@ -99,7 +103,7 @@ locals {
       ]
 
       resources = [
-        "arn:${data.aws_partition.this.partition}:ssm:${var.region}:${local.account_id}:parameter${local.delicense_param}"
+        "arn:${data.aws_partition.this.partition}:ssm:${local.region}:${local.account_id}:parameter${local.delicense_param}"
       ]
     }
   }
@@ -127,7 +131,7 @@ locals {
       ]
 
       resources = [
-        "arn:${data.aws_partition.this.partition}:cloudwatch:${var.region}:${data.aws_caller_identity.this.account_id}:alarm:*"
+        "arn:${data.aws_partition.this.partition}:cloudwatch:${local.region}:${data.aws_caller_identity.this.account_id}:alarm:*"
       ]
     }
   }
@@ -137,13 +141,13 @@ locals {
       sid       = "1"
       effect    = "Allow"
       actions   = ["s3:GetObject"]
-      resources = ["arn:${data.aws_partition.this.partition}:s3:::${var.aws_s3_bucket}"]
+      resources = ["arn:${data.aws_partition.this.partition}:s3:::${local.aws_s3_bucket}"]
     }
     statement2 = {
       sid       = "2"
       effect    = "Allow"
       actions   = ["s3:GetObject"]
-      resources = ["arn:${data.aws_partition.this.partition}:s3:::${var.aws_s3_bucket}/*"]
+      resources = ["arn:${data.aws_partition.this.partition}:s3:::${local.aws_s3_bucket}/*"]
     }
   }
 
