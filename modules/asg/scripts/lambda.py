@@ -158,7 +158,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
             for k, v in sett.items():
                 interface[eni] = {} if eni not in interface.keys() else interface[eni]
                 interface[eni]["index"] = int(v) if 'device_index' in k else interface.get(eni).get('index')
-                interface[eni]["sg"] = v[0] if 'security_group_ids' in k else interface.get(eni).get('sg')
+                interface[eni]["sg"] = v if 'security_group_ids' in k else interface.get(eni).get('sg')
                 interface[eni]["c_pub_ip"] = v if 'create_public_ip' in k else interface.get(eni).get('c_pub_ip')
                 interface[eni]["s_dest_ch"] = v if 'source_dest_check' in k else interface.get(eni).get('s_dest_ch')
                 if 'subnet_id' in k:
@@ -180,7 +180,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         return instance_info.get('Placement').get('AvailabilityZone') if 'Placement' in instance_info else None, \
             instance_info.get('SubnetId'), instance_info.get('NetworkInterfaces')
 
-    def create_network_interface(self, instance_id: str, subnet_id: str, sg_id: int) -> str:
+    def create_network_interface(self, instance_id: str, subnet_id: str, sg_id: list) -> str:
         """
         As function name, it creates new ENI, if something wrong it catch error.
 
@@ -196,7 +196,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
             tag_specifications = [{'Key': k, 'Value': v} for k, v in tags.items()]
             network_interface = self.ec2_client.create_network_interface(
                 SubnetId=subnet_id,
-                Groups=[sg_id],
+                Groups=sg_id,
                 TagSpecifications=[
                     {
                         'ResourceType': 'network-interface',

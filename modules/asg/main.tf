@@ -68,7 +68,7 @@ resource "aws_launch_template" "this" {
 
   network_interfaces {
     device_index                = 0
-    security_groups             = [local.default_eni_sg_ids[0]]
+    security_groups             = local.default_eni_sg_ids
     subnet_id                   = values(local.default_eni_subnet_names[0])[0]
     associate_public_ip_address = try(local.default_eni_public_ip[0])
   }
