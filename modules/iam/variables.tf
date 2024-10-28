@@ -3,7 +3,7 @@ variable "name_prefix" {
   type        = string
 }
 
-variable "global_tags" {
+variable "tags" {
   description = "Global tags configured for all provisioned resources."
   type        = map(any)
 }
@@ -24,6 +24,11 @@ variable "create_role" {
   description = "Create a dedicated role creation of pre-defined policies."
   type        = bool
   default     = true
+}
+
+variable "role_name" {
+  description = "A role name, required for the service."
+  type        = string
 }
 
 variable "create_instance_profile" {
@@ -145,10 +150,5 @@ variable "delicense_ssm_param_name" {
 variable "aws_s3_bucket" {
   description = "Name of the s3 bucket, that is required and used for ```var.create_bootrap_policy```."
   default     = null
-  type        = string
-}
-
-variable "role_name" {
-  description = "A role name, required for the service."
   type        = string
 }

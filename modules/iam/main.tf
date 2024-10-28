@@ -56,7 +56,7 @@ locals {
       condition = {
         test     = "StringEquals"
         variable = "aws:ResourceTag/Owner"
-        values   = [var.global_tags["Owner"]]
+        values   = [var.tags["Owner"]]
       }
     }
     statement3 = {
@@ -86,7 +86,7 @@ locals {
       condition = {
         test     = "StringEquals"
         variable = "aws:ResourceTag/Owner"
-        values   = [var.global_tags["Owner"]]
+        values   = [var.tags["Owner"]]
       }
     }
   }
