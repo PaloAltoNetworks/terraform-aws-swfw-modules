@@ -180,23 +180,23 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
         return instance_info.get('Placement').get('AvailabilityZone') if 'Placement' in instance_info else None, \
             instance_info.get('SubnetId'), instance_info.get('NetworkInterfaces')
 
-    def create_network_interface(self, instance_id: str, subnet_id: str, sg_id: list) -> str:
+    def create_network_interface(self, instance_id: str, subnet_id: str, sg_ids: list) -> str:
         """
         As function name, it creates new ENI, if something wrong it catch error.
 
         :param instance_id: EC2 Instance id
         :param subnet_id: Subnet id
-        :param sg_id: Security group id
+        :param sg_ids: Security group id
         :return: Network Interface id
         """
 
-        self.logger.debug(f"DEBUG: create_interface: instance_id={instance_id}, subnet_id={subnet_id}, sg_id={sg_id}")
+        self.logger.debug(f"DEBUG: create_interface: instance_id={instance_id}, subnet_id={subnet_id}, sg_ids={sg_ids}")
         try:
             tags = loads(getenv('lambda_config')).get('tags')
             tag_specifications = [{'Key': k, 'Value': v} for k, v in tags.items()]
             network_interface = self.ec2_client.create_network_interface(
                 SubnetId=subnet_id,
-                Groups=sg_id,
+                Groups=sg_ids,
                 TagSpecifications=[
                     {
                         'ResourceType': 'network-interface',
