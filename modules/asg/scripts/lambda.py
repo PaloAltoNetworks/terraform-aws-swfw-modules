@@ -186,7 +186,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
 
         :param instance_id: EC2 Instance id
         :param subnet_id: Subnet id
-        :param sg_ids: Security group id
+        :param sg_ids: Security group ids
         :return: Network Interface id
         """
 
