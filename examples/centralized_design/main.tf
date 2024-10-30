@@ -183,7 +183,7 @@ module "vmseries" {
 
   bootstrap_options = join(";", compact(concat(local.bootstrap_options_with_endpoints_mapping[each.value.group])))
 
-  iam_instance_profile = module.iam_spoke["vmseries"].instance_profile.name
+  iam_instance_profile = module.iam["vmseries"].instance_profile.name
 
   ssh_key_name = var.ssh_key_name
   tags         = var.tags
@@ -228,6 +228,22 @@ module "public_nlb" {
   tags = var.tags
 }
 
+### IAM ###
+
+module "iam" {
+  source = "../../modules/iam"
+
+  for_each = var.iam_policies
+
+  name_prefix             = var.name_prefix
+  tags                    = var.tags
+  role_name               = each.value.role_name
+  create_instance_profile = try(each.value.create_instance_profile, false)
+  instance_profile_name   = try(each.value.instance_profile_name, null)
+  policy_arn              = try(each.value.policy_arn, null)
+  create_vmseries_policy  = try(each.value.create_vmseries_policy, false)
+}
+
 ### SPOKE VM INSTANCES ####
 
 data "aws_ami" "this" {
@@ -253,20 +269,6 @@ data "aws_kms_alias" "current_arn" {
   name = data.aws_ebs_default_kms_key.current.key_arn
 }
 
-module "iam_spoke" {
-  source = "../../modules/iam"
-
-  for_each = var.iam_policies
-
-  name_prefix             = var.name_prefix
-  tags                    = var.tags
-  role_name               = each.value.role_name
-  create_instance_profile = try(each.value.create_instance_profile, null)
-  instance_profile_name   = try(each.value.instance_profile_name, null)
-  policy_arn              = try(each.value.policy_arn, null)
-  create_vmseries_policy  = try(each.value.create_vmseries_policy, null)
-}
-
 resource "aws_instance" "spoke_vms" {
   for_each = var.spoke_vms
 
@@ -276,7 +278,7 @@ resource "aws_instance" "spoke_vms" {
   subnet_id              = module.vpc[each.value.vpc].subnets["${each.value.subnet_group}${each.value.az}"].id
   vpc_security_group_ids = [module.vpc[each.value.vpc].security_group_ids[each.value.security_group]]
   tags                   = merge({ Name = "${var.name_prefix}${each.key}" }, var.tags)
-  iam_instance_profile   = module.iam_spoke["spoke"].instance_profile.name
+  iam_instance_profile   = module.iam["spoke"].instance_profile.name
 
   root_block_device {
     delete_on_termination = true

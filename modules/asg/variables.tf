@@ -311,6 +311,11 @@ variable "vmseries_iam_instance_profile" {
   default     = ""
 }
 
+variable "lambda_role_arn" {
+  description = "IAM Role for lambda instnace."
+  type        = string
+}
+
 variable "ebs_kms_id" {
   description = "Alias for AWS KMS used for EBS encryption in VM-Series"
   type        = string

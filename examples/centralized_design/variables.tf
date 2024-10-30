@@ -14,8 +14,10 @@ variable "ssh_key_name" {
   description = "Name of the SSH key pair existing in AWS key pairs and used to authenticate to VM-Series or test boxes"
   type        = string
 }
+
+### IAM
 variable "iam_policies" {
-  description = "A role name, required for the service."
+  description = "A map defining an IAM policies, roles etc."
   type        = any
 
   default = {
