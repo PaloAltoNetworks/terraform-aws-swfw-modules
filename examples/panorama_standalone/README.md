@@ -65,32 +65,26 @@ Use a web browser to access https://x.x.x.x and login with admin and your previo
 
 ### Providers
 
-| Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.17 |
+No providers.
 
 ### Modules
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_iam"></a> [iam](#module\_iam) | ../../modules/iam | n/a |
 | <a name="module_panorama"></a> [panorama](#module\_panorama) | ../../modules/panorama | n/a |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | ../../modules/vpc | n/a |
 | <a name="module_vpc_routes"></a> [vpc\_routes](#module\_vpc\_routes) | ../../modules/vpc_route | n/a |
 
 ### Resources
 
-| Name | Type |
-|------|------|
-| [aws_iam_instance_profile.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_instance_profile) | resource |
-| [aws_iam_role.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
-| [aws_iam_role_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
-| [aws_caller_identity.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
-| [aws_partition.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
+No resources.
 
 ### Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_iam_policies"></a> [iam\_policies](#input\_iam\_policies) | A map defining an IAM policies, roles etc. | `any` | <pre>{<br>  "panorama": {<br>    "create_instance_profile": true,<br>    "create_panorama_policy": true,<br>    "instance_profile_name": "panorama_profile",<br>    "role_name": "panorama_role"<br>  }<br>}</pre> | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Prefix used in names for the resources (VPCs, EC2 instances, autoscaling groups etc.) | `string` | `""` | no |
 | <a name="input_panoramas"></a> [panoramas](#input\_panoramas) | A map defining Panorama instances<br><br>Following properties are available:<br>- `instances`: map of Panorama instances with attributes:<br>  - `az`: name of the Availability Zone<br>  - `private_ip_address`: private IP address for management interface<br>- `panos_version`: PAN-OS version used for Panorama<br>- `network`: definition of network settings in object with attributes:<br>  - `vpc`: name of the VPC (needs to be one of the keys in map `vpcs`)<br>  - `subnet_group` - key of the subnet group<br>  - `security_group`: security group assigned to ENI used by Panorama<br>  - `create_public_ip`: true, if public IP address for management should be created<br>- `ebs`: EBS settings defined in object with attributes:<br>  - `volumes`: list of EBS volumes attached to each instance<br>  - `kms_key_alias`: KMS key alias used for encrypting Panorama EBS<br>- `iam`: IAM settings in object with attrbiutes:<br>  - `create_role`: enable creation of IAM role<br>  - `role_name`: name of the role to create or use existing one<br>- `enable_imdsv2`: whether to enable IMDSv2 on the EC2 instance<br><br>Example:<pre>{<br>  panorama_ha_pair = {<br>    instances = {<br>      "primary" = {<br>        az                 = "eu-central-1a"<br>        private_ip_address = "10.255.0.4"<br>      }<br>      "secondary" = {<br>        az                 = "eu-central-1b"<br>        private_ip_address = "10.255.1.4"<br>      }<br>    }<br><br>    panos_version = "10.2.3"<br><br>    network = {<br>      vpc              = "management_vpc"<br>      subnet_group     = "mgmt"<br>      security_group   = "panorama_mgmt"<br>      create_public_ip = true<br>    }<br><br>    ebs = {<br>      volumes = [<br>        {<br>          name            = "ebs-1"<br>          ebs_device_name = "/dev/sdb"<br>          ebs_size        = "2000"<br>          ebs_encrypted   = true<br>        },<br>        {<br>          name            = "ebs-2"<br>          ebs_device_name = "/dev/sdc"<br>          ebs_size        = "2000"<br>          ebs_encrypted   = true<br>        }<br>      ]<br>      kms_key_alias = "aws/ebs"<br>    }<br><br>    iam = {<br>      create_role = true<br>      role_name   = "panorama"<br>    }<br><br>    enable_imdsv2 = false<br>  }<br>}</pre> | <pre>map(object({<br>    instances = map(object({<br>      az                 = string<br>      private_ip_address = string<br>    }))<br><br>    panos_version = string<br><br>    network = object({<br>      vpc              = string<br>      subnet_group     = string<br>      security_group   = string<br>      create_public_ip = bool<br>    })<br><br>    ebs = object({<br>      volumes = list(object({<br>        name            = string<br>        ebs_device_name = string<br>        ebs_size        = string<br>      }))<br>      encrypted     = bool<br>      kms_key_alias = string<br>    })<br><br>    iam = object({<br>      create_role = bool<br>      role_name   = string<br>    })<br><br>    enable_imdsv2 = bool<br>  }))</pre> | `{}` | no |
 | <a name="input_region"></a> [region](#input\_region) | AWS region used to deploy whole infrastructure | `string` | n/a | yes |

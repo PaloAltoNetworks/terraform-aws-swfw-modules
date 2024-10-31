@@ -61,6 +61,12 @@ variable "create_bootrap_policy" {
   default     = false
 }
 
+variable "create_panorama_policy" {
+  description = "Create a pre-defined panorama policy."
+  type        = bool
+  default     = false
+}
+
 variable "policy_arn" {
   description = "The AWS or Customer managed policy arn. It should be used for spoke VM scenario using the AWS managed ```arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore``` policy."
   type        = string

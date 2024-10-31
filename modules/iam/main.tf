@@ -151,6 +151,45 @@ locals {
     }
   }
 
+  panorama_policy = {
+    statement1 = {
+      sid    = "1"
+      effect = "Allow"
+      actions = [
+        "ec2:DescribeInstanceStatus",
+        "ec2:DescribeInstances"
+      ]
+
+      resources = [
+        "*"
+      ]
+    }
+    statement2 = {
+      sid    = "2"
+      effect = "Allow"
+      actions = [
+        "cloudwatch:ListMetrics",
+        "cloudwatch:GetMetricStatistics",
+        "cloudwatch:DescribeAlarmsForMetric"
+      ]
+
+      resources = [
+        "*"
+      ]
+    }
+    statement3 = {
+      sid    = "3"
+      effect = "Allow"
+      actions = [
+        "cloudwatch:DescribeAlarms"
+      ]
+
+      resources = [
+        "arn:${data.aws_partition.this.partition}:cloudwatch:${local.region}:${data.aws_caller_identity.this.account_id}:alarm:*"
+      ]
+    }
+  }
+
   aws_policies = {
     "custom" = {
       enable     = var.custom_policy == null ? false : true
@@ -171,6 +210,10 @@ locals {
     "bootstrap" = {
       enable     = var.create_bootrap_policy && var.aws_s3_bucket != null ? true : false
       definition = local.bootstrap_policy
+    }
+    "panorama" = {
+      enable     = var.create_panorama_policy ? true : false
+      definition = local.panorama_policy
     }
   }
 }

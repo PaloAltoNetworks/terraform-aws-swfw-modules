@@ -91,6 +91,8 @@ vmseries = {
       "01" = { az = "a" }
     }
 
+    bucket_name = "bucket-paloaltonetworks"
+
     # Value of `panorama-server`, `auth-key`, `dgname`, `tplname` can be taken from plugin `sw_fw_license`
     bootstrap_options = {
       mgmt-interface-swap         = "disable"

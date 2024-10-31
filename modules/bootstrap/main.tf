@@ -6,8 +6,6 @@ locals {
   random_name   = "${var.prefix}${random_id.sufix.hex}"
   bucket_name   = coalesce(var.bucket_name, local.random_name)
   aws_s3_bucket = var.create_bucket ? aws_s3_bucket.this[0] : data.aws_s3_bucket.this[0]
-  iam_role_name = coalesce(var.iam_role_name, local.random_name)
-  aws_iam_role  = var.create_iam_role_policy ? aws_iam_role.this[0] : data.aws_iam_role.this[0]
 }
 
 data "aws_s3_bucket" "this" {
@@ -88,65 +86,4 @@ resource "aws_s3_object" "bootstrap_files" {
   bucket = local.aws_s3_bucket.id
   key    = each.value
   source = "${local.source_root_directory}/${each.value}"
-}
-
-data "aws_iam_role" "this" {
-  count = var.create_iam_role_policy == false && var.iam_role_name != null ? 1 : 0
-
-  name = var.iam_role_name
-}
-
-# Lookup information about the current AWS partition in which Terraform is working (e.g. `aws`, `aws-us-gov`, `aws-cn`)
-data "aws_partition" "this" {}
-
-resource "aws_iam_role" "this" {
-  count = var.create_iam_role_policy ? 1 : 0
-
-  name = local.iam_role_name
-
-  tags               = var.global_tags
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
-}
-
-resource "aws_iam_role_policy" "bootstrap" {
-  count = var.create_iam_role_policy ? 1 : 0
-
-  name   = local.iam_role_name
-  role   = local.aws_iam_role.id
-  policy = <<EOF
-{
-  "Version" : "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": "s3:ListBucket",
-      "Resource": "arn:${data.aws_partition.this.partition}:s3:::${local.aws_s3_bucket.bucket}"
-    },
-    {
-    "Effect": "Allow",
-    "Action": "s3:GetObject",
-    "Resource": "arn:${data.aws_partition.this.partition}:s3:::${local.aws_s3_bucket.bucket}/*"
-    }
-  ]
-}
-EOF
-}
-
-resource "aws_iam_instance_profile" "this" {
-  name = coalesce(var.iam_instance_profile_name, local.random_name)
-  role = local.aws_iam_role.name
-  path = "/"
 }
