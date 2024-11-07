@@ -25,6 +25,21 @@ variable "ssh_key_name" {
   type        = string
 }
 
+### IAM
+variable "iam_policies" {
+  description = "A map defining an IAM policies, roles etc."
+  type        = any
+
+  default = {
+    spoke = {
+      create_instance_profile = true
+      instance_profile_name   = "combined_spoke_profile"
+      role_name               = "spoke_role"
+      policy_arn              = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+    }
+  }
+}
+
 ### VPC
 variable "vpcs" {
   description = <<-EOF
