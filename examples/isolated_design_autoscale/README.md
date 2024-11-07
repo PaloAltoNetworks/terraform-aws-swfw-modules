@@ -188,6 +188,7 @@ statistic    = "Maximum"
 |------|--------|---------|
 | <a name="module_gwlb"></a> [gwlb](#module\_gwlb) | ../../modules/gwlb | n/a |
 | <a name="module_gwlbe_endpoint"></a> [gwlbe\_endpoint](#module\_gwlbe\_endpoint) | ../../modules/gwlb_endpoint_set | n/a |
+| <a name="module_iam"></a> [iam](#module\_iam) | ../../modules/iam | n/a |
 | <a name="module_public_alb"></a> [public\_alb](#module\_public\_alb) | ../../modules/alb | n/a |
 | <a name="module_public_nlb"></a> [public\_nlb](#module\_public\_nlb) | ../../modules/nlb | n/a |
 | <a name="module_vm_series_asg"></a> [vm\_series\_asg](#module\_vm\_series\_asg) | ../../modules/asg | n/a |
@@ -198,19 +199,11 @@ statistic    = "Maximum"
 
 | Name | Type |
 |------|------|
-| [aws_iam_instance_profile.spoke_vm_iam_instance_profile](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_instance_profile) | resource |
-| [aws_iam_instance_profile.vm_series_iam_instance_profile](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_instance_profile) | resource |
-| [aws_iam_role.spoke_vm_ec2_iam_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
-| [aws_iam_role.vm_series_ec2_iam_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
-| [aws_iam_role_policy.vm_series_ec2_iam_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
-| [aws_iam_role_policy_attachment.spoke_vm_iam_instance_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_instance.spoke_vms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) | resource |
 | [aws_vpc_peering_connection.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_peering_connection) | resource |
 | [aws_ami.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
-| [aws_caller_identity.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_ebs_default_kms_key.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ebs_default_kms_key) | data source |
 | [aws_kms_alias.current_arn](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kms_alias) | data source |
-| [aws_partition.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
 
 ### Inputs
 
@@ -218,6 +211,7 @@ statistic    = "Maximum"
 |------|-------------|------|---------|:--------:|
 | <a name="input_gwlb_endpoints"></a> [gwlb\_endpoints](#input\_gwlb\_endpoints) | A map defining GWLB endpoints.<br><br>Following properties are available:<br>- `name`: name of the GWLB endpoint<br>- `gwlb`: key of GWLB<br>- `vpc`: key of VPC<br>- `subnet_group`: key of the subnet\_group<br>- `act_as_next_hop`: set to `true` if endpoint is part of an IGW route table e.g. for inbound traffic<br>- `from_igw_to_vpc`: VPC to which traffic from IGW is routed to the GWLB endpoint<br>- `from_igw_to_subnet_group` : subnet\_group to which traffic from IGW is routed to the GWLB endpoint<br><br>Example:<pre>gwlb_endpoints = {<br>  security_gwlb_eastwest = {<br>    name            = "eastwest-gwlb-endpoint"<br>    gwlb            = "security_gwlb"<br>    vpc             = "security_vpc"<br>    subnet_group    = "gwlbe_eastwest"<br>    act_as_next_hop = false<br>  }<br>}</pre> | <pre>map(object({<br>    name                     = string<br>    gwlb                     = string<br>    vpc                      = string<br>    subnet_group             = string<br>    act_as_next_hop          = bool<br>    from_igw_to_vpc          = optional(string)<br>    from_igw_to_subnet_group = optional(string)<br>  }))</pre> | `{}` | no |
 | <a name="input_gwlbs"></a> [gwlbs](#input\_gwlbs) | A map defining Gateway Load Balancers.<br><br>Following properties are available:<br>- `name`: name of the GWLB<br>- `vpc`: key of the VPC<br>- `subnet_group`: key of the subnet\_group<br><br>Example:<pre>gwlbs = {<br>  security_gwlb = {<br>    name         = "security-gwlb"<br>    vpc          = "security_vpc"<br>    subnet_group = "gwlb"<br>  }<br>}</pre> | <pre>map(object({<br>    name         = string<br>    vpc          = string<br>    subnet_group = string<br>  }))</pre> | `{}` | no |
+| <a name="input_iam_policies"></a> [iam\_policies](#input\_iam\_policies) | A map defining an IAM policies, roles etc. | `any` | <pre>{<br>  "lambda": {<br>    "create_lambda_policy": true,<br>    "delicense_ssm_param_name": "secret_name",<br>    "principal_role": "lambda.amazonaws.com",<br>    "role_name": "lambda_role"<br>  },<br>  "spoke": {<br>    "create_instance_profile": true,<br>    "instance_profile_name": "isolated_spoke_profile",<br>    "policy_arn": "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",<br>    "role_name": "spoke_role"<br>  },<br>  "vmseries": {<br>    "create_instance_profile": true,<br>    "create_vmseries_policy": true,<br>    "instance_profile_name": "isolated_vmseries_profile",<br>    "role_name": "vmseries_role"<br>  }<br>}</pre> | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Prefix used in names for the resources (VPCs, EC2 instances, autoscaling groups etc.) | `string` | n/a | yes |
 | <a name="input_panorama_connection"></a> [panorama\_connection](#input\_panorama\_connection) | A object defining VPC peering and CIDR for Panorama.<br><br>Following properties are available:<br>- `security_vpc`: key of the security VPC<br>- `peering_vpc_id`: ID of the VPC for Panorama<br>- `vpc_cidr`: CIDR of the VPC, where Panorama is deployed<br><br>Example:<pre>panorama = {<br>  security_vpc   = "security_vpc"<br>  peering_vpc_id = "vpc-1234567890"<br>  vpc_cidr       = "10.255.0.0/24"<br>}</pre> | <pre>object({<br>    security_vpc   = string<br>    peering_vpc_id = string<br>    vpc_cidr       = string<br>  })</pre> | `null` | no |
 | <a name="input_region"></a> [region](#input\_region) | AWS region used to deploy whole infrastructure | `string` | n/a | yes |

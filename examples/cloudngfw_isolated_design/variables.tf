@@ -24,6 +24,22 @@ variable "ssh_key_name" {
   description = "Name of the SSH key pair existing in AWS key pairs and used to authenticate to VM-Series or test boxes"
   type        = string
 }
+
+### IAM
+variable "iam_policies" {
+  description = "A map defining an IAM policies, roles etc."
+  type        = any
+
+  default = {
+    spoke = {
+      create_instance_profile = true
+      instance_profile_name   = "isolated_spoke_profile"
+      role_name               = "spoke_role"
+      policy_arn              = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+    }
+  }
+}
+
 ### VPC
 variable "vpcs" {
   description = <<-EOF

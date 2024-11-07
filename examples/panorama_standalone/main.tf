@@ -35,77 +35,19 @@ module "vpc_routes" {
   internet_gateway_id = each.value.next_hop_type == "internet_gateway" ? module.vpc[each.value.next_hop_key].internet_gateway.id : null
 }
 
-### IAM ROLES AND POLICIES ###
+### IAM ###
 
-data "aws_caller_identity" "this" {}
+module "iam" {
+  source = "../../modules/iam"
 
-data "aws_partition" "this" {}
+  for_each = var.iam_policies
 
-resource "aws_iam_role" "this" {
-  for_each           = var.panoramas
-  name               = "${var.name_prefix}${each.value.iam.role_name}"
-  description        = "Allow read-only access to AWS resources."
-  assume_role_policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Action": "sts:AssumeRole",
-            "Principal": {
-               "Service": "ec2.amazonaws.com"
-            },
-            "Effect": "Allow",
-            "Sid": ""
-        }
-    ]
-}
-EOF
-  tags               = var.tags
-}
-
-resource "aws_iam_role_policy" "this" {
-  for_each = var.panoramas
-  role     = aws_iam_role.this[each.key].id
-  policy   = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-              "ec2:DescribeInstanceStatus",
-              "ec2:DescribeInstances"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "cloudwatch:ListMetrics",
-                "cloudwatch:GetMetricStatistics",
-                "cloudwatch:DescribeAlarmsForMetric"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-              "cloudwatch:DescribeAlarms"
-            ],
-            "Resource": [
-              "arn:${data.aws_partition.this.partition}:cloudwatch:${var.region}:${data.aws_caller_identity.this.account_id}:alarm:*"
-            ]
-        }
-    ]
-}
-
-EOF
-}
-
-resource "aws_iam_instance_profile" "this" {
-  for_each = { for panorama in local.panorama_instances : "${panorama.group}-${panorama.instance}" => panorama }
-  name     = "${var.name_prefix}${each.key}panorama_instance_profile"
-  role     = each.value.common.iam.create_role ? aws_iam_role.this[each.value.group].name : each.value.common.iam.role_name
+  name_prefix             = var.name_prefix
+  tags                    = var.tags
+  role_name               = each.value.role_name
+  create_instance_profile = try(each.value.create_instance_profile, false)
+  instance_profile_name   = try(each.value.instance_profile_name, null)
+  create_panorama_policy  = try(each.value.create_panorama_policy, false)
 }
 
 ### PANORAMA INSTANCES
@@ -136,12 +78,8 @@ module "panorama" {
   ebs_kms_key_alias      = each.value.common.ebs.kms_key_alias
   subnet_id              = module.vpc[each.value.common.network.vpc].subnets["${each.value.common.network.subnet_group}${each.value.az}"].id
   vpc_security_group_ids = [module.vpc[each.value.common.network.vpc].security_group_ids[each.value.common.network.security_group]]
-  panorama_iam_role      = aws_iam_instance_profile.this[each.key].name
+  panorama_iam_role      = module.iam["panorama"].instance_profile.name
   enable_imdsv2          = each.value.common.enable_imdsv2
 
   global_tags = var.tags
-
-  depends_on = [
-    aws_iam_instance_profile.this
-  ]
 }

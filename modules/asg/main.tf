@@ -176,111 +176,6 @@ resource "aws_autoscaling_group" "this" {
   ]
 }
 
-# Lookup information about the current AWS partition in which Terraform is working (e.g. `aws`, `aws-us-gov`, `aws-cn`)
-data "aws_partition" "this" {}
-
-# IAM role that will be used for Lambda function
-resource "aws_iam_role" "this" {
-  name               = "${var.name_prefix}lambda_iam_role"
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "lambda.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-EOF
-}
-
-# Attach IAM policies to IAM role for Lambda
-resource "aws_iam_role_policy" "lambda_iam_policy_default" {
-  name   = "${var.name_prefix}lambda_iam_policy_default"
-  role   = aws_iam_role.this.id
-  policy = <<-EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Action": [
-                "logs:CreateLogGroup",
-                "logs:CreateLogStream",
-                "logs:PutLogEvents"
-            ],
-            "Effect": "Allow",
-            "Resource": "arn:${data.aws_partition.this.partition}:logs:*:*:*"
-        },
-        {
-            "Action": [
-                "ec2:AllocateAddress",
-                "ec2:AssociateAddress",
-                "ec2:AttachNetworkInterface",
-                "ec2:CreateNetworkInterface",
-                "ec2:CreateTags",
-                "ec2:DescribeAddresses",
-                "ec2:DescribeInstances",
-                "ec2:DescribeNetworkInterfaces",
-                "ec2:DescribeTags",
-                "ec2:DescribeSubnets",
-                "ec2:DeleteNetworkInterface",
-                "ec2:DeleteTags",
-                "ec2:DetachNetworkInterface",
-                "ec2:DisassociateAddress",
-                "ec2:ModifyNetworkInterfaceAttribute",
-                "ec2:ReleaseAddress",
-                "autoscaling:CompleteLifecycleAction",
-                "autoscaling:DescribeAutoScalingGroups",
-                "elasticloadbalancing:RegisterTargets",
-                "elasticloadbalancing:DeregisterTargets"
-            ],
-            "Effect": "Allow",
-            "Resource": "*"
-        },
-        {
-          "Effect": "Allow",
-          "Action": [
-            "kms:GenerateDataKey*",
-            "kms:Decrypt",
-            "kms:CreateGrant"
-          ],
-          "Resource": "*"
-        }
-    ]
-}
-EOF
-}
-
-resource "aws_iam_role_policy" "lambda_iam_policy_delicense" {
-  count  = var.delicense_enabled ? 1 : 0
-  name   = "${var.name_prefix}lambda_iam_policy_delicense"
-  role   = aws_iam_role.this.id
-  policy = <<-EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ssm:DescribeParameters",
-                "ssm:GetParametersByPath",
-                "ssm:GetParameter",
-                "ssm:GetParameterHistory"
-            ],
-            "Resource": [
-                "arn:${data.aws_partition.this.partition}:ssm:${var.region}:${local.account_id}:parameter${local.delicense_param}"
-            ]
-        }
-    ]
-}
-EOF
-}
-
 # Python external dependencies (e.g. panos libraries) are prepared according to document:
 # https://docs.aws.amazon.com/lambda/latest/dg/python-package.html
 resource "null_resource" "python_requirements" {
@@ -307,7 +202,7 @@ data "archive_file" "this" {
 resource "aws_lambda_function" "this" {
   filename                       = data.archive_file.this.output_path
   function_name                  = "${var.name_prefix}asg_actions"
-  role                           = aws_iam_role.this.arn
+  role                           = var.lambda_role_arn
   handler                        = "lambda.lambda_handler"
   source_code_hash               = data.archive_file.this.output_base64sha256
   runtime                        = "python3.11"

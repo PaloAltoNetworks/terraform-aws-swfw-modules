@@ -15,6 +15,23 @@ variable "ssh_key_name" {
   type        = string
 }
 
+### IAM
+variable "iam_policies" {
+  description = "A map defining an IAM policies, roles etc."
+  type        = any
+
+  default = {
+    vmseries = {
+      create_instance_profile = true
+      instance_profile_name   = "vmseries_profile_instance"
+      role_name               = "vmseries_role"
+      create_vmseries_policy  = true
+      create_bootrap_policy   = true
+      aws_s3_bucket           = "bucket-paloaltonetworks"
+    }
+  }
+}
+
 ### VPC
 variable "vpcs" {
   description = <<-EOF
@@ -176,6 +193,9 @@ variable "vmseries" {
       instances = {
         "01" = { az = "eu-central-1a" }
       }
+
+      bucket_name = "bucket_name"
+      
       # Value of `panorama-server`, `auth-key`, `dgname`, `tplname` can be taken from plugin `sw_fw_license`
       bootstrap_options = {
         mgmt-interface-swap         = "enable"
@@ -212,6 +232,8 @@ variable "vmseries" {
     instances = map(object({
       az = string
     }))
+
+    bucket_name = string
 
     bootstrap_options = object({
       mgmt-interface-swap         = string

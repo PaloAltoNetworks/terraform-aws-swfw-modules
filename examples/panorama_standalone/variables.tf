@@ -18,6 +18,21 @@ variable "ssh_key_name" {
   type        = string
 }
 
+### IAM
+variable "iam_policies" {
+  description = "A map defining an IAM policies, roles etc."
+  type        = any
+
+  default = {
+    panorama = {
+      create_instance_profile = true
+      instance_profile_name   = "panorama_profile"
+      role_name               = "panorama_role"
+      create_panorama_policy  = true
+    }
+  }
+}
+
 ### VPC
 variable "vpcs" {
   description = <<-EOF
