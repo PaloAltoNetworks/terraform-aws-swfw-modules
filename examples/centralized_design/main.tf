@@ -249,45 +249,6 @@ module "vmseries" {
   tags                 = var.tags
 }
 
-### Public ALB and NLB used in centralized model ###
-
-module "public_alb" {
-  source = "../../modules/alb"
-
-  for_each = { for k, v in var.vmseries : k => v }
-
-  lb_name         = "${var.name_prefix}${each.value.application_lb.name}"
-  subnets         = { for k, v in module.vpc[each.value.vpc].subnets : k => { id = v.id } if v.subnet_group == each.value.application_lb.subnet_group }
-  vpc_id          = module.vpc[each.value.vpc].id
-  security_groups = [module.vpc[each.value.vpc].security_group_ids[each.value.application_lb.security_group]]
-  rules           = each.value.application_lb.rules
-  targets         = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => module.vmseries["${vmseries.group}-${vmseries.instance}"].interfaces["public"].private_ip }
-
-  tags = var.tags
-}
-
-module "public_nlb" {
-  source = "../../modules/nlb"
-
-  for_each = { for k, v in var.vmseries : k => v }
-
-  name        = "${var.name_prefix}${each.value.network_lb.name}"
-  internal_lb = false
-  subnets     = { for k, v in module.vpc[each.value.vpc].subnets : k => { id = v.id } if v.subnet_group == each.value.network_lb.subnet_group }
-  vpc_id      = module.vpc[each.value.vpc].id
-
-  balance_rules = { for k, v in each.value.network_lb.rules : k => {
-    protocol           = v.protocol
-    port               = v.port
-    target_type        = v.target_type
-    stickiness         = v.stickiness
-    preserve_client_ip = v.preserve_client_ip
-    targets            = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => module.vmseries["${vmseries.group}-${vmseries.instance}"].interfaces["public"].private_ip }
-  } }
-
-  tags = var.tags
-}
-
 ### SPOKE VM INSTANCES ####
 
 data "aws_ami" "this" {
@@ -377,41 +338,67 @@ resource "aws_instance" "spoke_vms" {
   EOF
 }
 
-### SPOKE INBOUND NETWORK LOAD BALANCER ###
+module "load_balancers" {
+  source = "../../modules/elb"
+  
+  for_each = var.load_balancers
 
-module "app_lb" {
-  source = "../../modules/nlb"
-
-  for_each = var.spoke_lbs
-
-  name        = "${var.name_prefix}${each.key}"
-  internal_lb = true
-  subnets     = { for k, v in module.vpc[each.value.vpc].subnets : k => { id = v.id } if v.subnet_group == each.value.subnet_group }
-  vpc_id      = module.vpc[each.value.vpc].id
-
-  balance_rules = {
-    "SSH-traffic" = {
-      protocol    = "TCP"
-      port        = "22"
-      target_type = "instance"
-      stickiness  = true
-      targets     = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].id }
-    }
-    "HTTP-traffic" = {
-      protocol    = "TCP"
-      port        = "80"
-      target_type = "instance"
-      stickiness  = false
-      targets     = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].id }
-    }
-    "HTTPS-traffic" = {
-      protocol    = "TCP"
-      port        = "443"
-      target_type = "instance"
-      stickiness  = false
-      targets     = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].id }
-    }
+  vpc_id = module.vpc[each.value.vpc_key].id
+  lb_name = "${var.name_prefix}${each.value.name}"
+  load_balancer_type = each.value.load_balancer_type
+  internal = each.value.internal
+  security_groups = try([ module.vpc[each.value.vpc_key].security_group_ids[each.value.security_group_key] ], null)
+  subnets = [ for k, v in module.vpc[each.value.vpc_key].subnets : v.id if each.value.subnet_group == v.subnet_group ]
+  enable_cross_zone_load_balancing = each.value.enable_cross_zone_load_balancing
+  
+  target_groups = { for k,v in each.value.target_groups : k => merge(v, { 
+    vpc_id = module.vpc[each.value.vpc_key].id 
+    name = "${var.name_prefix}${v.name}"
+    }) 
   }
+  listeners = each.value.listeners
+}
 
-  tags = var.tags
+locals {
+  vmseries_tg_attachment = merge(flatten([ for vmseries in local.vmseries_instances : [ 
+    for ik, iv in vmseries.common.interfaces : [ 
+      for tgk in iv.target_group_keys: { 
+        "${vmseries.instance}-${ik}-${tgk}" = { 
+          lb_key = compact([ for lbk, lbv in var.load_balancers : lookup(lbv.target_groups, tgk, null) != null ? lbk : null ])[0] 
+          tg_key = tgk
+          target_ip = module.vmseries["${vmseries.group}-${vmseries.instance}"].interfaces[ik].private_ip 
+          vpc = vmseries.common.vpc
+        } 
+      }
+    ] if iv.target_group_keys != null ] ])...)
+    
+  spokes_tg_attachment = merge(flatten([ for vmk, vmv in var.spoke_vms : [ 
+    for tgk in vmv.target_group_keys : { 
+      "${vmk}-${tgk}" = { 
+        lb_key = compact([ for lbk, lbv in var.load_balancers : lookup(lbv.target_groups, tgk, null) != null ? lbk : null ])[0]
+        tg_key = tgk 
+        target_ip = aws_instance.spoke_vms[vmk].private_ip
+        target_instance_id = aws_instance.spoke_vms[vmk].id
+        vpc = vmv.vpc
+      } 
+    } 
+  ] if vmv.target_group_keys != null ])...)
+}
+
+
+## TG Attachment
+resource "aws_lb_target_group_attachment" "vmseries" {
+  for_each = local.vmseries_tg_attachment
+
+  target_group_arn  = module.load_balancers[each.value.lb_key].target_group[each.value.tg_key].arn
+  target_id         = each.value.target_ip
+  availability_zone = var.load_balancers[each.value.lb_key].vpc_key != each.value.vpc ? "all" : null
+}
+
+resource "aws_lb_target_group_attachment" "spoke_vms" {
+  for_each = local.spokes_tg_attachment
+
+  target_group_arn  = module.load_balancers[each.value.lb_key].target_group[each.value.tg_key].arn
+  target_id         = module.load_balancers[each.value.lb_key].target_group[each.value.tg_key].target_type == "ip" ? each.value.target_ip : each.value.target_instance_id
+  availability_zone = var.load_balancers[each.value.lb_key].vpc_key != each.value.vpc ? "all" : null
 }

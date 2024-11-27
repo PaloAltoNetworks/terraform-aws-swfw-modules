@@ -453,6 +453,7 @@ variable "vmseries" {
       subnet_group      = string
       create_public_ip  = bool
       source_dest_check = bool
+      target_group_keys = optional(list(string))
     }))
 
     subinterfaces = map(map(object({
@@ -465,19 +466,6 @@ variable "vmseries" {
       dns_secondy = string
       ntp_primary = string
       ntp_secondy = string
-    })
-
-    application_lb = object({
-      name           = string
-      subnet_group   = string
-      security_group = string
-      rules          = any
-    })
-
-    network_lb = object({
-      name         = string
-      subnet_group = string
-      rules        = any
     })
   }))
 }
@@ -537,35 +525,50 @@ variable "spoke_vms" {
     vpc            = string
     subnet_group   = string
     security_group = string
+    target_group_keys = optional(list(string))
     type           = string
   }))
 }
 
-### SPOKE LOADBALANCERS
-variable "spoke_lbs" {
-  description = <<-EOF
-  A map defining Network Load Balancers deployed in spoke VPCs.
-
-  Following properties are available:
-  - `vpc`: key of the VPC
-  - `subnet_group`: key of the subnet_group
-  - `vms`: keys of spoke VMs
-
-  Example:
-  ```
-  spoke_lbs = {
-    "app1-nlb" = {
-      vpc    = "app1_vpc"
-      subnet_group = "app1_lb"
-      vms    = ["app1_vm01", "app1_vm02"]
-    }
-  }
-  ```
-  EOF
-  default     = {}
+# Load Balancers
+variable "load_balancers" {
+  default = {}
   type = map(object({
-    vpc          = string
+    name = string
+    load_balancer_type = optional(string)
+    internal = bool
+    enable_cross_zone_load_balancing = optional(bool, true)
+    vpc_key = string
+    security_group_key = optional(string)
     subnet_group = string
-    vms          = list(string)
+    target_groups = map(object({
+      name = string
+      port = string
+      protocol = string
+      type = string
+    }))
+    listeners = map(object({
+      port = optional(string)
+      protocol = optional(string)
+      certificate_arn = optional(string)
+      fixed_response = optional(map(any))
+      redirect = optional(map(any))
+      forward = optional(map(any))
+      rules = optional(map(object({
+        priority = number
+        action = object({
+          type = string
+          target_group_key = string
+        })
+        conditions = object({
+          path_pattern = optional(list(string))
+          host_header = optional(list(string))
+        })
+    })), {})
+    }))
   }))
+  validation {
+    condition = length(flatten([ for lbk, lbv in var.load_balancers : [ for tgk, tgv  in lbv.target_groups : tgk ] ])) == length(distinct(flatten([ for lbk, lbv in var.load_balancers : [ for tgk, tgv  in lbv.target_groups : tgk ] ])))
+    error_message = "Target Group key must be unique across all Load Balancers."
+  }
 }

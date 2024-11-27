@@ -645,6 +645,7 @@ vmseries = {
         subnet_group      = "public"
         create_public_ip  = true
         source_dest_check = false
+        target_group_keys = ["app1_tg", "app2_tg", "ssh1_tg", "ssh2_tg"]
       }
     }
 
@@ -671,64 +672,6 @@ vmseries = {
       ntp_primary = "pool.ntp.org" # TODO: update here
       ntp_secondy = null           # TODO: update here
     }
-
-    application_lb = {
-      name           = "public-alb"
-      subnet_group   = "alb"
-      security_group = "application_load_balancer"
-      rules = {
-        "app1" = {
-          protocol              = "HTTP"
-          port                  = 8081
-          health_check_port     = "8081"
-          health_check_matcher  = "200"
-          health_check_path     = "/"
-          health_check_interval = 10
-          listener_rules = {
-            "1" = {
-              target_protocol = "HTTP"
-              target_port     = 8081
-              path_pattern    = ["/"]
-            }
-          }
-        }
-        "app2" = {
-          protocol              = "HTTP"
-          port                  = 8082
-          health_check_port     = "8082"
-          health_check_matcher  = "200"
-          health_check_path     = "/"
-          health_check_interval = 10
-          listener_rules = {
-            "1" = {
-              target_protocol = "HTTP"
-              target_port     = 8082
-              path_pattern    = ["/"]
-            }
-          }
-        }
-      }
-    }
-    network_lb = {
-      name         = "public-nlb"
-      subnet_group = "nlb"
-      rules = {
-        "ssh1" = {
-          protocol           = "TCP"
-          port               = "2021"
-          target_type        = "ip"
-          stickiness         = true
-          preserve_client_ip = true
-        }
-        "ssh2" = {
-          protocol           = "TCP"
-          port               = "2022"
-          target_type        = "ip"
-          stickiness         = true
-          preserve_client_ip = true
-        }
-      }
-    }
   }
 }
 
@@ -745,6 +688,7 @@ spoke_vms = {
     vpc            = "app1_vpc"
     subnet_group   = "app1_vm"
     security_group = "app1_vm"
+    target_group_keys = ["app1_22", "app1_80", "app1_443"]
     type           = "t2.micro"
   }
   "app1_vm02" = {
@@ -752,6 +696,7 @@ spoke_vms = {
     vpc            = "app1_vpc"
     subnet_group   = "app1_vm"
     security_group = "app1_vm"
+    target_group_keys = ["app1_22", "app1_80", "app1_443"]
     type           = "t2.micro"
   }
   "app2_vm01" = {
@@ -759,6 +704,7 @@ spoke_vms = {
     vpc            = "app2_vpc"
     subnet_group   = "app2_vm"
     security_group = "app2_vm"
+    target_group_keys = ["app2_22", "app2_80", "app2_443"]
     type           = "t2.micro"
   }
   "app2_vm02" = {
@@ -766,20 +712,210 @@ spoke_vms = {
     vpc            = "app2_vpc"
     subnet_group   = "app2_vm"
     security_group = "app2_vm"
+    target_group_keys = ["app2_22", "app2_80", "app2_443"]
     type           = "t2.micro"
   }
 }
 
-### SPOKE LOADBALANCERS
-spoke_lbs = {
-  "app1-nlb" = {
-    vpc          = "app1_vpc"
-    subnet_group = "app1_lb"
-    vms          = ["app1_vm01", "app1_vm02"]
+# Load Balancers
+load_balancers = {
+  "application_lb" = {
+    name = "public-alb"
+    load_balancer_type = "application"
+    internal = false
+    vpc_key = "security_vpc"
+    security_group_key = "application_load_balancer"
+    subnet_group = "alb"
+    listeners = {
+      http_8081 = {
+        port = "8081"
+        protocol = "HTTP"
+        fixed_response = {
+          status_code = "503"
+        }
+        rules = {
+          app1 = {
+            priority = 1
+            action = {
+              type = "forward"
+              target_group_key = "app1_tg"
+            }
+            conditions = {
+              path_pattern = ["/"]
+            }
+          }
+        }
+      }
+      http_8082 = {
+        port = "8082"
+        protocol = "HTTP"
+        fixed_response = {
+          status_code = "503"
+        }
+        rules = {
+          app2 = {
+            priority = 1
+            action = {
+              type = "forward"
+              target_group_key = "app2_tg"
+            }
+            conditions = {
+              path_pattern = ["/"]
+            }
+          }
+        }
+      }
+    }
+    target_groups = {
+      app1_tg = {
+        name     = "app1-tg"
+        port     = 8081
+        protocol = "HTTP"
+        type = "ip"
+      }
+      app2_tg = {
+        name     = "app2-tg"
+        port     = 8082
+        protocol = "HTTP"
+        type = "ip"
+      }
+    }
   }
-  "app2-nlb" = {
-    vpc          = "app2_vpc"
+  "network_lb" = {
+    name = "public-nlb"
+    load_balancer_type = "network"
+    internal = false
+    vpc_key = "security_vpc"
+    subnet_group = "nlb"
+    listeners = {
+      ssh1 = {
+        port = "2021"
+        protocol = "TCP"
+        forward = {
+          target_group_key = "ssh1_tg"
+        }
+      }
+      ssh2 = {
+        port = "2022"
+        protocol = "TCP"
+        forward = {
+          target_group_key = "ssh2_tg"
+        }
+      }
+    }
+    target_groups = {
+      ssh1_tg = {
+        name     = "ssh1-tg"
+        port     = 2021
+        protocol = "TCP"
+        type = "ip"
+      }
+      ssh2_tg = {
+        name     = "ssh2-tg"
+        port     = 2021
+        protocol = "TCP"
+        type = "ip"
+      }
+    }
+  }
+  "app1_nlb" = {
+    name = "app1-nlb"
+    load_balancer_type = "network"
+    internal = true
+    vpc_key = "app1_vpc"
+    subnet_group = "app1_lb"
+    listeners = {
+      ssh = {
+        port = "22"
+        protocol = "TCP"
+        forward = {
+          target_group_key = "app1_22"
+        }
+      }
+      http = {
+        port = "80"
+        protocol = "TCP"
+        forward = {
+          target_group_key = "app1_80"
+        }
+      }
+      https = {
+        port = "443"
+        protocol = "TCP"
+        forward = {
+          target_group_key = "app1_443"
+        }
+      }
+    }
+    target_groups = {
+      app1_22 = {
+        name     = "app1-ssh"
+        port     = 22
+        protocol = "TCP"
+        type = "ip"
+      }
+      app1_80 = {
+        name     = "app1-http"
+        port     = 80
+        protocol = "TCP"
+        type = "ip"
+      }
+      app1_443 = {
+        name     = "app1-https"
+        port     = 443
+        protocol = "TCP"
+        type = "ip"
+      }
+    }
+  }
+  "app2_nlb" = {
+    name = "app2-nlb"
+    load_balancer_type = "network"
+    internal = true
+    vpc_key = "app2_vpc"
     subnet_group = "app2_lb"
-    vms          = ["app2_vm01", "app2_vm02"]
+    listeners = {
+      ssh = {
+        port = "22"
+        protocol = "TCP"
+        forward = {
+          target_group_key = "app2_22"
+        }
+      }
+      http = {
+        port = "80"
+        protocol = "TCP"
+        forward = {
+          target_group_key = "app2_80"
+        }
+      }
+      https = {
+        port = "443"
+        protocol = "TCP"
+        forward = {
+          target_group_key = "app2_443"
+        }
+      }
+    }
+    target_groups = {
+      app2_22 = {
+        name     = "app2-ssh"
+        port     = 22
+        protocol = "TCP"
+        type = "ip"
+      }
+      app2_80 = {
+        name     = "app2-http"
+        port     = 80
+        protocol = "TCP"
+        type = "ip"
+      }
+      app2_443 = {
+        name     = "app2-https"
+        port     = 443
+        protocol = "TCP"
+        type = "ip"
+      }
+    }
   }
 }
