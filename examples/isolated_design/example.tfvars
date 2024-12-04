@@ -438,7 +438,7 @@ vmseries = {
         security_group    = "vmseries_mgmt"
         vpc               = "security_vpc"
         subnet_group      = "mgmt"
-        create_public_ip  = true
+        create_public_ip  = false
         source_dest_check = true
       }
       public = {

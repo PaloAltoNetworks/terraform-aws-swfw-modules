@@ -76,7 +76,7 @@ panoramas = {
       vpc              = "management_vpc"
       subnet_group     = "mgmt"
       security_group   = "panorama_mgmt"
-      create_public_ip = true
+      create_public_ip = false
     }
 
     ebs = {
