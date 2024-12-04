@@ -91,16 +91,18 @@ vpcs = {
             type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
             cidr_blocks = ["0.0.0.0/0"]
           }
+          /* Uncomment the following section in case of direct firewall mgmt access required 
           https = {
             description = "Permit HTTPS"
             type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24"] # TODO: update here
+            cidr_blocks = ["1.1.1.1/32"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
           ssh = {
             description = "Permit SSH"
             type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24"] # TODO: update here
+            cidr_blocks = ["1.1.1.1/32"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
+          */
           panorama_ssh = {
             description = "Permit Panorama SSH (Optional)"
             type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
@@ -119,17 +121,17 @@ vpcs = {
           ssh = {
             description = "Permit SSH"
             type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+            cidr_blocks = ["1.1.1.1/32", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
           https = {
             description = "Permit HTTPS"
             type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+            cidr_blocks = ["1.1.1.1/32", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
           http = {
             description = "Permit HTTP"
             type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+            cidr_blocks = ["1.1.1.1/32", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
           health_probe_8081 = {
             description = "Permit Port 8081 Health Probe to ALB"
@@ -159,12 +161,12 @@ vpcs = {
           http_inbound_8081 = {
             description = "Permit incoming APP1 traffic"
             type        = "ingress", from_port = "8081", to_port = "8081", protocol = "tcp"
-            cidr_blocks = ["0.0.0.0/0"]
+            cidr_blocks = ["1.1.1.1/32"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
           http_inbound_8082 = {
             description = "Permit incoming APP2 traffic"
             type        = "ingress", from_port = "8082", to_port = "8082", protocol = "tcp"
-            cidr_blocks = ["0.0.0.0/0"]
+            cidr_blocks = ["1.1.1.1/32"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
           all_outbound = {
             description = "Permit All traffic outbound"
@@ -304,17 +306,17 @@ vpcs = {
           ssh = {
             description = "Permit SSH"
             type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+            cidr_blocks = ["1.1.1.1/32", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
           https = {
             description = "Permit HTTPS"
             type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+            cidr_blocks = ["1.1.1.1/32", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
           http = {
             description = "Permit HTTP"
             type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+            cidr_blocks = ["1.1.1.1/32", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
         }
       }
@@ -365,17 +367,17 @@ vpcs = {
           ssh = {
             description = "Permit SSH"
             type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+            cidr_blocks = ["1.1.1.1/32", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
           https = {
             description = "Permit HTTPS"
             type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+            cidr_blocks = ["1.1.1.1/32", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
           http = {
             description = "Permit HTTP"
             type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here
+            cidr_blocks = ["1.1.1.1/32", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
         }
       }
@@ -519,7 +521,7 @@ vmseries = {
     }
     */
 
-    panos_version = "10.2.9-h1"     # TODO: update here
+    panos_version = "11.1.4-h7"     # TODO: update here
     ebs_kms_id    = "alias/aws/ebs" # TODO: update here
 
     # Value of `vpc` must match key of objects stored in `vpcs`
