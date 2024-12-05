@@ -29,12 +29,12 @@ vpcs = {
           https = {
             description = "Permit HTTPS"
             type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-            cidr_blocks = ["0.0.0.0/0"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
+            cidr_blocks = ["1.1.1.1/32"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
           ssh = {
             description = "Permit SSH"
             type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-            cidr_blocks = ["0.0.0.0/0"] # TODO: update here (replace 0.0.0.0/0 by your IP range)
+            cidr_blocks = ["1.1.1.1/32"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
         }
       }
@@ -93,7 +93,7 @@ vmseries = {
     }
     */
 
-    panos_version = "11.1.2-h3"     # TODO: update here
+    panos_version = "11.1.4-h7"     # TODO: update here
     ebs_kms_id    = "alias/aws/ebs" # TODO: update here
 
     # Value of `vpc` must match key of objects stored in `vpcs`
