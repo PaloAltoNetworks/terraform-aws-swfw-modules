@@ -436,7 +436,7 @@ vmseries_asgs = {
         device_index      = 1
         security_group    = "vmseries_mgmt"
         subnet_group      = "mgmt"
-        create_public_ip  = false
+        create_public_ip  = true
         source_dest_check = true
       }
       public = {
