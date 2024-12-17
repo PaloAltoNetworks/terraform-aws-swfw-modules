@@ -28,12 +28,12 @@ vpcs = {
           https = {
             description = "Permit HTTPS"
             type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24"] # TODO: update here
+            cidr_blocks = ["1.1.1.1/32"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
           ssh = {
             description = "Permit SSH"
             type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-            cidr_blocks = ["130.41.247.0/24"] # TODO: update here
+            cidr_blocks = ["1.1.1.1/32"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
         }
       }
@@ -70,7 +70,7 @@ panoramas = {
       }
     }
 
-    panos_version = "10.2.8"
+    panos_version = "11.1.4-h7"
 
     network = {
       vpc              = "management_vpc"

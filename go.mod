@@ -6,7 +6,7 @@ require (
 	github.com/PaloAltoNetworks/terraform-modules-swfw-tests-skeleton v1.2.0
 	github.com/gruntwork-io/terratest v0.43.6
 	github.com/hashicorp/terraform-json v0.17.1
-	gotest.tools/v3 v3.0.3
+	gotest.tools/v3 v3.5.1
 )
 
 require (
