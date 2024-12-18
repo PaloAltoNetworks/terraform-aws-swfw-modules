@@ -36,44 +36,28 @@ module "vpc_routes" {
   internet_gateway_id = each.value.next_hop_type == "internet_gateway" ? module.vpc[each.value.next_hop_key].internet_gateway.id : null
 }
 
-### IAM ROLES AND POLICIES ###
+### IAM ###
 
-data "aws_caller_identity" "this" {}
+module "iam" {
+  source = "../../modules/iam"
 
-data "aws_partition" "this" {}
+  for_each = var.iam_policies
 
-resource "aws_iam_role_policy" "this" {
-  for_each = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => vmseries }
-  role     = module.bootstrap[each.key].iam_role_name
-  policy   = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": [
-        "cloudwatch:PutMetricData",
-        "cloudwatch:GetMetricData",
-        "cloudwatch:ListMetrics"
-      ],
-      "Resource": [
-        "*"
-      ],
-      "Effect": "Allow"
-    },
-    {
-      "Action": [
-        "cloudwatch:PutMetricAlarm",
-        "cloudwatch:DescribeAlarms"
-      ],
-      "Resource": [
-        "arn:${data.aws_partition.this.partition}:cloudwatch:${var.region}:${data.aws_caller_identity.this.account_id}:alarm:*"
-      ],
-      "Effect": "Allow"
-    }
-  ]
-}
-
-EOF
+  name_prefix              = var.name_prefix
+  tags                     = var.tags
+  role_name                = each.value.role_name
+  create_role              = each.value.create_role
+  principal_role           = each.value.principal_role
+  create_instance_profile  = each.value.create_instance_profile
+  instance_profile_name    = each.value.instance_profile_name
+  create_lambda_policy     = each.value.create_lambda_policy
+  create_bootrap_policy    = each.value.create_bootrap_policy
+  policy_arn               = each.value.policy_arn
+  create_vmseries_policy   = each.value.create_vmseries_policy
+  create_panorama_policy   = each.value.create_panorama_policy
+  custom_policy            = each.value.custom_policy
+  delicense_ssm_param_name = each.value.delicense_ssm_param_name
+  aws_s3_bucket            = each.value.aws_s3_bucket
 }
 
 ### BOOTSTRAP PACKAGE
@@ -82,13 +66,11 @@ module "bootstrap" {
 
   for_each = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => vmseries }
 
-  iam_role_name             = "${var.name_prefix}vmseries${each.value.instance}"
-  iam_instance_profile_name = "${var.name_prefix}vmseries_instance_profile${each.value.instance}"
-
   prefix = var.name_prefix
 
   bootstrap_options     = merge(each.value.common.bootstrap_options, { hostname = "${var.name_prefix}${each.key}" })
   source_root_directory = "files"
+  bucket_name           = try(each.value.common.bucket_name, null)
 }
 
 ### VM-Series INSTANCES
@@ -124,7 +106,7 @@ module "vmseries" {
     ["mgmt-interface-swap=${each.value.common.bootstrap_options["mgmt-interface-swap"]}"],
   )))
 
-  iam_instance_profile = module.bootstrap[each.key].instance_profile_name
+  iam_instance_profile = module.iam["vmseries"].instance_profile.name
   ssh_key_name         = var.ssh_key_name
   tags                 = var.tags
 }
