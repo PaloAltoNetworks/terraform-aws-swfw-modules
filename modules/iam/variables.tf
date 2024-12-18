@@ -75,7 +75,7 @@ variable "policy_arn" {
 
 variable "custom_policy" {
   description = <<-EOF
-  A custom lambda policy. Multi-statement is supported.
+  A custom IAM policy. Multi-statement is supported.
   Basic example:
   ```
     statement1 = {
