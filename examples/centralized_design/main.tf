@@ -235,13 +235,21 @@ module "iam" {
 
   for_each = var.iam_policies
 
-  name_prefix             = var.name_prefix
-  tags                    = var.tags
-  role_name               = each.value.role_name
-  create_instance_profile = try(each.value.create_instance_profile, false)
-  instance_profile_name   = try(each.value.instance_profile_name, null)
-  policy_arn              = try(each.value.policy_arn, null)
-  create_vmseries_policy  = try(each.value.create_vmseries_policy, false)
+  name_prefix              = var.name_prefix
+  tags                     = var.tags
+  role_name                = each.value.role_name
+  create_role              = each.value.create_role
+  principal_role           = each.value.principal_role
+  create_instance_profile  = each.value.create_instance_profile
+  instance_profile_name    = each.value.instance_profile_name
+  create_lambda_policy     = each.value.create_lambda_policy
+  create_bootrap_policy    = each.value.create_bootrap_policy
+  policy_arn               = each.value.policy_arn
+  create_vmseries_policy   = each.value.create_vmseries_policy
+  create_panorama_policy   = each.value.create_panorama_policy
+  custom_policy            = each.value.custom_policy
+  delicense_ssm_param_name = each.value.delicense_ssm_param_name
+  aws_s3_bucket            = each.value.aws_s3_bucket
 }
 
 ### SPOKE VM INSTANCES ####

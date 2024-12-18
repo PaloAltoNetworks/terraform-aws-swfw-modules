@@ -18,7 +18,6 @@ variable "ssh_key_name" {
 ###IAM
 variable "iam_policies" {
   description = "A map defining an IAM policies, roles etc."
-  type        = any
   default = {
     spoke = {
       create_instance_profile = true
@@ -39,6 +38,31 @@ variable "iam_policies" {
       create_lambda_policy     = true
     }
   }
+  type = map(object({
+    role_name               = string
+    create_role             = optional(bool, true)
+    principal_role          = optional(string, "ec2.amazonaws.com")
+    create_instance_profile = optional(bool, false)
+    instance_profile_name   = optional(string)
+    create_lambda_policy    = optional(bool, false)
+    create_bootrap_policy   = optional(bool, false)
+    policy_arn              = optional(string)
+    create_vmseries_policy  = optional(bool, false)
+    create_panorama_policy  = optional(bool, false)
+    custom_policy = optional(map(object({
+      sid       = string
+      effect    = string
+      actions   = list(string)
+      resources = list(string)
+      condition = optional(object({
+        test     = string
+        variable = string
+        values   = list(string)
+      }))
+    })))
+    delicense_ssm_param_name = optional(string)
+    aws_s3_bucket            = optional(string)
+  }))
 }
 
 ### VPC

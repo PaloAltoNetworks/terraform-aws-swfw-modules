@@ -76,7 +76,7 @@ Use a web browser to access https://x.x.x.x and login with admin and your previo
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0, < 2.0.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.17 |
 
 ### Providers
@@ -101,7 +101,7 @@ No resources.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_iam_policies"></a> [iam\_policies](#input\_iam\_policies) | A map defining an IAM policies, roles etc. | `any` | <pre>{<br>  "vmseries": {<br>    "aws_s3_bucket": "bucket-paloaltonetworks",<br>    "create_bootrap_policy": true,<br>    "create_instance_profile": true,<br>    "create_vmseries_policy": true,<br>    "instance_profile_name": "vmseries_profile_instance",<br>    "role_name": "vmseries_role"<br>  }<br>}</pre> | no |
+| <a name="input_iam_policies"></a> [iam\_policies](#input\_iam\_policies) | A map defining an IAM policies, roles etc. | <pre>map(object({<br>    role_name               = string<br>    create_role             = optional(bool, true)<br>    principal_role          = optional(string, "ec2.amazonaws.com")<br>    create_instance_profile = optional(bool, false)<br>    instance_profile_name   = optional(string)<br>    create_lambda_policy    = optional(bool, false)<br>    create_bootrap_policy   = optional(bool, false)<br>    policy_arn              = optional(string)<br>    create_vmseries_policy  = optional(bool, false)<br>    create_panorama_policy  = optional(bool, false)<br>    custom_policy = optional(map(object({<br>      sid       = string<br>      effect    = string<br>      actions   = list(string)<br>      resources = list(string)<br>      condition = optional(object({<br>        test     = string<br>        variable = string<br>        values   = list(string)<br>      }))<br>    })))<br>    delicense_ssm_param_name = optional(string)<br>    aws_s3_bucket            = optional(string)<br>  }))</pre> | <pre>{<br>  "vmseries": {<br>    "aws_s3_bucket": "bucket-paloaltonetworks",<br>    "create_bootrap_policy": true,<br>    "create_instance_profile": true,<br>    "create_vmseries_policy": true,<br>    "instance_profile_name": "vmseries_profile_instance",<br>    "role_name": "vmseries_role"<br>  }<br>}</pre> | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Prefix used in names for the resources (VPCs, EC2 instances, autoscaling groups etc.) | `string` | n/a | yes |
 | <a name="input_region"></a> [region](#input\_region) | AWS region used to deploy whole infrastructure | `string` | n/a | yes |
 | <a name="input_ssh_key_name"></a> [ssh\_key\_name](#input\_ssh\_key\_name) | Name of the SSH key pair existing in AWS key pairs and used to authenticate to VM-Series or test boxes | `string` | n/a | yes |
