@@ -15,6 +15,46 @@ variable "ssh_key_name" {
   type        = string
 }
 
+### IAM
+variable "iam_policies" {
+  description = "A map defining an IAM policies, roles etc."
+  default = {
+    vmseries = {
+      create_instance_profile = true
+      instance_profile_name   = "vmseries_profile_instance"
+      role_name               = "vmseries_role"
+      create_vmseries_policy  = true
+      create_bootrap_policy   = true
+      aws_s3_bucket           = "bucket-paloaltonetworks"
+    }
+  }
+  type = map(object({
+    role_name               = string
+    create_role             = optional(bool, true)
+    principal_role          = optional(string, "ec2.amazonaws.com")
+    create_instance_profile = optional(bool, false)
+    instance_profile_name   = optional(string)
+    create_lambda_policy    = optional(bool, false)
+    create_bootrap_policy   = optional(bool, false)
+    policy_arn              = optional(string)
+    create_vmseries_policy  = optional(bool, false)
+    create_panorama_policy  = optional(bool, false)
+    custom_policy = optional(map(object({
+      sid       = string
+      effect    = string
+      actions   = list(string)
+      resources = list(string)
+      condition = optional(object({
+        test     = string
+        variable = string
+        values   = list(string)
+      }))
+    })))
+    delicense_ssm_param_name = optional(string)
+    aws_s3_bucket            = optional(string)
+  }))
+}
+
 ### VPC
 variable "vpcs" {
   description = <<-EOF
@@ -176,6 +216,9 @@ variable "vmseries" {
       instances = {
         "01" = { az = "eu-central-1a" }
       }
+
+      bucket_name = "bucket_name"
+      
       # Value of `panorama-server`, `auth-key`, `dgname`, `tplname` can be taken from plugin `sw_fw_license`
       bootstrap_options = {
         mgmt-interface-swap         = "enable"
@@ -212,6 +255,8 @@ variable "vmseries" {
     instances = map(object({
       az = string
     }))
+
+    bucket_name = string
 
     bootstrap_options = object({
       mgmt-interface-swap         = string

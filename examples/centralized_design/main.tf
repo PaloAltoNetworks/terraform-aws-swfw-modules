@@ -157,67 +157,6 @@ locals {
   ] }
 }
 
-### IAM ROLES AND POLICIES ###
-
-data "aws_caller_identity" "this" {}
-
-data "aws_partition" "this" {}
-
-resource "aws_iam_role" "vm_series_ec2_iam_role" {
-  name               = "${var.name_prefix}vmseries"
-  assume_role_policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "sts:AssumeRole",
-            "Principal": {"Service": "ec2.amazonaws.com"}
-        }
-    ]
-}
-EOF
-}
-
-resource "aws_iam_role_policy" "vm_series_ec2_iam_policy" {
-  role   = aws_iam_role.vm_series_ec2_iam_role.id
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": [
-        "cloudwatch:PutMetricData",
-        "cloudwatch:GetMetricData",
-        "cloudwatch:ListMetrics"
-      ],
-      "Resource": [
-        "*"
-      ],
-      "Effect": "Allow"
-    },
-    {
-      "Action": [
-        "cloudwatch:PutMetricAlarm",
-        "cloudwatch:DescribeAlarms"
-      ],
-      "Resource": [
-        "arn:${data.aws_partition.this.partition}:cloudwatch:${var.region}:${data.aws_caller_identity.this.account_id}:alarm:*"
-      ],
-      "Effect": "Allow"
-    }
-  ]
-}
-
-EOF
-}
-
-resource "aws_iam_instance_profile" "vm_series_iam_instance_profile" {
-
-  name = "${var.name_prefix}vmseries_instance_profile"
-  role = aws_iam_role.vm_series_ec2_iam_role.name
-}
-
 ### VM-Series INSTANCES
 
 locals {
@@ -244,9 +183,10 @@ module "vmseries" {
 
   bootstrap_options = join(";", compact(concat(local.bootstrap_options_with_endpoints_mapping[each.value.group])))
 
-  iam_instance_profile = aws_iam_instance_profile.vm_series_iam_instance_profile.name
-  ssh_key_name         = var.ssh_key_name
-  tags                 = var.tags
+  iam_instance_profile = module.iam["vmseries"].instance_profile.name
+
+  ssh_key_name = var.ssh_key_name
+  tags         = var.tags
 }
 
 ### Public ALB and NLB used in centralized model ###
@@ -288,6 +228,30 @@ module "public_nlb" {
   tags = var.tags
 }
 
+### IAM ###
+
+module "iam" {
+  source = "../../modules/iam"
+
+  for_each = var.iam_policies
+
+  name_prefix              = var.name_prefix
+  tags                     = var.tags
+  role_name                = each.value.role_name
+  create_role              = each.value.create_role
+  principal_role           = each.value.principal_role
+  create_instance_profile  = each.value.create_instance_profile
+  instance_profile_name    = each.value.instance_profile_name
+  create_lambda_policy     = each.value.create_lambda_policy
+  create_bootrap_policy    = each.value.create_bootrap_policy
+  policy_arn               = each.value.policy_arn
+  create_vmseries_policy   = each.value.create_vmseries_policy
+  create_panorama_policy   = each.value.create_panorama_policy
+  custom_policy            = each.value.custom_policy
+  delicense_ssm_param_name = each.value.delicense_ssm_param_name
+  aws_s3_bucket            = each.value.aws_s3_bucket
+}
+
 ### SPOKE VM INSTANCES ####
 
 data "aws_ami" "this" {
@@ -313,34 +277,6 @@ data "aws_kms_alias" "current_arn" {
   name = data.aws_ebs_default_kms_key.current.key_arn
 }
 
-resource "aws_iam_role" "spoke_vm_ec2_iam_role" {
-  name               = "${var.name_prefix}spoke_vm"
-  assume_role_policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "sts:AssumeRole",
-            "Principal": {"Service": "ec2.amazonaws.com"}
-        }
-    ]
-}
-EOF
-}
-
-resource "aws_iam_role_policy_attachment" "spoke_vm_iam_instance_policy" {
-  role       = aws_iam_role.spoke_vm_ec2_iam_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-}
-
-resource "aws_iam_instance_profile" "spoke_vm_iam_instance_profile" {
-
-  name = "${var.name_prefix}spoke_vm_instance_profile"
-  role = aws_iam_role.spoke_vm_ec2_iam_role.name
-
-}
-
 resource "aws_instance" "spoke_vms" {
   for_each = var.spoke_vms
 
@@ -350,7 +286,7 @@ resource "aws_instance" "spoke_vms" {
   subnet_id              = module.vpc[each.value.vpc].subnets["${each.value.subnet_group}${each.value.az}"].id
   vpc_security_group_ids = [module.vpc[each.value.vpc].security_group_ids[each.value.security_group]]
   tags                   = merge({ Name = "${var.name_prefix}${each.key}" }, var.tags)
-  iam_instance_profile   = aws_iam_instance_profile.spoke_vm_iam_instance_profile.name
+  iam_instance_profile   = module.iam["spoke"].instance_profile.name
 
   root_block_device {
     delete_on_termination = true
