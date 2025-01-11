@@ -188,10 +188,6 @@ data "aws_ami" "this" {
 data "aws_ebs_default_kms_key" "current" {
 }
 
-data "aws_kms_alias" "current_arn" {
-  name = data.aws_ebs_default_kms_key.current.key_arn
-}
-
 resource "aws_iam_role" "spoke_vm_ec2_iam_role" {
   name               = "${var.name_prefix}spoke_vm"
   assume_role_policy = <<EOF
@@ -234,7 +230,7 @@ resource "aws_instance" "spoke_vms" {
   root_block_device {
     delete_on_termination = true
     encrypted             = true
-    kms_key_id            = data.aws_kms_alias.current_arn.target_key_arn
+    kms_key_id            = data.aws_ebs_default_kms_key.current.key_arn
   }
 
   metadata_options {
