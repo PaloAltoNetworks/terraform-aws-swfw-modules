@@ -19,15 +19,10 @@ data "aws_ami" "this" {
   include_deprecated = var.include_deprecated_ami
 }
 
-# Retrieve the default KMS key in the current region for EBS encryption
-data "aws_ebs_default_kms_key" "current" {
-  count = var.ebs_encrypted ? 1 : 0
-}
-
-# Retrieve an alias for the KMS key for EBS encryption
+# Retrieve an ARN of a KMS key alias for EBS encryption
 data "aws_kms_alias" "current_arn" {
   count = var.ebs_encrypted ? 1 : 0
-  name  = coalesce(var.ebs_kms_key_alias, data.aws_ebs_default_kms_key.current[0].key_arn)
+  name  = var.ebs_kms_key_alias
 }
 
 # Network Interfaces

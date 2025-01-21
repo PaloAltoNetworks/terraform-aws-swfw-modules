@@ -39,7 +39,7 @@ vpcs = {
           https_ipv6 = {
             description      = "Permit HTTPS"
             type             = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-            ipv6_cidr_blocks = ["2001:DB8::1"] # TODO: update here (replace 2001:DB8::1 with your IP range)
+            ipv6_cidr_blocks = ["2001:DB8::/32"] # TODO: update here (replace 2001:DB8::1 with your IP range)
           }
           ssh = {
             description = "Permit SSH"
@@ -49,7 +49,7 @@ vpcs = {
           ssh_ipv6 = {
             description      = "Permit SSH"
             type             = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-            ipv6_cidr_blocks = ["2001:DB8::1"] # TODO: update here (replace 2001:DB8::1 with your IP range)
+            ipv6_cidr_blocks = ["2001:DB8::/32"] # TODO: update here (replace 2001:DB8::1 with your IP range)
           }
         }
       }
