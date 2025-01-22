@@ -71,7 +71,7 @@ variable "ebs_kms_key_alias" {
   The alias for the customer managed KMS key to use for volume encryption. Should be prepended with the word "alias" followed by a forward slash (alias/example-key-alias).
   If `null` (the default), the default master key that protects EBS volumes will be used.
   EOF
-  default     = null
+  default     = "alias/aws/ebs"
   type        = string
 }
 
