@@ -38,7 +38,7 @@ resource "aws_subnet" "this" {
   ipv6_cidr_block         = try(each.value.ipv6_cidr_block, null)
   availability_zone       = each.key
   vpc_id                  = var.vpc_id
-  map_public_ip_on_launch = var.map_public_ip_on_launch
+  map_public_ip_on_launch = try(each.value.map_public_ip_on_launch, null)
   tags                    = merge(var.global_tags, each.value.local_tags, { Name = each.value.name })
 
   depends_on = [
