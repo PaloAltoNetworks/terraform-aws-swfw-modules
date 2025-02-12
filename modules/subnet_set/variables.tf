@@ -15,6 +15,7 @@ variable "cidrs" {
   - `name`                    - (Optional|string) Name (tag) of a subnet and, optionally a route table, to create or use. Defaults to set name appended with zone letter id.
   - `route_table_name`        - (Optional|string) Name (tag) of a subnet and, optionally a route table, to create or use.  Defaults to `name` value.
   - `ipv6_cidr_block`         - (Optional|string) IPv6 CIDR block. The subnet size must use a /64 prefix length.
+  - `map_public_ip_on_launch` - (Optional|bool) Specify true to indicate that instances launched into the subnet should be assigned a public IP address.
   - `local_tags`              - (Optional|map) Map of tags to assign to created resources.
   EOF
   type        = map(any)
@@ -28,12 +29,6 @@ variable "vpc_id" {
 variable "create_shared_route_table" {
   description = "Boolean flag whether to create a shared route tables."
   default     = false
-  type        = bool
-}
-
-variable "map_public_ip_on_launch" {
-  description = "See the [provider's documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet#map_public_ip_on_launch)."
-  default     = null
   type        = bool
 }
 
