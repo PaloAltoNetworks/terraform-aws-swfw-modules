@@ -27,7 +27,7 @@ vpcs = {
             cidr_blocks = ["0.0.0.0/0"]
           }
           all_outbound_ipv6 = {
-            description      = "Permit All traffic outbound"
+            description      = "Permit All traffic outbound IPv6"
             type             = "egress", from_port = "0", to_port = "0", protocol = "-1"
             ipv6_cidr_blocks = ["::/0"]
           }
@@ -37,9 +37,9 @@ vpcs = {
             cidr_blocks = ["1.1.1.1/32"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
           https_ipv6 = {
-            description      = "Permit HTTPS"
+            description      = "Permit HTTPS IPv6"
             type             = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-            ipv6_cidr_blocks = ["2001:DB8::/32"] # TODO: update here (replace 2001:DB8::1 with your IP range)
+            ipv6_cidr_blocks = ["2001:db8::/32"] # TODO: update here (replace 2001:db8::/32 with your IP range)
           }
           ssh = {
             description = "Permit SSH"
@@ -47,9 +47,9 @@ vpcs = {
             cidr_blocks = ["1.1.1.1/32"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
           ssh_ipv6 = {
-            description      = "Permit SSH"
+            description      = "Permit SSH IPv6"
             type             = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-            ipv6_cidr_blocks = ["2001:DB8::/32"] # TODO: update here (replace 2001:DB8::1 with your IP range)
+            ipv6_cidr_blocks = ["2001:db8::/32"] # TODO: update here (replace 2001:db8::/32 with your IP range)
           }
         }
       }
