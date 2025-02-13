@@ -71,7 +71,7 @@ resource "aws_instance" "this" {
   disable_api_termination              = var.enable_instance_termination_protection
   ebs_optimized                        = true
   instance_initiated_shutdown_behavior = "stop"
-  monitoring                           = false
+  monitoring                           = var.enable_monitoring
 
   dynamic "metadata_options" {
     for_each = var.enable_imdsv2 ? [1] : []
