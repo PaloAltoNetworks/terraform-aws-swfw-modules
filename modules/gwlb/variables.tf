@@ -136,6 +136,12 @@ variable "stickiness_type" {
   }
 }
 
+variable "rebalance_flows" {
+  description = "Indicates how the GWLB handles existing flows when a target is deregistered. Possible values are `rebalance` and `no_rebalance`."
+  default     = "no_rebalance"
+  type        = string
+}
+
 ##### Various categories of Tags #####
 
 variable "lb_tags" {
