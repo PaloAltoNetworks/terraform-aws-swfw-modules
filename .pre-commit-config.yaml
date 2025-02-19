@@ -1,10 +1,10 @@
 repos:
   - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.92.0 # Get the latest from: https://github.com/antonbabenko/pre-commit-terraform/releases
+    rev: v1.97.3 # Get the latest from: https://github.com/antonbabenko/pre-commit-terraform/releases
     hooks:
       - id: terraform_fmt
       - id: terraform_docs
-        args: ['--args=--lockfile=false', '--args=--indent=3']
+        args: ['--args=--lockfile=false', '--args=--indent=3', '--hook-config=--add-to-existing-file=true', '--hook-config=--path-to-file=.README.md']
       - id: terraform_tflint
         args: [
           # --args=--module, # TODO enable it after ensuring `terraform init`
@@ -20,7 +20,7 @@ repos:
           --args=--only=terraform_workspace_remote,
         ]
   - repo: https://github.com/bridgecrewio/checkov.git
-    rev: '3.2.217'
+    rev: '3.2.370'
     hooks:
     - id: checkov
       verbose: true
