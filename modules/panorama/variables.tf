@@ -163,6 +163,12 @@ variable "enable_imdsv2" {
   type        = string
 }
 
+variable "enable_monitoring" {
+  description = "(Optional) If true, the launched EC2 instance will have detailed monitoring enabled."
+  default     = false
+  type        = bool
+}
+
 variable "eip_domain" {
   description = "Indicates if this EIP is for use in VPC"
   default     = "vpc"

@@ -36,7 +36,7 @@ resource "aws_instance" "this" {
   disable_api_termination              = false
   instance_initiated_shutdown_behavior = "stop"
   ebs_optimized                        = true
-  monitoring                           = false
+  monitoring                           = var.enable_monitoring
   iam_instance_profile                 = var.panorama_iam_role
 
   dynamic "metadata_options" {
