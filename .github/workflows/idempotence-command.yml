@@ -44,7 +44,7 @@ jobs:
       contents: read
       pull-requests: write
       id-token: write
-    uses: PaloAltoNetworks/terraform-modules-swfw-ci-workflows/.github/workflows/test_command.yml@v2.2
+    uses: PaloAltoNetworks/terraform-modules-swfw-ci-workflows/.github/workflows/test_command.yml@v2.3
     secrets: inherit
     with:
       paths: ${{ inputs.paths }}
