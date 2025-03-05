@@ -153,12 +153,12 @@ template_assignments = {
 ```
 
 ## Reference
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ### Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0, < 2.0.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.17 |
 
 ### Providers
@@ -190,4 +190,4 @@ No resources.
 | Name | Description |
 |------|-------------|
 | <a name="output_names"></a> [names](#output\_names) | Map of generated names for each kind of resources.<br><br>Example:<br><br>names = {<br>    vpc                           = {<br>        app1\_vpc     = "example-vpc-app1-cloud-tst-ec1"<br>        app2\_vpc     = "example-vpc-app2-cloud-tst-ec1"<br>        security\_vpc = "example-vpc-security-cloud-tst-ec1"<br>    }<br>    gateway\_loadbalancer          = {<br>        security\_gwlb = "example-gwlb-security-cloud-tst"<br>    }<br>    gateway\_loadbalancer\_endpoint = {<br>        app1\_inbound           = "example-gwep-app1-cloud-tst-ec1"<br>        app2\_inbound           = "example-gwep-app2-cloud-tst-ec1"<br>        security\_gwlb\_eastwest = "example-gwep-eastwest-cloud-tst-ec1"<br>        security\_gwlb\_outbound = "example-gwep-outbound-cloud-tst-ec1"<br>    }<br>} |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->
