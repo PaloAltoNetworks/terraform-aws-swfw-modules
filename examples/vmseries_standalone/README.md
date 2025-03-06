@@ -71,12 +71,12 @@ Terraform example is deploying VM-Series with a basic configuration in [bootstra
 Use a web browser to access https://x.x.x.x and login with admin and your previously configured password
 
 ## Reference
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ### Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0, < 2.0.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.17 |
 
 ### Providers
@@ -120,4 +120,4 @@ Use a web browser to access https://x.x.x.x and login with admin and your previo
 |------|-------------|
 | <a name="output_vmseries_ipv6_addresses"></a> [vmseries\_ipv6\_addresses](#output\_vmseries\_ipv6\_addresses) | Map of IPv6 addresses assigned to interfaces in `vmseries` module instances. |
 | <a name="output_vmseries_public_ips"></a> [vmseries\_public\_ips](#output\_vmseries\_public\_ips) | Map of public IPs created within `vmseries` module instances. |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->

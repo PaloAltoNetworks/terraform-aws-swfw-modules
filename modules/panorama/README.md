@@ -9,12 +9,12 @@ Panorama deployed on AWS is Bring Your Own License (BYOL), supports all deployme
 For usage, check the "examples" folder in the root of the repository.
 
 ## Reference
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ### Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0, < 2.0.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.17 |
 
 ### Providers
@@ -69,4 +69,4 @@ No modules.
 |------|-------------|
 | <a name="output_mgmt_ip_private_address"></a> [mgmt\_ip\_private\_address](#output\_mgmt\_ip\_private\_address) | Panorama private IP address. |
 | <a name="output_mgmt_ip_public_address"></a> [mgmt\_ip\_public\_address](#output\_mgmt\_ip\_public\_address) | Panorama management IP address. If `create_public_ip` is set to `true`, it will output the public IP address otherwise it will show the 'no public IP assigned to Panorama' message. |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->
