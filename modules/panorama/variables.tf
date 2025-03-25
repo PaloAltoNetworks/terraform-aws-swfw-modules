@@ -136,8 +136,14 @@ variable "ebs_volumes" {
   ]
   ```
   EOF
-  type        = list(any)
   default     = []
+  type = list(object({
+    name            = optional(string)
+    ebs_device_name = string
+    ebs_size        = optional(string, "2000")
+    force_detach    = optional(bool, false)
+    skip_destroy    = optional(bool, false)
+  }))
 }
 
 variable "ebs_kms_key_alias" {

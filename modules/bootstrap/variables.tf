@@ -74,13 +74,28 @@ variable "bootstrap_options" {
   - `dhcp-accept-server-hostname` - (`string`, optional) The DHCP server determines a value of yes or no. If yes, the firewall accepts its hostname from the DHCP server.
   - `dhcp-accept-server-domain`   - (`string`, optional) The DHCP server determines a value of yes or no. If yes, the firewall accepts its DNS server from the DHCP server.
   EOF
-  default = {
-    dhcp-send-hostname          = "yes"
-    dhcp-send-client-id         = "yes"
-    dhcp-accept-server-hostname = "yes"
-    dhcp-accept-server-domain   = "yes"
-  }
-  type = any
+
+  type = object({
+    hostname        = optional(string)
+    panorama-server = optional(string)
+    # panorama-server-2           = optional(string)
+    # tplname                     = optional(string)
+    dgname = optional(string)
+    # cgname                      = optional(string)
+    # dns-primary                 = optional(string)
+    # dns-secondary               = optional(string)
+    # auth-key                    = optional(string)
+    # vm-auth-key                 = optional(string)
+    # op-command-modes            = optional(string)
+    plugin-op-commands = optional(string)
+    # dhcp-send-hostname          = optional(string, "yes")
+    # dhcp-send-client-id         = optional(string, "yes")
+    # dhcp-accept-server-hostname = optional(string, "yes")
+    # dhcp-accept-server-domain   = optional(string, "yes")
+    authcodes                             = optional(string)
+    vm-series-auto-registration-pin-id    = optional(string)
+    vm-series-auto-registration-pin-value = optional(string)
+  })
 }
 
 variable "create_bucket" {

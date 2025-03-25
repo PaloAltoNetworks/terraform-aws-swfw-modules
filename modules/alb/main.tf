@@ -19,7 +19,7 @@ locals {
         h_ch_unhealthy_threshold = try(v.health_check_unhealthy_threshold, null)
         h_ch_interval            = try(v.health_check_interval, null)
         h_ch_timeout             = try(v.health_check_timeout, null)
-        h_ch_protocol            = try(v.health_check_protocol, v.protocol)
+        h_ch_protocol            = coalesce(v.health_check_protocol, v.protocol)
         h_ch_port                = try(v.health_check_port, "traffic-port")
         h_ch_matcher             = try(v.health_check_matcher, null)
         h_ch_path                = try(v.health_check_path, "/")

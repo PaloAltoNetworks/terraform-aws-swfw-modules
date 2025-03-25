@@ -86,9 +86,23 @@ variable "vpcs" {
   EOF
   default     = {}
   type = map(object({
-    name = string
-    cidr = string
-    nacls = map(object({
+    name                             = string
+    create_vpc                       = optional(bool, true)
+    cidr                             = string
+    secondary_cidr_blocks            = optional(list(string), [])
+    assign_generated_ipv6_cidr_block = optional(bool)
+    use_internet_gateway             = optional(bool, false)
+    name_internet_gateway            = optional(string)
+    create_internet_gateway          = optional(bool, true)
+    route_table_internet_gateway     = optional(string)
+    create_vpn_gateway               = optional(bool, false)
+    vpn_gateway_amazon_side_asn      = optional(string)
+    name_vpn_gateway                 = optional(string)
+    route_table_vpn_gateway          = optional(string)
+    enable_dns_hostnames             = optional(bool, true)
+    enable_dns_support               = optional(bool, true)
+    instance_tenancy                 = optional(string, "default")
+    nacls = optional(map(object({
       name = string
       rules = map(object({
         rule_number = number
@@ -96,38 +110,66 @@ variable "vpcs" {
         protocol    = string
         rule_action = string
         cidr_block  = string
-        from_port   = string
-        to_port     = string
+        from_port   = optional(number)
+        to_port     = optional(number)
       }))
-    }))
-    security_groups = any
+    })), {})
+    security_groups = optional(map(object({
+      name = string
+      rules = map(object({
+        description            = optional(string)
+        type                   = string
+        cidr_blocks            = optional(list(string))
+        ipv6_cidr_blocks       = optional(list(string))
+        from_port              = string
+        to_port                = string
+        protocol               = string
+        prefix_list_ids        = optional(list(string))
+        source_security_groups = optional(list(string))
+        self                   = optional(bool)
+      }))
+    })))
     subnets = map(object({
-      az           = string
-      subnet_group = string
-      nacl         = string
+      name                    = optional(string)
+      az                      = string
+      subnet_group            = string
+      nacl                    = optional(string)
+      create_subnet           = optional(bool, true)
+      create_route_table      = optional(bool, true)
+      existing_route_table_id = optional(string)
+      route_table_name        = optional(string)
+      associate_route_table   = optional(bool, true)
+      local_tags              = optional(map(string), {})
+      map_public_ip_on_launch = optional(bool, false)
     }))
     routes = map(object({
-      vpc           = string
-      subnet_group  = string
-      to_cidr       = string
-      next_hop_key  = string
-      next_hop_type = string
+      vpc                    = string
+      subnet_group           = string
+      to_cidr                = string
+      next_hop_key           = string
+      next_hop_type          = string
+      destination_type       = optional(string, "ipv4")
+      managed_prefix_list_id = optional(string)
     }))
+    create_dhcp_options = optional(bool, false)
+    domain_name         = optional(string)
+    domain_name_servers = optional(list(string))
+    ntp_servers         = optional(list(string))
+    vpc_tags            = optional(map(string), {})
   }))
 }
 
 ### TRANSIT GATEWAY
-variable "tgw" {
+variable "tgws" {
   description = <<-EOF
   A object defining Transit Gateway.
 
   Following properties are available:
   - `create`: set to false, if existing TGW needs to be reused
-  - `id`:  id of existing TGW or null
+  - `id`:  id of existing TGW
   - `name`: name of TGW to create or use
   - `asn`: ASN number
   - `route_tables`: map of route tables
-  - `attachments`: map of TGW attachments
 
   Example:
   ```
@@ -142,35 +184,64 @@ variable "tgw" {
         name   = "from_security"
       }
     }
-    attachments = {
-      security = {
-        name                = "vmseries"
-        vpc = "security_vpc"
-        subnet_group          = "tgw_attach"
-        route_table         = "from_security_vpc"
-        propagate_routes_to = ["from_spoke_vpc"]
-      }
-    }
   }
   ```
   EOF
-  type = object({
+  default     = {}
+  type = map(object({
     create = bool
-    id     = string
+    id     = optional(string)
     name   = string
     asn    = string
     route_tables = map(object({
       create = bool
       name   = string
     }))
-    attachments = map(object({
-      name                = string
-      vpc                 = string
-      subnet_group        = string
-      route_table         = string
-      propagate_routes_to = list(string)
-    }))
-  })
+  }))
+}
+
+variable "tgw_attachments" {
+  description = <<EOF
+  A object defining Transit Gateway Attachments.
+
+  Following properties are available:
+  - `tgw_key`: key of the TGW to be attached
+  - `create`: set to false, if existing TGW attachment needs to be reused
+  - `id`:  id of existing TGW
+  - `security_vpc_attachment`: set to true if default route from spoke VPCs towards
+     this attachment should be created 
+  - `name`: name of the TGW attachment to create or use
+  - `asn`: ASN number
+  - `vpc`: key of the attaching VPC 
+  - `route_table`: route table key created under TGW taht must be associated with attachment
+  - `propagate_routes_to': route table key created under TGW
+
+  Example:
+  ```
+  tgw_attachments = {
+    security = {
+      tgw_key             = "tgw"
+      name                = "vmseries"
+      vpc                 = "security_vpc"
+      subnet_group        = "tgw_attach"
+      route_table         = "from_security_vpc"
+      propagate_routes_to = "from_spoke_vpc"
+    }
+  }
+  ```
+  EOF
+  default     = {}
+  type = map(object({
+    tgw_key                 = string
+    create                  = optional(bool, true)
+    id                      = optional(string)
+    security_vpc_attachment = optional(bool, false)
+    name                    = string
+    vpc                     = string
+    subnet_group            = string
+    route_table             = string
+    propagate_routes_to     = string
+  }))
 }
 
 ### NAT GATEWAY
@@ -179,26 +250,45 @@ variable "natgws" {
   A map defining NAT Gateways.
 
   Following properties are available:
-  - `name`: name of NAT Gateway
+  - `nat_gateway_names`: A map, where each key is an Availability Zone name, for example "eu-west-1b". 
+    Each value in the map is a custom name of a NAT Gateway in that Availability Zone.
   - `vpc`: key of the VPC
   - `subnet_group`: key of the subnet_group
+  - `create_eip`: Defaults to true, uses a data source to find EIP when set to false
+  - `eips`: Optional map of Elastic IP attributes. Each key must be an Availability Zone name. 
 
   Example:
   ```
   natgws = {
-    security_nat_gw = {
-      name   = "natgw"
-      vpc    = "security_vpc"
+    sec_natgw = {
+      vpc = "security_vpc"
       subnet_group = "natgw"
+      nat_gateway_names = {
+        "eu-west-1a" = "nat-gw-1"
+        "eu-west-1b" = "nat-gw-2"
+      }
+      eips ={
+        "eu-west-1a" = { 
+          name = "natgw-1-pip"
+        }
+      }
     }
   }
   ```
   EOF
   default     = {}
   type = map(object({
-    name         = string
-    vpc          = string
-    subnet_group = string
+    create_nat_gateway = optional(bool, true)
+    nat_gateway_names  = optional(map(string), {})
+    vpc                = string
+    subnet_group       = string
+    create_eip         = optional(bool, true)
+    eips = optional(map(object({
+      name      = optional(string)
+      public_ip = optional(string)
+      id        = optional(string)
+      eip_tags  = optional(map(string), {})
+    })), {})
   }))
 }
 
@@ -228,6 +318,28 @@ variable "gwlbs" {
     name         = string
     vpc          = string
     subnet_group = string
+    tg_name      = optional(string)
+    target_instances = optional(map(object({
+      id = string
+    })), {})
+    acceptance_required           = optional(bool, false)
+    allowed_principals            = optional(list(string), [])
+    deregistration_delay          = optional(number)
+    health_check_enabled          = optional(bool)
+    health_check_interval         = optional(number, 5)
+    health_check_matcher          = optional(string)
+    health_check_path             = optional(string)
+    health_check_port             = optional(number, 80)
+    health_check_protocol         = optional(string)
+    health_check_timeout          = optional(number)
+    healthy_threshold             = optional(number, 3)
+    unhealthy_threshold           = optional(number, 3)
+    stickiness_type               = optional(string)
+    rebalance_flows               = optional(string, "no_rebalance")
+    lb_tags                       = optional(map(string), {})
+    lb_target_group_tags          = optional(map(string), {})
+    endpoint_service_tags         = optional(map(string), {})
+    enable_lb_deletion_protection = optional(bool)
   }))
 }
 variable "gwlb_endpoints" {
@@ -236,6 +348,8 @@ variable "gwlb_endpoints" {
 
   Following properties are available:
   - `name`: name of the GWLB endpoint
+  - `custom_names`: Optional map of names of the VPC Endpoints, used to override the default naming generated from the input `name`. 
+    Each key is the Availability Zone identifier, for example `us-east-1b.
   - `gwlb`: key of GWLB
   - `vpc`: key of VPC
   - `subnet_group`: key of the subnet_group
@@ -259,12 +373,15 @@ variable "gwlb_endpoints" {
   default     = {}
   type = map(object({
     name                     = string
+    custom_names             = optional(map(string), {})
     gwlb                     = string
     vpc                      = string
     subnet_group             = string
     act_as_next_hop          = bool
     from_igw_to_vpc          = optional(string)
     from_igw_to_subnet_group = optional(string)
+    delay                    = optional(number, 0)
+    tags                     = optional(map(string))
   }))
 }
 
@@ -382,7 +499,8 @@ variable "vmseries" {
   default     = {}
   type = map(object({
     instances = map(object({
-      az = string
+      az   = string
+      name = optional(string)
     }))
 
     bootstrap_options = object({
@@ -402,19 +520,31 @@ variable "vmseries" {
       vm-series-auto-registration-pin-value = optional(string)
     })
 
-    panos_version = string
-    ebs_kms_id    = string
+    panos_version                          = string
+    vmseries_ami_id                        = optional(string)
+    vmseries_product_code                  = optional(string, "6njl1pau431dv1qxipg63mvah")
+    include_deprecated_ami                 = optional(bool, false)
+    instance_type                          = optional(string, "m5.xlarge")
+    ebs_encrypted                          = optional(bool, true)
+    ebs_kms_id                             = optional(string, "alias/aws/ebs")
+    enable_instance_termination_protection = optional(bool, false)
+    enable_monitoring                      = optional(bool, false)
 
     vpc  = string
-    gwlb = string
+    gwlb = optional(string)
 
     interfaces = map(object({
-      device_index      = number
-      security_group    = string
-      vpc               = string
-      subnet_group      = string
-      create_public_ip  = bool
-      source_dest_check = bool
+      device_index       = number
+      name               = optional(string)
+      description        = optional(string)
+      security_group     = string
+      subnet_group       = string
+      create_public_ip   = optional(bool, false)
+      eip_allocation_id  = optional(string)
+      source_dest_check  = optional(bool, false)
+      private_ips        = optional(list(string))
+      ipv6_address_count = optional(number, null)
+      public_ipv4_pool   = optional(string)
     }))
 
     subinterfaces = map(map(object({
@@ -424,9 +554,9 @@ variable "vmseries" {
 
     system_services = object({
       dns_primary = string
-      dns_secondy = string
+      dns_secondy = optional(string)
       ntp_primary = string
-      ntp_secondy = string
+      ntp_secondy = optional(string)
     })
 
     application_lb = object({
@@ -461,8 +591,13 @@ variable "panorama_attachment" {
   }
   ```
   EOF
-  default     = null
+  default = {
+    tgw_key                       = "tgw"
+    transit_gateway_attachment_id = null
+    vpc_cidr                      = "10.255.0.0/24"
+  }
   type = object({
+    tgw_key                       = string
     transit_gateway_attachment_id = string
     vpc_cidr                      = string
   })
@@ -504,14 +639,16 @@ variable "spoke_vms" {
 }
 
 ### SPOKE LOADBALANCERS
-variable "spoke_lbs" {
+variable "spoke_nlbs" {
   description = <<-EOF
   A map defining Network Load Balancers deployed in spoke VPCs.
 
   Following properties are available:
+  - `name`: Name of the NLB
   - `vpc`: key of the VPC
   - `subnet_group`: key of the subnet_group
   - `vms`: keys of spoke VMs
+  - `internal_lb`(optional): flag to switch between internet_facing and internal NLB
 
   Example:
   ```
@@ -526,8 +663,10 @@ variable "spoke_lbs" {
   EOF
   default     = {}
   type = map(object({
+    name         = string
     vpc          = string
     subnet_group = string
     vms          = list(string)
+    internal_lb  = optional(bool, false)
   }))
 }

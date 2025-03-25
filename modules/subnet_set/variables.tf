@@ -18,7 +18,18 @@ variable "cidrs" {
   - `map_public_ip_on_launch` - (Optional|bool) Specify true to indicate that instances launched into the subnet should be assigned a public IP address.
   - `local_tags`              - (Optional|map) Map of tags to assign to created resources.
   EOF
-  type        = map(any)
+  type = map(object({
+    az                      = string
+    create_subnet           = optional(bool, true)
+    create_route_table      = optional(bool, true)
+    associate_route_table   = optional(bool, true)
+    existing_route_table_id = optional(string)
+    name                    = optional(string)
+    route_table_name        = optional(string)
+    ipv6_cidr_block         = optional(string)
+    map_public_ip_on_launch = optional(bool)
+    local_tags              = optional(map(string))
+  }))
 }
 
 variable "vpc_id" {

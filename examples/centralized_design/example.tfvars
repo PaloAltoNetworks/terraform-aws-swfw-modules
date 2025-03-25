@@ -177,24 +177,24 @@ vpcs = {
       }
     }
     subnets = {
-      "10.100.0.0/24"  = { az = "eu-west-1a", subnet_group = "mgmt", nacl = null }
-      "10.100.64.0/24" = { az = "eu-west-1b", subnet_group = "mgmt", nacl = null }
+      "10.100.0.0/24"  = { az = "eu-west-1a", subnet_group = "mgmt" }
+      "10.100.64.0/24" = { az = "eu-west-1b", subnet_group = "mgmt" }
       "10.100.1.0/24"  = { az = "eu-west-1a", subnet_group = "private", nacl = "trusted_path_monitoring" }
       "10.100.65.0/24" = { az = "eu-west-1b", subnet_group = "private", nacl = "trusted_path_monitoring" }
-      "10.100.2.0/24"  = { az = "eu-west-1a", subnet_group = "public", nacl = null }
-      "10.100.66.0/24" = { az = "eu-west-1b", subnet_group = "public", nacl = null }
-      "10.100.3.0/24"  = { az = "eu-west-1a", subnet_group = "tgw_attach", nacl = null }
-      "10.100.67.0/24" = { az = "eu-west-1b", subnet_group = "tgw_attach", nacl = null }
-      "10.100.4.0/24"  = { az = "eu-west-1a", subnet_group = "gwlbe_outbound", nacl = null }
-      "10.100.68.0/24" = { az = "eu-west-1b", subnet_group = "gwlbe_outbound", nacl = null }
-      "10.100.5.0/24"  = { az = "eu-west-1a", subnet_group = "gwlb", nacl = null }
-      "10.100.69.0/24" = { az = "eu-west-1b", subnet_group = "gwlb", nacl = null } # AWS reccomends to always go up to the last possible AZ for GWLB service
-      "10.100.10.0/24" = { az = "eu-west-1a", subnet_group = "gwlbe_eastwest", nacl = null }
-      "10.100.74.0/24" = { az = "eu-west-1b", subnet_group = "gwlbe_eastwest", nacl = null }
-      "10.100.6.0/24"  = { az = "eu-west-1a", subnet_group = "alb", nacl = null }
-      "10.100.70.0/24" = { az = "eu-west-1b", subnet_group = "alb", nacl = null }
-      "10.100.7.0/24"  = { az = "eu-west-1a", subnet_group = "nlb", nacl = null }
-      "10.100.71.0/24" = { az = "eu-west-1b", subnet_group = "nlb", nacl = null }
+      "10.100.2.0/24"  = { az = "eu-west-1a", subnet_group = "public" }
+      "10.100.66.0/24" = { az = "eu-west-1b", subnet_group = "public" }
+      "10.100.3.0/24"  = { az = "eu-west-1a", subnet_group = "tgw_attach" }
+      "10.100.67.0/24" = { az = "eu-west-1b", subnet_group = "tgw_attach" }
+      "10.100.4.0/24"  = { az = "eu-west-1a", subnet_group = "gwlbe_outbound" }
+      "10.100.68.0/24" = { az = "eu-west-1b", subnet_group = "gwlbe_outbound" }
+      "10.100.5.0/24"  = { az = "eu-west-1a", subnet_group = "gwlb" }
+      "10.100.69.0/24" = { az = "eu-west-1b", subnet_group = "gwlb" } # AWS reccomends to always go up to the last possible AZ for GWLB service
+      "10.100.10.0/24" = { az = "eu-west-1a", subnet_group = "gwlbe_eastwest" }
+      "10.100.74.0/24" = { az = "eu-west-1b", subnet_group = "gwlbe_eastwest" }
+      "10.100.6.0/24"  = { az = "eu-west-1a", subnet_group = "alb" }
+      "10.100.70.0/24" = { az = "eu-west-1b", subnet_group = "alb" }
+      "10.100.7.0/24"  = { az = "eu-west-1a", subnet_group = "nlb" }
+      "10.100.71.0/24" = { az = "eu-west-1b", subnet_group = "nlb" }
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
@@ -322,10 +322,10 @@ vpcs = {
       }
     }
     subnets = {
-      "10.104.0.0/24"   = { az = "eu-west-1a", subnet_group = "app1_vm", nacl = null }
-      "10.104.128.0/24" = { az = "eu-west-1b", subnet_group = "app1_vm", nacl = null }
-      "10.104.2.0/24"   = { az = "eu-west-1a", subnet_group = "app1_lb", nacl = null }
-      "10.104.130.0/24" = { az = "eu-west-1b", subnet_group = "app1_lb", nacl = null }
+      "10.104.0.0/24"   = { az = "eu-west-1a", subnet_group = "app1_vm" }
+      "10.104.128.0/24" = { az = "eu-west-1b", subnet_group = "app1_vm" }
+      "10.104.2.0/24"   = { az = "eu-west-1a", subnet_group = "app1_lb" }
+      "10.104.130.0/24" = { az = "eu-west-1b", subnet_group = "app1_lb" }
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
@@ -383,10 +383,10 @@ vpcs = {
       }
     }
     subnets = {
-      "10.105.0.0/24"   = { az = "eu-west-1a", subnet_group = "app2_vm", nacl = null }
-      "10.105.128.0/24" = { az = "eu-west-1b", subnet_group = "app2_vm", nacl = null }
-      "10.105.2.0/24"   = { az = "eu-west-1a", subnet_group = "app2_lb", nacl = null }
-      "10.105.130.0/24" = { az = "eu-west-1b", subnet_group = "app2_lb", nacl = null }
+      "10.105.0.0/24"   = { az = "eu-west-1a", subnet_group = "app2_vm" }
+      "10.105.128.0/24" = { az = "eu-west-1b", subnet_group = "app2_vm" }
+      "10.105.2.0/24"   = { az = "eu-west-1a", subnet_group = "app2_lb" }
+      "10.105.130.0/24" = { az = "eu-west-1b", subnet_group = "app2_lb" }
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
@@ -409,51 +409,54 @@ vpcs = {
   }
 }
 
-### TRANSIT GATEWAY
-tgw = {
-  create = true
-  id     = null
-  name   = "tgw"
-  asn    = "64512"
-  route_tables = {
-    # Do not change keys `from_security_vpc` and `from_spoke_vpc` as they are used in `main.tf` and attachments
-    "from_security_vpc" = {
-      create = true
-      name   = "from_security"
-    }
-    "from_spoke_vpc" = {
-      create = true
-      name   = "from_spokes"
-    }
-  }
-  attachments = {
-    # Value of `route_table` and `propagate_routes_to` must match `route_tables` stores under `tgw`
-    security = {
-      name                = "vmseries"
-      vpc                 = "security_vpc"
-      subnet_group        = "tgw_attach"
-      route_table         = "from_security_vpc"
-      propagate_routes_to = ["from_spoke_vpc"]
-    }
-    app1 = {
-      name                = "app1-spoke-vpc"
-      vpc                 = "app1_vpc"
-      subnet_group        = "app1_vm"
-      route_table         = "from_spoke_vpc"
-      propagate_routes_to = ["from_security_vpc"]
-    }
-    app2 = {
-      name                = "app2-spoke-vpc"
-      vpc                 = "app2_vpc"
-      subnet_group        = "app2_vm"
-      route_table         = "from_spoke_vpc"
-      propagate_routes_to = ["from_security_vpc"]
+## TRANSIT GATEWAY
+tgws = {
+  tgw = {
+    create = true
+    name   = "tgw"
+    asn    = "64512"
+    route_tables = {
+      # Do not change keys `from_security_vpc` and `from_spoke_vpc` as they are used in `main.tf` and attachments
+      "from_security_vpc" = {
+        create = true
+        name   = "from_security"
+      }
+      "from_spoke_vpc" = {
+        create = true
+        name   = "from_spokes"
+      }
     }
   }
 }
 
-### NAT GATEWAY
-natgws = {}
+tgw_attachments = {
+  # Value of `route_table` and `propagate_routes_to` must match `route_tables` stores under `tgw`
+  security = {
+    tgw_key                 = "tgw"
+    security_vpc_attachment = true
+    name                    = "vmseries"
+    vpc                     = "security_vpc"
+    subnet_group            = "tgw_attach"
+    route_table             = "from_security_vpc"
+    propagate_routes_to     = "from_spoke_vpc"
+  }
+  app1 = {
+    tgw_key             = "tgw"
+    name                = "app1-spoke-vpc"
+    vpc                 = "app1_vpc"
+    subnet_group        = "app1_vm"
+    route_table         = "from_spoke_vpc"
+    propagate_routes_to = "from_security_vpc"
+  }
+  app2 = {
+    tgw_key             = "tgw"
+    name                = "app2-spoke-vpc"
+    vpc                 = "app2_vpc"
+    subnet_group        = "app2_vm"
+    route_table         = "from_spoke_vpc"
+    propagate_routes_to = "from_security_vpc"
+  }
+}
 
 ### GATEWAY LOADBALANCER
 gwlbs = {
@@ -521,8 +524,7 @@ vmseries = {
     }
     */
 
-    panos_version = "11.1.4-h7"     # TODO: update here
-    ebs_kms_id    = "alias/aws/ebs" # TODO: update here
+    panos_version = "11.1.4-h7" # TODO: update here
 
     # Value of `vpc` must match key of objects stored in `vpcs`
     vpc = "security_vpc"
@@ -534,7 +536,6 @@ vmseries = {
       private = {
         device_index      = 0
         security_group    = "vmseries_private"
-        vpc               = "security_vpc"
         subnet_group      = "private"
         create_public_ip  = false
         source_dest_check = false
@@ -542,7 +543,6 @@ vmseries = {
       mgmt = {
         device_index      = 1
         security_group    = "vmseries_mgmt"
-        vpc               = "security_vpc"
         subnet_group      = "mgmt"
         create_public_ip  = true
         source_dest_check = true
@@ -550,7 +550,6 @@ vmseries = {
       public = {
         device_index      = 2
         security_group    = "vmseries_public"
-        vpc               = "security_vpc"
         subnet_group      = "public"
         create_public_ip  = true
         source_dest_check = false
@@ -576,9 +575,7 @@ vmseries = {
 
     system_services = {
       dns_primary = "4.2.2.2"      # TODO: update here
-      dns_secondy = null           # TODO: update here
       ntp_primary = "pool.ntp.org" # TODO: update here
-      ntp_secondy = null           # TODO: update here
     }
 
     application_lb = {
@@ -641,12 +638,6 @@ vmseries = {
   }
 }
 
-### PANORAMA
-panorama_attachment = {
-  transit_gateway_attachment_id = null            # TODO: update here
-  vpc_cidr                      = "10.255.0.0/24" # TODO: update here
-}
-
 ### SPOKE VMS
 spoke_vms = {
   "app1_vm01" = {
@@ -680,13 +671,15 @@ spoke_vms = {
 }
 
 ### SPOKE LOADBALANCERS
-spoke_lbs = {
+spoke_nlbs = {
   "app1-nlb" = {
+    name         = "app1-nlb"
     vpc          = "app1_vpc"
     subnet_group = "app1_lb"
     vms          = ["app1_vm01", "app1_vm02"]
   }
   "app2-nlb" = {
+    name         = "app2-nlb"
     vpc          = "app2_vpc"
     subnet_group = "app2_lb"
     vms          = ["app2_vm01", "app2_vm02"]

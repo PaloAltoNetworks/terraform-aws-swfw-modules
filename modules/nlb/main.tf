@@ -13,7 +13,7 @@ locals {
         app_name  = k
         name      = target_name
         id        = target_id
-        port      = try(v.target_port, v.port)
+        port      = coalesce(v.target_port, v.port)
         target_az = try(v.target_az, null)
       }
     ]
@@ -159,7 +159,7 @@ resource "aws_lb_target_group" "this" {
 
   name               = coalesce(try(each.value.name, null), "${var.name}-${each.key}")
   vpc_id             = var.vpc_id
-  port               = try(each.value.target_port, each.value.port)
+  port               = coalesce(each.value.target_port, each.value.port)
   protocol           = each.value.protocol
   target_type        = each.value.target_type
   preserve_client_ip = try(each.value.preserve_client_ip, null)

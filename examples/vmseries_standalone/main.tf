@@ -225,10 +225,7 @@ module "vmseries" {
     }
   }
 
-  bootstrap_options = join(";", compact(concat(
-    ["vmseries-bootstrap-aws-s3bucket=${module.bootstrap[each.key].bucket_name}"],
-    ["mgmt-interface-swap=${each.value.common.bootstrap_options["mgmt-interface-swap"]}"],
-  )))
+  bootstrap_options = join(";", [for k, v in each.value.common.bootstrap_options : "${k}=${v}" if v != null])
 
   iam_instance_profile = module.bootstrap[each.key].instance_profile_name
   ssh_key_name         = var.ssh_key_name

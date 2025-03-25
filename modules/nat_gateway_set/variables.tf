@@ -32,6 +32,13 @@ variable "eips" {
     ```
     EOF
   default     = {}
+  type = map(object({
+    create_eip = optional(bool, true)
+    name       = optional(string)
+    public_ip  = optional(string)
+    id         = optional(string)
+    eip_tags   = optional(map(string), {})
+  }))
 }
 
 variable "nat_gateway_names" {

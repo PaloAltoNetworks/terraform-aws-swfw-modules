@@ -83,31 +83,30 @@ variable "security_rules" {
   }
   ```
   EOF
-  default     = {}
-  # For now it's not possible to have a more strict definition of variable type, optional
-  # object attributes are still experimental
+
+  default = {}
   type = map(object({
     rule_list                   = string
     priority                    = number
     name                        = string
-    description                 = string
+    description                 = optional(string)
     source_cidrs                = set(string)
     destination_cidrs           = set(string)
-    negate_destination          = bool
-    protocol                    = string
-    applications                = set(string)
-    category_feeds              = set(string)
-    category_url_category_names = set(string)
+    negate_destination          = optional(bool, false)
+    protocol                    = optional(string, "application-default")
+    applications                = optional(set(string), ["any"])
+    category_feeds              = optional(set(string))
+    category_url_category_names = optional(set(string))
     action                      = string
     logging                     = bool
-    audit_comment               = string
+    audit_comment               = optional(string)
   }))
 }
 
 variable "log_profiles" {
   description = <<-EOF
   The CloudWatch logs group name should correspond with the assumed role generated in cfn.
-  - `create_cw`        = (Required|string) Whether to create AWS CloudWatch log group.
+  - `create_cw`        = (Optional|string) Whether to create AWS CloudWatch log group.
   - `name`             = (Required|string) The CW log group should correspond with cfn cross zone role.
   - `destination_type` = (Required|string) Only supported type is "CloudWatchLogs".
   - `log_type`         = (Required|string) The firewall log type.
@@ -135,11 +134,10 @@ variable "log_profiles" {
   }
   ```
   EOF
-  default     = {}
-  # For now it's not possible to have a more strict definition of variable type, optional
-  # object attributes are still experimental
+
+  default = {}
   type = map(object({
-    create_cw        = bool
+    create_cw        = optional(bool, false)
     name             = string
     destination_type = string
     log_type         = string

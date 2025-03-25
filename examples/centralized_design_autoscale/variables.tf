@@ -74,7 +74,7 @@ variable "vpcs" {
       routes = {
         vm_default = {
           vpc           = "app1_vpc"
-          subnet_group  = "app1_vm"
+          subnet_group        = "app1_vm"
           to_cidr       = "0.0.0.0/0"
           next_hop_key  = "app1"
           next_hop_type = "transit_gateway_attachment"
@@ -86,9 +86,23 @@ variable "vpcs" {
   EOF
   default     = {}
   type = map(object({
-    name = string
-    cidr = string
-    nacls = map(object({
+    name                             = string
+    create_vpc                       = optional(bool, true)
+    cidr                             = string
+    secondary_cidr_blocks            = optional(list(string), [])
+    assign_generated_ipv6_cidr_block = optional(bool)
+    use_internet_gateway             = optional(bool, false)
+    name_internet_gateway            = optional(string)
+    create_internet_gateway          = optional(bool, true)
+    route_table_internet_gateway     = optional(string)
+    create_vpn_gateway               = optional(bool, false)
+    vpn_gateway_amazon_side_asn      = optional(string)
+    name_vpn_gateway                 = optional(string)
+    route_table_vpn_gateway          = optional(string)
+    enable_dns_hostnames             = optional(bool, true)
+    enable_dns_support               = optional(bool, true)
+    instance_tenancy                 = optional(string, "default")
+    nacls = optional(map(object({
       name = string
       rules = map(object({
         rule_number = number
@@ -96,23 +110,52 @@ variable "vpcs" {
         protocol    = string
         rule_action = string
         cidr_block  = string
-        from_port   = string
-        to_port     = string
+        from_port   = optional(number)
+        to_port     = optional(number)
       }))
-    }))
-    security_groups = any
+    })), {})
+    security_groups = optional(map(object({
+      name = string
+      rules = map(object({
+        description            = optional(string)
+        type                   = string
+        cidr_blocks            = optional(list(string))
+        ipv6_cidr_blocks       = optional(list(string))
+        from_port              = string
+        to_port                = string
+        protocol               = string
+        prefix_list_ids        = optional(list(string))
+        source_security_groups = optional(list(string))
+        self                   = optional(bool)
+      }))
+    })))
     subnets = map(object({
-      az           = string
-      subnet_group = string
-      nacl         = string
+      name                    = optional(string)
+      az                      = string
+      subnet_group            = string
+      nacl                    = optional(string)
+      create_subnet           = optional(bool, true)
+      create_route_table      = optional(bool, true)
+      existing_route_table_id = optional(string)
+      route_table_name        = optional(string)
+      associate_route_table   = optional(bool, true)
+      local_tags              = optional(map(string), {})
+      map_public_ip_on_launch = optional(bool, false)
     }))
     routes = map(object({
-      vpc           = string
-      subnet_group  = string
-      to_cidr       = string
-      next_hop_key  = string
-      next_hop_type = string
+      vpc                    = string
+      subnet_group           = string
+      to_cidr                = string
+      next_hop_key           = string
+      next_hop_type          = string
+      destination_type       = optional(string, "ipv4")
+      managed_prefix_list_id = optional(string)
     }))
+    create_dhcp_options = optional(bool, false)
+    domain_name         = optional(string)
+    domain_name_servers = optional(list(string))
+    ntp_servers         = optional(list(string))
+    vpc_tags            = optional(map(string), {})
   }))
 }
 
@@ -123,7 +166,7 @@ variable "tgw" {
 
   Following properties are available:
   - `create`: set to false, if existing TGW needs to be reused
-  - `id`:  id of existing TGW or null
+  - `id`:  id of existing TGW
   - `name`: name of TGW to create or use
   - `asn`: ASN number
   - `route_tables`: map of route tables
@@ -145,8 +188,8 @@ variable "tgw" {
     attachments = {
       security = {
         name                = "vmseries"
-        vpc                 = "security_vpc"
-        subnet_group        = "tgw_attach"
+        vpc = "security_vpc"
+        subnet_group          = "tgw_attach"
         route_table         = "from_security_vpc"
         propagate_routes_to = ["from_spoke_vpc"]
       }
@@ -156,7 +199,7 @@ variable "tgw" {
   EOF
   type = object({
     create = bool
-    id     = string
+    id     = optional(string)
     name   = string
     asn    = string
     route_tables = map(object({
@@ -164,6 +207,8 @@ variable "tgw" {
       name   = string
     }))
     attachments = map(object({
+      create              = optional(bool, true)
+      id                  = optional(string)
       name                = string
       vpc                 = string
       subnet_group        = string
@@ -179,26 +224,45 @@ variable "natgws" {
   A map defining NAT Gateways.
 
   Following properties are available:
-  - `name`: name of NAT Gateway
+  - `nat_gateway_names`: A map, where each key is an Availability Zone name, for example "eu-west-1b". 
+    Each value in the map is a custom name of a NAT Gateway in that Availability Zone.
   - `vpc`: key of the VPC
   - `subnet_group`: key of the subnet_group
+  - `create_eip`: Defaults to true, uses a data source to find EIP when set to false
+  - `eips`: Optional map of Elastic IP attributes. Each key must be an Availability Zone name. 
 
   Example:
   ```
   natgws = {
-    security_nat_gw = {
-      name         = "natgw"
-      vpc          = "security_vpc"
+    sec_natgw = {
+      vpc = "security_vpc"
       subnet_group = "natgw"
+      nat_gateway_names = {
+        "eu-west-1a" = "nat-gw-1"
+        "eu-west-1b" = "nat-gw-2"
+      }
+      eips ={
+        "eu-west-1a" = { 
+          name = "natgw-1-pip"
+        }
+      }
     }
   }
   ```
   EOF
   default     = {}
   type = map(object({
-    name         = string
-    vpc          = string
-    subnet_group = string
+    create_nat_gateway = optional(bool, true)
+    nat_gateway_names  = optional(map(string), {})
+    vpc                = string
+    subnet_group       = string
+    create_eip         = optional(bool, true)
+    eips = optional(map(object({
+      name      = optional(string)
+      public_ip = optional(string)
+      id        = optional(string)
+      eip_tags  = optional(map(string), {})
+    })), {})
   }))
 }
 
@@ -216,8 +280,8 @@ variable "gwlbs" {
   ```
   gwlbs = {
     security_gwlb = {
-      name         = "security-gwlb"
-      vpc          = "security_vpc"
+      name   = "security-gwlb"
+      vpc    = "security_vpc"
       subnet_group = "gwlb"
     }
   }
@@ -228,6 +292,28 @@ variable "gwlbs" {
     name         = string
     vpc          = string
     subnet_group = string
+    tg_name      = optional(string)
+    target_instances = optional(map(object({
+      id = string
+    })), {})
+    acceptance_required           = optional(bool, false)
+    allowed_principals            = optional(list(string), [])
+    deregistration_delay          = optional(number)
+    health_check_enabled          = optional(bool)
+    health_check_interval         = optional(number, 5)
+    health_check_matcher          = optional(string)
+    health_check_path             = optional(string)
+    health_check_port             = optional(number, 80)
+    health_check_protocol         = optional(string)
+    health_check_timeout          = optional(number)
+    healthy_threshold             = optional(number, 3)
+    unhealthy_threshold           = optional(number, 3)
+    stickiness_type               = optional(string)
+    rebalance_flows               = optional(string, "no_rebalance")
+    lb_tags                       = optional(map(string), {})
+    lb_target_group_tags          = optional(map(string), {})
+    endpoint_service_tags         = optional(map(string), {})
+    enable_lb_deletion_protection = optional(bool)
   }))
 }
 variable "gwlb_endpoints" {
@@ -236,6 +322,8 @@ variable "gwlb_endpoints" {
 
   Following properties are available:
   - `name`: name of the GWLB endpoint
+  - `custom_names`: Optional map of names of the VPC Endpoints, used to override the default naming generated from the input `name`. 
+    Each key is the Availability Zone identifier, for example `us-east-1b.
   - `gwlb`: key of GWLB
   - `vpc`: key of VPC
   - `subnet_group`: key of the subnet_group
@@ -259,12 +347,15 @@ variable "gwlb_endpoints" {
   default     = {}
   type = map(object({
     name                     = string
+    custom_names             = optional(map(string), {})
     gwlb                     = string
     vpc                      = string
     subnet_group             = string
     act_as_next_hop          = bool
     from_igw_to_vpc          = optional(string)
     from_igw_to_subnet_group = optional(string)
+    delay                    = optional(number, 0)
+    tags                     = optional(map(string))
   }))
 }
 
@@ -432,8 +523,17 @@ variable "vmseries_asgs" {
       vm-series-auto-registration-pin-value = optional(string)
     })
 
-    panos_version = string
-    ebs_kms_id    = string
+    panos_version                          = string
+    vmseries_ami_id                        = optional(string)
+    vmseries_product_code                  = optional(string, "6njl1pau431dv1qxipg63mvah")
+    include_deprecated_ami                 = optional(bool, false)
+    instance_type                          = optional(string, "m5.xlarge")
+    ebs_encrypted                          = optional(bool, true)
+    ebs_kms_id                             = optional(string, "alias/aws/ebs")
+    enable_instance_termination_protection = optional(bool, false)
+    enable_monitoring                      = optional(bool, false)
+    fw_license_type                        = optional(string, "byol")
+
 
     vpc  = string
     gwlb = string
@@ -444,7 +544,7 @@ variable "vmseries_asgs" {
       device_index      = number
       security_group    = string
       subnet_group      = string
-      create_public_ip  = bool
+      create_public_ip  = optional(bool, false)
       source_dest_check = bool
     }))
 
@@ -453,11 +553,26 @@ variable "vmseries_asgs" {
       subinterface  = string
     })))
 
+    lambda_timeout                 = optional(number, 30)
+    delicense_ssm_param_name       = optional(string)
+    delicense_enabled              = optional(bool, false)
+    reserved_concurrent_executions = optional(number, 100)
+    asg_name                       = optional(string, "asg")
     asg = object({
-      desired_cap                     = number
-      min_size                        = number
-      max_size                        = number
-      lambda_execute_pip_install_once = bool
+      desired_cap                     = optional(number, 2)
+      min_size                        = optional(number, 1)
+      max_size                        = optional(number, 2)
+      lambda_execute_pip_install_once = optional(bool, false)
+      lifecycle_hook_timeout          = optional(number, 300)
+      health_check = optional(object({
+        grace_period = number
+        type         = string
+        }), {
+        grace_period = 300
+        type         = "EC2"
+      })
+      delete_timeout      = optional(string, "20m")
+      suspended_processes = optional(list(string), [])
     })
 
     scaling_plan = object({
@@ -470,9 +585,11 @@ variable "vmseries_asgs" {
       tags                      = map(string)
     })
 
-    launch_template_version = string
+    launch_template_update_default_version = optional(bool, true)
+    launch_template_version                = optional(string, "$Latest")
+    tag_specifications_targets             = optional(list(string), ["instance", "volume", "network-interface"])
 
-    instance_refresh = object({
+    instance_refresh = optional(object({
       strategy = string
       preferences = object({
         checkpoint_delay             = number
@@ -485,7 +602,7 @@ variable "vmseries_asgs" {
         standby_instances            = string
       })
       triggers = list(string)
-    })
+    }), null)
 
     application_lb = object({
       name           = string

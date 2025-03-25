@@ -412,7 +412,6 @@ vpcs = {
 ### TRANSIT GATEWAY
 tgw = {
   create = true
-  id     = null
   name   = "tgw"
   asn    = "64512"
   route_tables = {
@@ -451,9 +450,6 @@ tgw = {
     }
   }
 }
-
-### NAT GATEWAY
-natgws = {}
 
 ### GATEWAY LOADBALANCER
 gwlbs = {
@@ -517,8 +513,7 @@ vmseries_asgs = {
     }
     */
 
-    panos_version = "11.1.4-h7"     # TODO: update here
-    ebs_kms_id    = "alias/aws/ebs" # TODO: update here
+    panos_version = "11.1.4-h7" # TODO: update here
 
     # Value of `vpc` must match key of objects stored in `vpcs`
     vpc = "security_vpc"
@@ -590,9 +585,6 @@ vmseries_asgs = {
         ManagedBy = "terraform"
       }
     }
-
-    launch_template_version = "$Latest"
-    instance_refresh        = null
 
     application_lb = {
       name           = "public-alb"
