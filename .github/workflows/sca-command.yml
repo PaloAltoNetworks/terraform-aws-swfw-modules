@@ -39,7 +39,7 @@ jobs:
       paths: ${{ steps.paths_reformat.outputs.paths }}
     steps:
       - name: add comment
-        uses: peter-evans/create-or-update-comment@v3
+        uses: peter-evans/create-or-update-comment@23ff15729ef2fc348714a3bb66d2f655ca9066f2 # v3
         with:
           comment-id: ${{ inputs.comment-id }}
           issue-number: ${{ inputs.pr-id }}
