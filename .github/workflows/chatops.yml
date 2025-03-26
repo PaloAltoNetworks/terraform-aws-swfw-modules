@@ -22,7 +22,7 @@ jobs:
       pull-requests: write
     steps:
       - name: get PR head branch
-        uses: actions/github-script@v6
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6
         id: pr
         with:
           result-encoding: string
@@ -82,7 +82,7 @@ jobs:
 
       - name: Edit comment with error message
         if: steps.scd.outputs.error-message
-        uses: peter-evans/create-or-update-comment@v3
+        uses: peter-evans/create-or-update-comment@23ff15729ef2fc348714a3bb66d2f655ca9066f2 # v3
         with:
           comment-id: ${{ github.event.comment.id }}
           body: |
