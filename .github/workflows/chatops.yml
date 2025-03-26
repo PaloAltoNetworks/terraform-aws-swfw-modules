@@ -36,7 +36,7 @@ jobs:
             return pr.data.head.ref
 
       - name: get PR repository
-        uses: actions/github-script@v6
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6
         id: repo
         with:
           result-encoding: string
@@ -51,7 +51,7 @@ jobs:
 
       - name: Generate GitHub token
         id: generate-token
-        uses: tibdex/github-app-token@v2
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2
         with:
           app_id: ${{ secrets.CHATOPS_APP_ID }}
           private_key: ${{ secrets.CHATOPS_APP_PRIVATE_KEY }}
@@ -60,7 +60,7 @@ jobs:
 
       - name: "dispatch test command on branch: ${{ steps.pr.outputs.result }}"
         id: scd
-        uses: peter-evans/slash-command-dispatch@v3
+        uses: peter-evans/slash-command-dispatch@f996d7b7aae9059759ac55e978cff76d91853301 # v3
         with:
           token: ${{ steps.generate-token.outputs.token }}
           issue-type: pull-request
@@ -92,7 +92,7 @@ jobs:
 
       - name: Concurency ratio fallback
         if: cancelled()
-        uses: peter-evans/create-or-update-comment@v3
+        uses: peter-evans/create-or-update-comment@23ff15729ef2fc348714a3bb66d2f655ca9066f2 # v3
         with:
           comment-id: ${{ github.event.comment.id }}
           body: |
