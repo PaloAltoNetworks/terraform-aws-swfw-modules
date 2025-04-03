@@ -19,10 +19,9 @@ on:
         description: 'The comment-id of the slash command'
         type: string
         required: true
-      branch:
-        description: Branch on which the tests should run
+      commitsha:
+        description: Commit SHA for which the tests should run
         type: string
-        default: main
       repository:
         description: Repository on which the tests should run
         type: string
