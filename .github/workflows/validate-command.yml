@@ -26,10 +26,9 @@ on:
         description: "The comment-id of the slash command"
         type: string
         required: true
-      branch:
-        description: Branch on which the tests should run
+      commitsha:
+        description: Commit SHA for which the tests should run
         type: string
-        default: main
       repository:
         description: Repository on which the tests should run
         type: string
@@ -52,7 +51,7 @@ jobs:
       tf_version: ${{ inputs.tf_version }}
       pr-id: ${{ inputs.pr-id }}
       comment-id: ${{ inputs.comment-id }}
-      branch: ${{ inputs.branch }}
+      commitsha: ${{ inputs.commitsha }}
       repository: ${{ inputs.repository }}
       cloud: aws
       terratest_action: Validate
