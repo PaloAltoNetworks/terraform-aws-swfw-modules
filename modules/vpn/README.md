@@ -3,12 +3,12 @@
 A Terraform module for deploying a VPN for VM-Series firewalls.
 
 ## Reference
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ### Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0, < 2.0.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.17 |
 
 ### Providers
@@ -62,4 +62,4 @@ No modules.
 | <a name="output_tunnel1"></a> [tunnel1](#output\_tunnel1) | Tunnel 1 details (public IP address, inside IP addresses, BGP ASN) |
 | <a name="output_tunnel2"></a> [tunnel2](#output\_tunnel2) | Tunnel 2 details (public IP address, inside IP addresses, BGP ASN) |
 | <a name="output_vpn_connection"></a> [vpn\_connection](#output\_vpn\_connection) | Object describing created Site-to-Site VPN connection |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->

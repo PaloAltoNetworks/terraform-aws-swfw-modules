@@ -78,12 +78,12 @@ For the proposed example, the Spoke VMs are supporting ssm-agent. In addition, t
 To enable access from the session manager, the Internet connection for a public endpoint is required.
 
 ## Reference
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ### Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0, < 2.0.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.17 |
 | <a name="requirement_cloudngfwaws"></a> [cloudngfwaws](#requirement\_cloudngfwaws) | 2.0.6 |
 | <a name="requirement_time"></a> [time](#requirement\_time) | 0.11.1 |
@@ -145,4 +145,4 @@ To enable access from the session manager, the Internet connection for a public 
 | <a name="output_application_load_balancers"></a> [application\_load\_balancers](#output\_application\_load\_balancers) | FQDNs of Application Load Balancers |
 | <a name="output_cloudngfws"></a> [cloudngfws](#output\_cloudngfws) | n/a |
 | <a name="output_network_load_balancers"></a> [network\_load\_balancers](#output\_network\_load\_balancers) | FQDNs of Network Load Balancers. |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->

@@ -8,12 +8,12 @@ For example usage, please refer to the [examples](https://github.com/PaloAltoNet
 
 
 ## Reference
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ### Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0, < 2.0.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.17 |
 | <a name="requirement_cloudngfwaws"></a> [cloudngfwaws](#requirement\_cloudngfwaws) | 2.0.6 |
 
@@ -64,4 +64,4 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_cloudngfw_service_name"></a> [cloudngfw\_service\_name](#output\_cloudngfw\_service\_name) | The service endpoint name exposed to tenant environment. |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->

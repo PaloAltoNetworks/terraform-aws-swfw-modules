@@ -35,12 +35,12 @@ module "nat_gateway_set" {
 ```
 
 ## Reference
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ### Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0, < 2.0.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.17 |
 
 ### Providers
@@ -83,4 +83,4 @@ No modules.
 | <a name="output_eips"></a> [eips](#output\_eips) | The map of Elastic IP objects. Only valid if `create_nat_gateway` is at the default true value. |
 | <a name="output_nat_gateways"></a> [nat\_gateways](#output\_nat\_gateways) | The map of NAT Gateway objects. |
 | <a name="output_next_hop_set"></a> [next\_hop\_set](#output\_next\_hop\_set) | The Next Hop Set object, useful as the input to the `vpc_route` module. Example:<pre>next_hop_set = {<br>  ids = {<br>    "us-east-1a" = "nat-0ddf598f93a8ea8ae"<br>    "us-east-1b" = "nat-0862c4b707b012111"<br>  }<br>  id = null<br>  type = "nat_gateway"<br>}</pre> |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->

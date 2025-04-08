@@ -7,12 +7,12 @@ A Terraform module for deploying a Network Load Balancer in AWS cloud. This can 
 For example usage please refer to the [*Centralized Design*](../../examples/centralized_design), [*Combined Design*](../../examples/combined_design/) or [*Isolated Design*](../../examples/isolated_design/) examples.
 
 ## Reference
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ### Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0, < 2.0.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.17 |
 
 ### Providers
@@ -69,4 +69,4 @@ No modules.
 |------|-------------|
 | <a name="output_lb_fqdn"></a> [lb\_fqdn](#output\_lb\_fqdn) | A FQDN for the Load Balancer. |
 | <a name="output_target_group"></a> [target\_group](#output\_target\_group) | n/a |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->

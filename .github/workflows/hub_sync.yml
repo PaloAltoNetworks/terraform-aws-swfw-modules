@@ -14,14 +14,14 @@ jobs:
     steps:
       - name: Generate GitHub token
         id: generate-token
-        uses: tibdex/github-app-token@v1
+        uses: tibdex/github-app-token@32691ba7c9e7063bd457bd8f2a5703138591fa58 # v1
         with:
           app_id: ${{ secrets.HUB_SYNC_APP_ID }}
           private_key: ${{ secrets.HUB_SYNC_APP_PRIVATE_KEY }}
           installation_id: ${{ secrets.HUB_SYNC_APP_INSTALLATION_ID }}
 
       - name: Trigger Hub Sync Workflow
-        uses: benc-uk/workflow-dispatch@v1
+        uses: benc-uk/workflow-dispatch@e2e5e9a103e331dad343f381a29e654aea3cf8fc # v1
         with:
           workflow: run.yml
           repo: PaloAltoNetworks/automation-metadata-collector

@@ -34,12 +34,12 @@ provider "aws" {
 The static routes are currently not handled by this module.
 
 ## Reference
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ### Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0, < 2.0.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.17 |
 
 ### Providers
@@ -81,4 +81,4 @@ No modules.
 | <a name="output_peering_attachment"></a> [peering\_attachment](#output\_peering\_attachment) | The TGW Peering Attachment object, created under the provider `aws`. |
 | <a name="output_peering_attachment_accepter"></a> [peering\_attachment\_accepter](#output\_peering\_attachment\_accepter) | The Accepter object, created under the provider `aws.remote`. |
 | <a name="output_remote_route_table"></a> [remote\_route\_table](#output\_remote\_route\_table) | The route table associated to the TGW Peering Attachment, owned by the provider `aws.remote`. |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->
