@@ -77,7 +77,7 @@ jobs:
             comment-id=${{ github.event.comment.id }}
             pr-id=${{ github.event.issue.number }}
             pr-title=${{ github.event.issue.title }}
-            branch=${{ steps.pr.outputs.result }}
+            commitsha=${{ steps.pr.outputs.result }}
             repository=${{ steps.repo.outputs.result }}
 
       - name: Edit comment with error message
