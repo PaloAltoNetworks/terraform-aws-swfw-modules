@@ -21,7 +21,7 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - name: get PR head branch
+      - name: get PR head sha
         uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6
         id: pr
         with:
@@ -32,8 +32,8 @@ jobs:
               repo: context.repo.repo,
               pull_number: context.issue.number,
             })
-            console.log(pr.data.head.ref)
-            return pr.data.head.ref
+            console.log(pr.data.head.sha)
+            return pr.data.head.sha
 
       - name: get PR repository
         uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6
@@ -58,7 +58,7 @@ jobs:
           installation_retrieval_mode: id
           installation_retrieval_payload: ${{ secrets.CHATOPS_APP_INSTALLATION_ID }}
 
-      - name: "dispatch test command on branch: ${{ steps.pr.outputs.result }}"
+      - name: "dispatch test command on commitsha: ${{ steps.pr.outputs.result }}"
         id: scd
         uses: peter-evans/slash-command-dispatch@f996d7b7aae9059759ac55e978cff76d91853301 # v3
         with:
@@ -77,7 +77,7 @@ jobs:
             comment-id=${{ github.event.comment.id }}
             pr-id=${{ github.event.issue.number }}
             pr-title=${{ github.event.issue.title }}
-            branch=${{ steps.pr.outputs.result }}
+            commitsha=${{ steps.pr.outputs.result }}
             repository=${{ steps.repo.outputs.result }}
 
       - name: Edit comment with error message
