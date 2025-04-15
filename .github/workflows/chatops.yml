@@ -58,7 +58,7 @@ jobs:
           installation_retrieval_mode: id
           installation_retrieval_payload: ${{ secrets.CHATOPS_APP_INSTALLATION_ID }}
 
-      - name: "dispatch test command on commit: ${{ steps.pr.outputs.result }}"
+      - name: "dispatch test command on commitsha: ${{ steps.pr.outputs.result }}"
         id: scd
         uses: peter-evans/slash-command-dispatch@f996d7b7aae9059759ac55e978cff76d91853301 # v3
         with:
