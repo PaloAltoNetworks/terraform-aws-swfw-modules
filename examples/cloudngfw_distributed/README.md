@@ -9,7 +9,7 @@ swfw: cloudngfw
 - Reduces the possibility of misconfiguration and limits the scope of impact
 - Each VPC is protected individually and blast radius is reduced through VPC isolation
 
-![image](https://github.com/PaloAltoNetworks/terraform-aws-swfw-modules/assets/9754982/a1b04cd9-2324-4488-a104-34fdb15e4254)
+![image](https://github.com/user-attachments/assets/2b8d22f5-ebf8-462e-90ff-cbed9084afd0)
 
 ## Prerequsite
 - Enable Programmatic Access
