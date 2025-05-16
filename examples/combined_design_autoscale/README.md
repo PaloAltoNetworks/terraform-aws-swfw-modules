@@ -286,6 +286,10 @@ To enable access from the session manager, the Internet connection for a public 
 
 | Name | Description |
 |------|-------------|
+<<<<<<< HEAD
 | <a name="output_application_load_balancers"></a> [application\_load\_balancers](#output\_application\_load\_balancers) | FQDNs of Application Load Balancers |
 | <a name="output_network_load_balancers"></a> [network\_load\_balancers](#output\_network\_load\_balancers) | FQDNs of Network Load Balancers. |
+=======
+| <a name="output_app_inspected_dns_name"></a> [app\_inspected\_dns\_name](#output\_app\_inspected\_dns\_name) | FQDN of App Internal Load Balancer.  <br>Can be used in VM-Series configuration to balance traffic between the application instances. |
+>>>>>>> 52ea530 (Updated README)
 <!-- END_TF_DOCS -->
