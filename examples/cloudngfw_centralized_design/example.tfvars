@@ -72,9 +72,9 @@ vpcs = {
     }
   }
   security_vpc_ingress = {
-    name            = "security_vpc_ingress"
-    cidr            = "10.101.0.0/16"
-    nacls           = {}
+    name  = "security_vpc_ingress"
+    cidr  = "10.101.0.0/16"
+    nacls = {}
     security_groups = {
       application_load_balancer = {
         name = "alb"
@@ -276,18 +276,18 @@ tgw = {
       propagate_routes_to = "from_spoke_vpc"
     }
     app1 = {
-      name                 = "app1-spoke-vpc"
-      vpc                  = "app1_vpc"
-      subnet               = "app1_vm"
-      route_table          = "from_spoke_vpc"
-      propagate_routes_to  = "from_security_vpc_ew_ob"
+      name                = "app1-spoke-vpc"
+      vpc                 = "app1_vpc"
+      subnet              = "app1_vm"
+      route_table         = "from_spoke_vpc"
+      propagate_routes_to = "from_security_vpc_ew_ob"
     }
     app2 = {
-      name                 = "app2-spoke-vpc"
-      vpc                  = "app2_vpc"
-      subnet               = "app2_vm"
-      route_table          = "from_spoke_vpc"
-      propagate_routes_to  = "from_security_vpc_ew_ob"
+      name                = "app2-spoke-vpc"
+      vpc                 = "app2_vpc"
+      subnet              = "app2_vm"
+      route_table         = "from_spoke_vpc"
+      propagate_routes_to = "from_security_vpc_ew_ob"
     }
   }
 }
@@ -370,7 +370,7 @@ cloudngfws = {
       url_filtering = "BestPractice"
     }
   }
-  
+
   cloudngfws_security_ingress = {
     name        = "cloudngfw02"
     vpc_subnet  = "security_vpc_ingress-cngfw_subnet"

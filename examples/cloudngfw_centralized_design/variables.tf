@@ -220,11 +220,11 @@ variable "tgw" {
       name   = string
     }))
     attachments = map(object({
-      name                 = string
-      vpc                  = string
-      subnet               = string
-      route_table          = string
-      propagate_routes_to  = string
+      name                = string
+      vpc                 = string
+      subnet              = string
+      route_table         = string
+      propagate_routes_to = string
     }))
   })
 }
