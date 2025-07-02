@@ -90,7 +90,7 @@ variable "instance_type" {
 
 variable "airs_instance_type" {
   description = "EC2 instance type."
-  default     = "c6in.4xlarge"
+  default     = "c6in.xlarge"
   type        = string
 }
 

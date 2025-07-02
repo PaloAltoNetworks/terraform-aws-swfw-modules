@@ -1,21 +1,35 @@
-## Requirements
+# Palo Alto Networks VM-Series Module for AWS
+
+A Terraform module for deploying a VM-Series firewall in AWS cloud.
+
+## Usage
+
+For example usage, please refer to the [examples](https://github.com/PaloAltoNetworks/terraform-aws-swfw-modules/tree/main/examples) directory.
+
+## VMSeries Lifecycle policy
+
+The changes in user data bootstrap entries will not affect the existing VM-Series EC2 instances. The recommended method to replace existing VM is to use terraform taint.
+
+## Reference
+<!-- BEGIN_TF_DOCS -->
+### Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.17 |
 
-## Providers
+### Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.17 |
 
-## Modules
+### Modules
 
 No modules.
 
-## Resources
+### Resources
 
 | Name | Type |
 |------|------|
@@ -27,12 +41,12 @@ No modules.
 | [aws_ami.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
 | [aws_kms_alias.current_arn](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kms_alias) | data source |
 
-## Inputs
+### Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_airs_deployment"></a> [airs\_deployment](#input\_airs\_deployment) | Deployment type VM-Series (False) or AI Runtime Security (True) | `bool` | `false` | no |
-| <a name="input_airs_instance_type"></a> [airs\_instance\_type](#input\_airs\_instance\_type) | EC2 instance type. | `string` | `"c6in.4xlarge"` | no |
+| <a name="input_airs_instance_type"></a> [airs\_instance\_type](#input\_airs\_instance\_type) | EC2 instance type. | `string` | `"c6in.xlarge"` | no |
 | <a name="input_airs_product_code"></a> [airs\_product\_code](#input\_airs\_product\_code) | Product code corresponding to a chosen AIRS license type model - by default - BYOL. <br/>To check the available license type models and their codes, please refer to the | `string` | `"b261y39exndwe1ltro1tqpeog"` | no |
 | <a name="input_airs_version"></a> [airs\_version](#input\_airs\_version) | AI Runtime Security version to deploy.<br/>To list all available AIRS versions, run the command provided below. <br/>Please have in mind that the `product-code` may need to be updated - check the `vmseries_product_code` variable for more information.<pre>aws ec2 describe-images --region us-west-1 --filters "Name=product-code,Values=b261y39exndwe1ltro1tqpeog" "Name=name,Values=PA-AI-Runtime-Security-AWS*" --output json --query "Images[].Description" \| grep -o 'PA-AI-Runtime-Security-AWS-.*' \| sort</pre> | `string` | `"11.2.5-h1"` | no |
 | <a name="input_bootstrap_options"></a> [bootstrap\_options](#input\_bootstrap\_options) | VM-Series bootstrap options to provide using instance user data. Contents determine type of bootstap method to use.<br/>If empty (the default), bootstrap process is not triggered at all.<br/>For more information on available methods, please refer to VM-Series documentation for specific version.<br/>For 10.0 docs are available [here](https://docs.paloaltonetworks.com/vm-series/10-0/vm-series-deployment/bootstrap-the-vm-series-firewall.html). | `string` | `""` | no |
@@ -53,10 +67,11 @@ No modules.
 | <a name="input_vmseries_product_code"></a> [vmseries\_product\_code](#input\_vmseries\_product\_code) | Product code corresponding to a chosen VM-Series license type model - by default - BYOL. <br/>To check the available license type models and their codes, please refer to the<br/>[VM-Series documentation](https://docs.paloaltonetworks.com/vm-series/10-0/vm-series-deployment/set-up-the-vm-series-firewall-on-aws/deploy-the-vm-series-firewall-on-aws/obtain-the-ami/get-amazon-machine-image-ids.html) | `string` | `"6njl1pau431dv1qxipg63mvah"` | no |
 | <a name="input_vmseries_version"></a> [vmseries\_version](#input\_vmseries\_version) | VM-Series Firewall version to deploy.<br/>To list all available VM-Series versions, run the command provided below. <br/>Please have in mind that the `product-code` may need to be updated - check the `vmseries_product_code` variable for more information.<pre>aws ec2 describe-images --region us-west-1 --filters "Name=product-code,Values=6njl1pau431dv1qxipg63mvah" "Name=name,Values=PA-VM-AWS*" --output json --query "Images[].Description" \| grep -o 'PA-VM-AWS-.*' \| sort</pre> | `string` | `"10.2.9-h1"` | no |
 
-## Outputs
+### Outputs
 
 | Name | Description |
 |------|-------------|
 | <a name="output_instance"></a> [instance](#output\_instance) | n/a |
 | <a name="output_interfaces"></a> [interfaces](#output\_interfaces) | Map of VM-Series network interfaces. The entries are `aws_network_interface` objects. |
 | <a name="output_public_ips"></a> [public\_ips](#output\_public\_ips) | Map of public IPs created within the module. |
+<!-- END_TF_DOCS -->
