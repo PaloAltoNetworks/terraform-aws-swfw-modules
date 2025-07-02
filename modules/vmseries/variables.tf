@@ -61,8 +61,8 @@ variable "airs_product_code" {
 
 variable "airs_deployment" {
   description = "Deployment type VM-Series (False) or AI Runtime Security (True)"
-  type = bool
-  default = false
+  type        = bool
+  default     = false
 }
 
 variable "include_deprecated_ami" {
