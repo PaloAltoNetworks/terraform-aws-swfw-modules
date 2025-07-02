@@ -82,7 +82,7 @@ variable "iam_instance_profile" {
   type        = string
 }
 
-variable "vmseries_instance_type" {
+variable "instance_type" {
   description = "EC2 instance type."
   default     = "m5.xlarge"
   type        = string

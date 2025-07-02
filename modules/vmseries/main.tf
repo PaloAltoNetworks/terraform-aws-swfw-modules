@@ -1,7 +1,7 @@
 locals {
   ami_image_name = var.airs_deployment ? "PA-AI-Runtime-Security-AWS-${var.airs_version}" : "PA-VM-AWS-${var.vmseries_version}"
   ami_image_product_code = var.airs_deployment ? var.vmseries_product_code : var.airs_product_code
-  instance_type = var.airs_deployment ? var.vmseries_instance_type : var.airs_instance_type
+  instance_type = var.airs_deployment ? var.instance_type : var.airs_instance_type
 }
 
 # PA VM AMI ID lookup based on version and license type (determined by product code)
