@@ -170,8 +170,8 @@ module "transit_gateway_attachment" {
   vpc_id                      = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].vpc_id
   subnets                     = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets
   transit_gateway_route_table = module.transit_gateway.route_tables[each.value.route_table]
-  propagate_routes_to = {
-    to1 = module.transit_gateway.route_tables[each.value.propagate_routes_to].id
+  propagate_routes_to = { for _, rt in each.value.propagate_routes_to :
+    "to_${rt}" => module.transit_gateway.route_tables[rt].id
   }
 }
 
