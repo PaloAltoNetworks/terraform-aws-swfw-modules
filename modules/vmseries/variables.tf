@@ -27,6 +27,19 @@ variable "vmseries_version" {
   type        = string
 }
 
+variable "airs_version" {
+  description = <<-EOF
+  AI Runtime Security version to deploy.
+  To list all available AIRS versions, run the command provided below. 
+  Please have in mind that the `product-code` may need to be updated - check the `vmseries_product_code` variable for more information.
+  ```
+  aws ec2 describe-images --region us-west-1 --filters "Name=product-code,Values=b261y39exndwe1ltro1tqpeog" "Name=name,Values=PA-AI-Runtime-Security-AWS*" --output json --query "Images[].Description" \| grep -o 'PA-AI-Runtime-Security-AWS-.*' \| sort
+  ```
+  EOF
+  default     = "11.2.5-h1"
+  type        = string
+}
+
 variable "vmseries_product_code" {
   description = <<-EOF
   Product code corresponding to a chosen VM-Series license type model - by default - BYOL. 
@@ -35,6 +48,21 @@ variable "vmseries_product_code" {
   EOF
   default     = "6njl1pau431dv1qxipg63mvah"
   type        = string
+}
+
+variable "airs_product_code" {
+  description = <<-EOF
+  Product code corresponding to a chosen AIRS license type model - by default - BYOL. 
+  To check the available license type models and their codes, please refer to the
+  EOF
+  default     = "b261y39exndwe1ltro1tqpeog"
+  type        = string
+}
+
+variable "airs_deployment" {
+  description = "Deployment type VM-Series (False) or AI Runtime Security (True)"
+  type        = bool
+  default     = false
 }
 
 variable "include_deprecated_ami" {
@@ -57,6 +85,12 @@ variable "iam_instance_profile" {
 variable "instance_type" {
   description = "EC2 instance type."
   default     = "m5.xlarge"
+  type        = string
+}
+
+variable "airs_instance_type" {
+  description = "EC2 instance type."
+  default     = "c6in.xlarge"
   type        = string
 }
 
