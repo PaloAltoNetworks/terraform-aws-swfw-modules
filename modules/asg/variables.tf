@@ -375,3 +375,31 @@ variable "scaling_cloudwatch_namespace" {
   type        = string
   default     = "VMseries_dimensions"
 }
+variable "enabled_metrics" {
+  description = "List of Auto Scaling group metrics to collect. Set to an empty list to disable metrics collection."
+  type        = list(string)
+  default = [
+    "GroupMinSize",
+    "GroupMaxSize",
+    "GroupDesiredCapacity",
+    "GroupInServiceInstances",
+    "GroupPendingInstances",
+    "GroupStandbyInstances",
+    "GroupTerminatingInstances",
+    "GroupTotalInstances",
+    "WarmPoolDesiredCapacity",
+    "WarmPoolWarmedCapacity",
+    "WarmPoolPendingCapacity",
+    "WarmPoolTerminatingCapacity",
+    "WarmPoolTotalCapacity",
+    "GroupAndWarmPoolDesiredCapacity",
+    "GroupAndWarmPoolTotalCapacity",
+  ]
+}
+
+variable "metrics_granularity" {
+  description = "Granularity for Auto Scaling group metrics."
+  type        = string
+  default     = "1Minute"
+}
+
