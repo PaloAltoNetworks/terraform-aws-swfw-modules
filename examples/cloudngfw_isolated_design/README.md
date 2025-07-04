@@ -77,7 +77,7 @@ resource "aws_iam_role" "ngfw_role" {
 For the proposed example, the Spoke VMs are supporting ssm-agent. In addition, the VM ```user_data``` contains an installation of httpd service.</br>
 To enable access from the session manager, the Internet connection for a public endpoint is required.
 
-## Reference
+## Reference 
 <!-- BEGIN_TF_DOCS -->
 ### Requirements
 
