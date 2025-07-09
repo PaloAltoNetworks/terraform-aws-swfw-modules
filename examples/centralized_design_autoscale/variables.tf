@@ -154,7 +154,6 @@ variable "tgw" {
   }
   ```
   EOF
-  default     = null
   type = object({
     create = bool
     id     = string
