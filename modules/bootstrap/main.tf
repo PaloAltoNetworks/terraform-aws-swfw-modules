@@ -85,9 +85,10 @@ locals {
 resource "aws_s3_object" "bootstrap_files" {
   for_each = fileset(local.source_root_directory, "**/[^.]*")
 
-  bucket = local.aws_s3_bucket.id
-  key    = each.value
-  source = "${local.source_root_directory}/${each.value}"
+  bucket      = local.aws_s3_bucket.id
+  key         = each.value
+  source      = "${local.source_root_directory}/${each.value}"
+  source_hash = filemd5("${local.source_root_directory}/${each.value}")
 }
 
 data "aws_iam_role" "this" {
