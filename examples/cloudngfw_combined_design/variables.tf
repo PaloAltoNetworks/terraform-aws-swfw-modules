@@ -203,7 +203,7 @@ variable "tgw" {
         vpc                 = "security_vpc"
         subnet              = "tgw_attach"
         route_table         = "from_security_vpc"
-        propagate_routes_to = "from_spoke_vpc"
+        propagate_routes_to = ["from_spoke_vpc"]
       }
     }
   }
@@ -223,7 +223,7 @@ variable "tgw" {
       vpc                 = string
       subnet              = string
       route_table         = string
-      propagate_routes_to = string
+      propagate_routes_to = list(string)
     }))
   })
 }
