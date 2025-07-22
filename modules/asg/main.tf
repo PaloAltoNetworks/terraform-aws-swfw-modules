@@ -109,6 +109,8 @@ resource "aws_autoscaling_group" "this" {
 
   health_check_grace_period = var.health_check.grace_period
   health_check_type         = var.health_check.type
+  metrics_granularity       = var.metrics_granularity
+  enabled_metrics           = var.enabled_metrics
 
   dynamic "tag" {
     for_each = var.global_tags
