@@ -1,10 +1,10 @@
 ---
 short_title: Combined Design
 type: refarch
-show_in_hub: false
+show_in_hub: true
 swfw: cloudngfw
 ---
-### Combined Design model
+# Reference Architecture with Terraform: CloudNGFW in AWS, Combined Design model
 - Same Firewall Cluster(s) to inspect applications in spoke VPCs.
 - Transparently insert inspection in your application VPCs for Ingress, Egress and East-West Traffic.
 - TGW resource is required.
