@@ -4,7 +4,8 @@ type: refarch
 show_in_hub: true
 swfw: cloudngfw
 ---
-### Isolated Design model
+
+# Reference Architecture with Terraform: CloudNGFW in AWS, Isolated Design Model
 - Same Firewall Cluster(s) to inspect applications in multiple VPCs.
 - Transparently insert inspection in your application VPCs for both Ingress and Egress Traffic.
 - No TGW resource is required.
