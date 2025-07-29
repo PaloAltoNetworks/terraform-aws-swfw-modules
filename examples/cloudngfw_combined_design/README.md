@@ -1,7 +1,7 @@
 ---
 short_title: Combined Design
 type: refarch
-show_in_hub: false
+show_in_hub: true
 swfw: cloudngfw
 ---
 ### Combined Design model
