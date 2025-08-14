@@ -27,6 +27,7 @@ module "vpc" {
   domain_name_servers              = each.value.domain_name_servers
   ntp_servers                      = each.value.ntp_servers
   vpc_tags                         = each.value.vpc_tags
+  global_tags                      = var.global_tags
 }
 
 ### SUBNETS ###
@@ -133,12 +134,15 @@ locals {
         next_hop_map = {
           "internet_gateway"           = try(module.vpc[rv.next_hop_key].igw_as_next_hop_set, null)
           "nat_gateway"                = try(module.natgw_set[rv.next_hop_key].next_hop_set, null)
-          "transit_gateway_attachment" = try(module.transit_gateway_attachment[rv.next_hop_key].next_hop_set, null)
           "gwlbe_endpoint"             = try(module.gwlbe_endpoint[rv.next_hop_key].next_hop_set, null)
+          "transit_gateway_attachment" = try(module.transit_gateway_attachment[rv.next_hop_key].next_hop_set, null)
         }
         destination_type       = rv.destination_type
         managed_prefix_list_id = rv.managed_prefix_list_id
-      }
+      } if(rv.next_hop_type == "transit_gateway_attachment" && length(var.tgw_attachments) > 0) ||
+      (rv.next_hop_type == "gwlbe_endpoint" && length(var.gwlb_endpoints) > 0) ||
+      (rv.next_hop_type == "nat_gateway" && length(var.natgws) > 0) ||
+      rv.next_hop_type == "internet_gateway"
   ]]))
   vpc_routes = {
     for route in local.vpc_routes_with_next_hop_map : "${route.vpc}-${route.subnet}-${route.to_cidr}" => {
@@ -183,11 +187,13 @@ module "natgw_set" {
 module "transit_gateway" {
   source = "../../modules/transit_gateway"
 
-  create       = var.tgw.create
-  id           = var.tgw.id
-  name         = var.tgw.create ? "${var.name_prefix}${var.tgw.name}" : var.tgw.name
-  asn          = var.tgw.asn
-  route_tables = var.tgw.route_tables
+  for_each = var.tgws
+
+  create       = each.value.create
+  id           = each.value.id
+  name         = each.value.create ? "${var.name_prefix}${each.value.name}" : each.value.name
+  asn          = each.value.asn
+  route_tables = each.value.route_tables
 }
 
 ### TGW ATTACHMENTS ###
@@ -195,29 +201,33 @@ module "transit_gateway" {
 module "transit_gateway_attachment" {
   source = "../../modules/transit_gateway_attachment"
 
-  for_each = var.tgw.attachments
+  for_each = var.tgw_attachments
 
   create                      = each.value.create
   name                        = each.value.create ? "${var.name_prefix}${each.value.name}" : each.value.name
   id                          = each.value.id
   vpc_id                      = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].vpc_id
   subnets                     = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets
-  transit_gateway_route_table = module.transit_gateway.route_tables[each.value.route_table]
-  propagate_routes_to = { for _, rt in each.value.propagate_routes_to :
-    "to_${rt}" => module.transit_gateway.route_tables[rt].id
+  transit_gateway_route_table = module.transit_gateway[each.value.tgw_key].route_tables[each.value.route_table]
+  propagate_routes_to = {
+    to1 = module.transit_gateway[each.value.tgw_key].route_tables[each.value.propagate_routes_to].id
   }
+  appliance_mode_support = each.value.appliance_mode_support
+  dns_support            = each.value.dns_support
+  tags                   = merge(var.global_tags, each.value.tags)
 }
 
 resource "aws_ec2_transit_gateway_route" "from_spokes_to_security" {
-  transit_gateway_route_table_id = module.transit_gateway.route_tables["from_spoke_vpc"].id
-  transit_gateway_attachment_id  = module.transit_gateway_attachment["security"].attachment.id
+  for_each                       = { for k, v in var.tgw_attachments : k => v if v["security_vpc_attachment"] }
+  transit_gateway_route_table_id = module.transit_gateway[each.value.tgw_key].route_tables["from_spoke_vpc"].id
+  transit_gateway_attachment_id  = module.transit_gateway_attachment[each.key].attachment.id
   destination_cidr_block         = "0.0.0.0/0"
   blackhole                      = false
 }
 
 resource "aws_ec2_transit_gateway_route" "from_security_to_panorama" {
   count                          = var.panorama_attachment.transit_gateway_attachment_id != null ? 1 : 0
-  transit_gateway_route_table_id = module.transit_gateway.route_tables["from_security_vpc"].id
+  transit_gateway_route_table_id = module.transit_gateway[var.panorama_attachment.tgw_key].route_tables["from_security_vpc"].id
   transit_gateway_attachment_id  = var.panorama_attachment.transit_gateway_attachment_id
   destination_cidr_block         = var.panorama_attachment.vpc_cidr
   blackhole                      = false
@@ -287,17 +297,17 @@ module "gwlbe_endpoint" {
 ### GWLB ASSOCIATIONS WITH VM-Series ENDPOINTS ###
 
 locals {
-  subinterface_gwlb_endpoint_eastwest = { for i, j in var.vmseries_asgs : i => join(",", compact(concat(flatten([
+  subinterface_gwlb_endpoint_eastwest = try({ for i, j in var.vmseries_asgs : i => join(",", compact(concat(flatten([
     for sk, sv in j.subinterfaces.eastwest : [for k, v in module.gwlbe_endpoint[sv.gwlb_endpoint].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, sv.subinterface)]
-  ])))) }
-  subinterface_gwlb_endpoint_outbound = { for i, j in var.vmseries_asgs : i => join(",", compact(concat(flatten([
+  ])))) }, {})
+  subinterface_gwlb_endpoint_outbound = try({ for i, j in var.vmseries_asgs : i => join(",", compact(concat(flatten([
     for sk, sv in j.subinterfaces.outbound : [for k, v in module.gwlbe_endpoint[sv.gwlb_endpoint].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, sv.subinterface)]
-  ])))) }
-  subinterface_gwlb_endpoint_inbound = { for i, j in var.vmseries_asgs : i => join(",", compact(concat(flatten([
+  ])))) }, {})
+  subinterface_gwlb_endpoint_inbound = try({ for i, j in var.vmseries_asgs : i => join(",", compact(concat(flatten([
     for sk, sv in j.subinterfaces.inbound : [for k, v in module.gwlbe_endpoint[sv.gwlb_endpoint].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, sv.subinterface)]
-  ])))) }
-  plugin_op_commands_with_endpoints_mapping = { for i, j in var.vmseries_asgs : i => format("%s,%s,%s,%s", j.bootstrap_options["plugin-op-commands"],
-  local.subinterface_gwlb_endpoint_eastwest[i], local.subinterface_gwlb_endpoint_outbound[i], local.subinterface_gwlb_endpoint_inbound[i]) }
+  ])))) }, {})
+  plugin_op_commands_with_endpoints_mapping = { for i, j in var.vmseries_asgs : i => join(",", compact([j.bootstrap_options["plugin-op-commands"],
+  try(local.subinterface_gwlb_endpoint_eastwest[i], null), try(local.subinterface_gwlb_endpoint_outbound[i], null), try(local.subinterface_gwlb_endpoint_inbound[i], null)])) }
   bootstrap_options_with_endpoints_mapping = { for i, j in var.vmseries_asgs : i => [
     for k, v in j.bootstrap_options : k != "plugin-op-commands" ? "${k}=${v}" : "${k}=${local.plugin_op_commands_with_endpoints_mapping[i]}" if v != null
   ] }
@@ -553,10 +563,10 @@ resource "aws_instance" "spoke_vms" {
 module "app_lb" {
   source = "../../modules/nlb"
 
-  for_each = var.spoke_lbs
+  for_each = var.spoke_nlbs
 
   name        = "${var.name_prefix}${each.key}"
-  internal_lb = true
+  internal_lb = each.value.internal_lb
   subnets     = { for k, v in module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets : k => { id = v.id } }
   vpc_id      = module.vpc[each.value.vpc].id
 

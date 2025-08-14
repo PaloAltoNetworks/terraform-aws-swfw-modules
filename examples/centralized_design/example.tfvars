@@ -412,9 +412,8 @@ vpcs = {
 ## TRANSIT GATEWAY
 tgws = {
   tgw = {
-    create = true
-    name   = "tgw"
-    asn    = "64512"
+    name = "tgw"
+    asn  = "64512"
     route_tables = {
       # Do not change keys `from_security_vpc` and `from_spoke_vpc` as they are used in `main.tf` and attachments
       "from_security_vpc" = {
@@ -637,6 +636,17 @@ vmseries = {
     }
   }
 }
+
+### PANORAMA
+# Uncomment the following section to add a route to Panorama TGW attachment on Security VPC attachment
+/* 
+panorama_attachment = {
+  tgw_key = "tgw"
+  transit_gateway_attachment_id = null            # TODO: update here
+  vpc_cidr                      = "10.255.0.0/24" # TODO: update here
+}
+*/
+
 
 ### SPOKE VMS
 spoke_vms = {

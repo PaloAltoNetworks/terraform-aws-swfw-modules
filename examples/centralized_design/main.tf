@@ -27,6 +27,7 @@ module "vpc" {
   domain_name_servers              = each.value.domain_name_servers
   ntp_servers                      = each.value.ntp_servers
   vpc_tags                         = each.value.vpc_tags
+  global_tags                      = var.global_tags
 }
 
 ### SUBNETS ###
@@ -211,6 +212,9 @@ module "transit_gateway_attachment" {
   propagate_routes_to = {
     to1 = module.transit_gateway[each.value.tgw_key].route_tables[each.value.propagate_routes_to].id
   }
+  appliance_mode_support = each.value.appliance_mode_support
+  dns_support            = each.value.dns_support
+  tags                   = merge(var.global_tags, each.value.tags)
 }
 
 resource "aws_ec2_transit_gateway_route" "from_spokes_to_security" {
@@ -297,7 +301,7 @@ module "gwlbe_endpoint" {
     # Source: https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html#gateway-route-table
   } : {}
   delay = each.value.delay
-  tags  = each.value.tags
+  tags  = merge(var.global_tags, each.value.tags)
 }
 
 ### GWLB ASSOCIATIONS WITH VM-Series ENDPOINTS ###
@@ -422,7 +426,7 @@ module "vmseries" {
 
   iam_instance_profile = aws_iam_instance_profile.vm_series_iam_instance_profile.name
   ssh_key_name         = var.ssh_key_name
-  tags                 = var.global_tags
+  tags                 = merge(var.global_tags, each.value.common.tags)
 }
 
 ### Public ALB and NLB used in centralized model ###
@@ -555,7 +559,7 @@ resource "aws_instance" "spoke_vms" {
 
 ### SPOKE INBOUND NETWORK LOAD BALANCER ###
 
-module "app_lb" {
+module "app_nlb" {
   source = "../../modules/nlb"
 
   for_each = var.spoke_nlbs

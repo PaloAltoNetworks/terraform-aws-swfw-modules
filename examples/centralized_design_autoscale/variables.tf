@@ -74,7 +74,7 @@ variable "vpcs" {
       routes = {
         vm_default = {
           vpc           = "app1_vpc"
-          subnet_group        = "app1_vm"
+          subnet_group  = "app1_vm"
           to_cidr       = "0.0.0.0/0"
           next_hop_key  = "app1"
           next_hop_type = "transit_gateway_attachment"
@@ -160,7 +160,7 @@ variable "vpcs" {
 }
 
 ### TRANSIT GATEWAY
-variable "tgw" {
+variable "tgws" {
   description = <<-EOF
   A object defining Transit Gateway.
 
@@ -170,7 +170,6 @@ variable "tgw" {
   - `name`: name of TGW to create or use
   - `asn`: ASN number
   - `route_tables`: map of route tables
-  - `attachments`: map of TGW attachments
 
   Example:
   ```
@@ -185,20 +184,12 @@ variable "tgw" {
         name   = "from_security"
       }
     }
-    attachments = {
-      security = {
-        name                = "vmseries"
-        vpc = "security_vpc"
-        subnet_group          = "tgw_attach"
-        route_table         = "from_security_vpc"
-        propagate_routes_to = ["from_spoke_vpc"]
-      }
-    }
   }
   ```
   EOF
-  type = object({
-    create = bool
+  default     = {}
+  type = map(object({
+    create = optional(bool, true)
     id     = optional(string)
     name   = string
     asn    = string
@@ -206,16 +197,54 @@ variable "tgw" {
       create = bool
       name   = string
     }))
-    attachments = map(object({
-      create              = optional(bool, true)
-      id                  = optional(string)
-      name                = string
-      vpc                 = string
-      subnet_group        = string
-      route_table         = string
-      propagate_routes_to = list(string)
-    }))
-  })
+  }))
+}
+
+variable "tgw_attachments" {
+  description = <<EOF
+  A object defining Transit Gateway Attachments.
+
+  Following properties are available:
+  - `tgw_key`: key of the TGW to be attached
+  - `create`: set to false, if existing TGW attachment needs to be reused
+  - `id`:  id of existing TGW
+  - `security_vpc_attachment`: set to true if default route from spoke VPCs towards
+     this attachment should be created 
+  - `name`: name of the TGW attachment to create or use
+  - `asn`: ASN number
+  - `vpc`: key of the attaching VPC 
+  - `route_table`: route table key created under TGW taht must be associated with attachment
+  - `propagate_routes_to': route table key created under TGW
+
+  Example:
+  ```
+  tgw_attachments = {
+    security = {
+      tgw_key             = "tgw"
+      name                = "vmseries"
+      vpc                 = "security_vpc"
+      subnet_group        = "tgw_attach"
+      route_table         = "from_security_vpc"
+      propagate_routes_to = "from_spoke_vpc"
+    }
+  }
+  ```
+  EOF
+  default     = {}
+  type = map(object({
+    tgw_key                 = string
+    create                  = optional(bool, true)
+    id                      = optional(string)
+    security_vpc_attachment = optional(bool, false)
+    name                    = string
+    vpc                     = string
+    subnet_group            = string
+    route_table             = string
+    propagate_routes_to     = string
+    appliance_mode_support  = optional(string, "enable")
+    dns_support             = optional(string, null)
+    tags                    = optional(map(string))
+  }))
 }
 
 ### NAT GATEWAY
@@ -536,7 +565,7 @@ variable "vmseries_asgs" {
 
 
     vpc  = string
-    gwlb = string
+    gwlb = optional(string)
 
     zones = map(any)
 
@@ -576,12 +605,12 @@ variable "vmseries_asgs" {
     })
 
     scaling_plan = object({
-      enabled                   = bool
-      metric_name               = string
-      estimated_instance_warmup = number
-      target_value              = number
-      statistic                 = string
-      cloudwatch_namespace      = string
+      enabled                   = optional(bool, false)
+      metric_name               = optional(string, "")
+      estimated_instance_warmup = optional(number, 900)
+      target_value              = optional(number, 70)
+      statistic                 = optional(string, "Average")
+      cloudwatch_namespace      = optional(string, "VMseries_dimensions")
       tags                      = map(string)
     })
 
@@ -625,19 +654,26 @@ variable "panorama_attachment" {
   A object defining TGW attachment and CIDR for Panorama.
 
   Following properties are available:
+  - `tgw_key`: key of the TGW for Panorama attachment
   - `transit_gateway_attachment_id`: ID of attachment for Panorama
   - `vpc_cidr`: CIDR of the VPC, where Panorama is deployed
 
   Example:
   ```
   panorama = {
+    tgw_key                       = "tgw"
     transit_gateway_attachment_id = "tgw-attach-123456789"
     vpc_cidr                      = "10.255.0.0/24"
   }
   ```
   EOF
-  default     = null
+  default = {
+    tgw_key                       = "tgw"
+    transit_gateway_attachment_id = null
+    vpc_cidr                      = "10.255.0.0/24"
+  }
   type = object({
+    tgw_key                       = string
     transit_gateway_attachment_id = string
     vpc_cidr                      = string
   })
@@ -679,14 +715,16 @@ variable "spoke_vms" {
 }
 
 ### SPOKE LOADBALANCERS
-variable "spoke_lbs" {
+variable "spoke_nlbs" {
   description = <<-EOF
   A map defining Network Load Balancers deployed in spoke VPCs.
 
   Following properties are available:
+  - `name`: Name of the NLB
   - `vpc`: key of the VPC
   - `subnet_group`: key of the subnet_group
   - `vms`: keys of spoke VMs
+  - `internal_lb`(optional): flag to switch between internet_facing and internal NLB
 
   Example:
   ```
@@ -701,8 +739,10 @@ variable "spoke_lbs" {
   EOF
   default     = {}
   type = map(object({
+    name         = string
     vpc          = string
     subnet_group = string
     vms          = list(string)
+    internal_lb  = optional(bool, false)
   }))
 }

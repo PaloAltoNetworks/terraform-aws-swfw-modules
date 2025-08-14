@@ -409,45 +409,51 @@ vpcs = {
   }
 }
 
-### TRANSIT GATEWAY
-tgw = {
-  create = true
-  name   = "tgw"
-  asn    = "64512"
-  route_tables = {
-    # Do not change keys `from_security_vpc` and `from_spoke_vpc` as they are used in `main.tf` and attachments
-    "from_security_vpc" = {
-      create = true
-      name   = "from_security"
-    }
-    "from_spoke_vpc" = {
-      create = true
-      name   = "from_spokes"
+## TRANSIT GATEWAY
+tgws = {
+  tgw = {
+    name = "tgw"
+    asn  = "64512"
+    route_tables = {
+      # Do not change keys `from_security_vpc` and `from_spoke_vpc` as they are used in `main.tf` and attachments
+      "from_security_vpc" = {
+        create = true
+        name   = "from_security"
+      }
+      "from_spoke_vpc" = {
+        create = true
+        name   = "from_spokes"
+      }
     }
   }
-  attachments = {
-    # Value of `route_table` and `propagate_routes_to` must match `route_tables` stores under `tgw`
-    security = {
-      name                = "vmseries"
-      vpc                 = "security_vpc"
-      subnet_group        = "tgw_attach"
-      route_table         = "from_security_vpc"
-      propagate_routes_to = ["from_spoke_vpc"]
-    }
-    app1 = {
-      name                = "app1-spoke-vpc"
-      vpc                 = "app1_vpc"
-      subnet_group        = "app1_vm"
-      route_table         = "from_spoke_vpc"
-      propagate_routes_to = ["from_security_vpc"]
-    }
-    app2 = {
-      name                = "app2-spoke-vpc"
-      vpc                 = "app2_vpc"
-      subnet_group        = "app2_vm"
-      route_table         = "from_spoke_vpc"
-      propagate_routes_to = ["from_security_vpc"]
-    }
+}
+
+tgw_attachments = {
+  # Value of `route_table` and `propagate_routes_to` must match `route_tables` stores under `tgw`
+  security = {
+    tgw_key                 = "tgw"
+    security_vpc_attachment = true
+    name                    = "vmseries"
+    vpc                     = "security_vpc"
+    subnet_group            = "tgw_attach"
+    route_table             = "from_security_vpc"
+    propagate_routes_to     = "from_spoke_vpc"
+  }
+  app1 = {
+    tgw_key             = "tgw"
+    name                = "app1-spoke-vpc"
+    vpc                 = "app1_vpc"
+    subnet_group        = "app1_vm"
+    route_table         = "from_spoke_vpc"
+    propagate_routes_to = "from_security_vpc"
+  }
+  app2 = {
+    tgw_key             = "tgw"
+    name                = "app2-spoke-vpc"
+    vpc                 = "app2_vpc"
+    subnet_group        = "app2_vm"
+    route_table         = "from_spoke_vpc"
+    propagate_routes_to = "from_security_vpc"
   }
 }
 
@@ -647,10 +653,14 @@ vmseries_asgs = {
 }
 
 ### PANORAMA
+# Uncomment the following section to add a route to Panorama TGW attachment on Security VPC attachment
+/* 
 panorama_attachment = {
+  tgw_key = "tgw"
   transit_gateway_attachment_id = null            # TODO: update here
   vpc_cidr                      = "10.255.0.0/24" # TODO: update here
 }
+*/
 
 ### SPOKE VMS
 spoke_vms = {
@@ -685,13 +695,15 @@ spoke_vms = {
 }
 
 ### SPOKE LOADBALANCERS
-spoke_lbs = {
+spoke_nlbs = {
   "app1-nlb" = {
+    name         = "app1-nlb"
     vpc          = "app1_vpc"
     subnet_group = "app1_lb"
     vms          = ["app1_vm01", "app1_vm02"]
   }
   "app2-nlb" = {
+    name         = "app2-nlb"
     vpc          = "app2_vpc"
     subnet_group = "app2_lb"
     vms          = ["app2_vm01", "app2_vm02"]

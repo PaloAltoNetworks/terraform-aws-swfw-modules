@@ -189,7 +189,7 @@ variable "tgws" {
   EOF
   default     = {}
   type = map(object({
-    create = bool
+    create = optional(bool, true)
     id     = optional(string)
     name   = string
     asn    = string
@@ -241,6 +241,9 @@ variable "tgw_attachments" {
     subnet_group            = string
     route_table             = string
     propagate_routes_to     = string
+    appliance_mode_support  = optional(string, "enable")
+    dns_support             = optional(string, null)
+    tags                    = optional(map(string))
   }))
 }
 
@@ -529,6 +532,7 @@ variable "vmseries" {
     ebs_kms_id                             = optional(string, "alias/aws/ebs")
     enable_instance_termination_protection = optional(bool, false)
     enable_monitoring                      = optional(bool, false)
+    fw_license_type                        = optional(string, "byol")
 
     vpc  = string
     gwlb = optional(string)
@@ -551,6 +555,8 @@ variable "vmseries" {
       gwlb_endpoint = string
       subinterface  = string
     })))
+
+    tags = optional(map(string))
 
     system_services = object({
       dns_primary = string
@@ -580,12 +586,14 @@ variable "panorama_attachment" {
   A object defining TGW attachment and CIDR for Panorama.
 
   Following properties are available:
+  - `tgw_key`: key of the TGW for Panorama attachment
   - `transit_gateway_attachment_id`: ID of attachment for Panorama
   - `vpc_cidr`: CIDR of the VPC, where Panorama is deployed
 
   Example:
   ```
   panorama = {
+    tgw_key                       = "tgw"
     transit_gateway_attachment_id = "tgw-attach-123456789"
     vpc_cidr                      = "10.255.0.0/24"
   }
