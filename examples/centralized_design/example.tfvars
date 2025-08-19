@@ -682,8 +682,8 @@ vmseries = {
 /* 
 panorama_attachment = {
   tgw_key = "tgw"
-  transit_gateway_attachment_id = null            # TODO: update here
-  vpc_cidr                      = "10.255.0.0/24" # TODO: update here
+  transit_gateway_attachment_id = "tgw-attach-123"  # TODO: update here
+  vpc_cidr                      = "10.255.0.0/24"   # TODO: update here
 }
 */
 

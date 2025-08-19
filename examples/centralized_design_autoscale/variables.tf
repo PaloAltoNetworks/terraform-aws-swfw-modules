@@ -529,10 +529,7 @@ variable "vmseries_asgs" {
           standby_instances            = "Ignore"
         }
         triggers = []
-      }
-
-      application_lb = null
-      network_lb     = null      
+      }   
     }
   }
   ```
@@ -637,18 +634,18 @@ variable "vmseries_asgs" {
       triggers = list(string)
     }), null)
 
-    application_lb = object({
-      name           = string
-      subnet_group   = string
-      security_group = string
-      rules          = any
-    })
+    application_lb = optional(object({
+      name           = optional(string)
+      subnet_group   = optional(string)
+      security_group = optional(string)
+      rules          = optional(any)
+    }), {})
 
-    network_lb = object({
-      name         = string
-      subnet_group = string
-      rules        = any
-    })
+    network_lb = optional(object({
+      name         = optional(string)
+      subnet_group = optional(string)
+      rules        = optional(any)
+    }), {})
   }))
 }
 

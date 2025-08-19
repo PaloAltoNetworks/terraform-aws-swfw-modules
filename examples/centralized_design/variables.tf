@@ -496,9 +496,6 @@ variable "vmseries" {
         ntp_primary = "pool.ntp.org" # TODO: update here
         ntp_secondy = null           # TODO: update here
       }
-
-      application_lb = null
-      network_lb     = null
     }
   }
   ```
@@ -569,18 +566,18 @@ variable "vmseries" {
       ntp_secondy = optional(string)
     })
 
-    application_lb = object({
-      name           = string
-      subnet_group   = string
-      security_group = string
-      rules          = any
-    })
+    application_lb = optional(object({
+      name           = optional(string)
+      subnet_group   = optional(string)
+      security_group = optional(string)
+      rules          = optional(any)
+    }), {})
 
-    network_lb = object({
-      name         = string
-      subnet_group = string
-      rules        = any
-    })
+    network_lb = optional(object({
+      name         = optional(string)
+      subnet_group = optional(string)
+      rules        = optional(any)
+    }), {})
   }))
 }
 
