@@ -92,15 +92,12 @@ panoramas = {
           ebs_size        = "2000"
         }
       ]
-      encrypted     = true
-      kms_key_alias = "alias/aws/ebs"
+      encrypted = true
     }
 
     iam = {
       create_role = true
       role_name   = "panorama"
     }
-
-    enable_imdsv2 = false
   }
 }

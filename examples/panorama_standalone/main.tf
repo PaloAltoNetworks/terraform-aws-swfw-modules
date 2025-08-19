@@ -5,13 +5,29 @@ module "vpc" {
 
   for_each = var.vpcs
 
-  name                    = "${var.name_prefix}${each.value.name}"
-  cidr_block              = each.value.cidr
-  security_groups         = each.value.security_groups
-  create_internet_gateway = true
-  enable_dns_hostnames    = true
-  enable_dns_support      = true
-  instance_tenancy        = "default"
+  name                             = each.value.create_vpc ? "${var.name_prefix}${each.value.name}" : each.value.name
+  create_vpc                       = each.value.create_vpc
+  cidr_block                       = each.value.cidr
+  secondary_cidr_blocks            = each.value.secondary_cidr_blocks
+  assign_generated_ipv6_cidr_block = each.value.assign_generated_ipv6_cidr_block
+  use_internet_gateway             = each.value.use_internet_gateway
+  nacls                            = each.value.nacls
+  security_groups                  = each.value.security_groups
+  name_internet_gateway            = each.value.name_internet_gateway
+  route_table_internet_gateway     = each.value.route_table_internet_gateway
+  create_internet_gateway          = each.value.create_internet_gateway
+  create_vpn_gateway               = each.value.create_vpn_gateway
+  vpn_gateway_amazon_side_asn      = each.value.vpn_gateway_amazon_side_asn
+  name_vpn_gateway                 = each.value.name_vpn_gateway
+  enable_dns_hostnames             = each.value.enable_dns_hostnames
+  enable_dns_support               = each.value.enable_dns_support
+  instance_tenancy                 = each.value.instance_tenancy
+  create_dhcp_options              = each.value.create_dhcp_options
+  domain_name                      = each.value.domain_name
+  domain_name_servers              = each.value.domain_name_servers
+  ntp_servers                      = each.value.ntp_servers
+  vpc_tags                         = each.value.vpc_tags
+  global_tags                      = var.global_tags
 }
 
 ### SUBNETS ###
@@ -20,24 +36,27 @@ locals {
   # Flatten the VPCs and their subnets into a list of maps, each containing the VPC name, subnet name, and subnet details.
   subnets_in_vpcs = flatten([for vk, vv in var.vpcs : [for sk, sv in vv.subnets :
     {
+      name                    = sv.name
       cidr                    = sk
       nacl                    = sv.nacl
       az                      = sv.az
       subnet                  = sv.subnet_group
       vpc                     = vk
-      create_subnet           = try(sv.create_subnet, true)
-      create_route_table      = try(sv.create_route_table, sv.create_subnet, true)
-      existing_route_table_id = try(sv.existing_route_table_id, null)
-      associate_route_table   = try(sv.associate_route_table, true)
-      route_table_name        = try(sv.route_table_name, null)
-      local_tags              = try(sv.local_tags, {})
+      create_subnet           = sv.create_subnet
+      create_route_table      = sv.create_route_table
+      existing_route_table_id = sv.existing_route_table_id
+      associate_route_table   = sv.associate_route_table
+      route_table_name        = sv.route_table_name
+      local_tags              = sv.local_tags
+      map_public_ip_on_launch = sv.map_public_ip_on_launch
     }
   ]])
   # Create a map of subnets, keyed by the VPC name and subnet name.
   subnets_with_lists = { for subnet_in_vpc in local.subnets_in_vpcs : "${subnet_in_vpc.vpc}-${subnet_in_vpc.subnet}" => subnet_in_vpc... }
   subnets = { for key, value in local.subnets_with_lists : key => {
-    vpc                     = distinct([for v in value : v.vpc])[0]                               # VPC name (always take first from the list as key is limitting number of VPCs)
-    subnet                  = distinct([for v in value : v.subnet])[0]                            # Subnet name (always take first from the list as key is limitting number of subnets)
+    vpc                     = distinct([for v in value : v.vpc])[0]    # VPC name (always take first from the list as key is limitting number of VPCs)
+    subnet                  = distinct([for v in value : v.subnet])[0] # Subnet name (always take first from the list as key is limitting number of subnets)
+    name                    = [for v in value : v.name]
     az                      = [for v in value : v.az]                                             # List of AZs
     cidr                    = [for v in value : v.cidr]                                           # List of CIDRs
     nacl                    = compact([for v in value : v.nacl])                                  # List of NACLs
@@ -47,6 +66,7 @@ locals {
     associate_route_table   = [for v in value : try(v.associate_route_table, true)]               # List of associate_route_table flags
     route_table_name        = [for v in value : try(v.route_table_name, null)]                    # List of route_table_name values
     local_tags              = [for v in value : try(v.local_tags, {})]                            # List of local_tags maps
+    map_public_ip_on_launch = [for v in value : try(v.map_public_ip_on_launch, {})]               # List of map_public_ip_on_launch flags
   } }
 }
 
@@ -64,6 +84,7 @@ module "subnet_sets" {
   }
   cidrs = {
     for index, cidr in each.value.cidr : cidr => {
+      name                    = each.value.name[index]
       az                      = each.value.az[index]
       create_subnet           = each.value.create_subnet[index]
       create_route_table      = each.value.create_route_table[index]
@@ -71,7 +92,9 @@ module "subnet_sets" {
       associate_route_table   = each.value.associate_route_table[index]
       route_table_name        = each.value.route_table_name[index]
       local_tags              = each.value.local_tags[index]
+      map_public_ip_on_launch = each.value.map_public_ip_on_launch[index]
   } }
+  global_tags = var.global_tags
 }
 
 ### ROUTES ###
@@ -90,8 +113,9 @@ locals {
   #
   # Value of `next_hop_type` defines the type of the next hop. It can be one of the following:
   # - internet_gateway
-  #
-  # Please note, that in this example only internet_gateway is allowed, because no NAT Gateway, TGW or GWLB endpoints are created in main.tf
+  # - nat_gateway
+  # - transit_gateway_attachment
+  # - gwlbe_endpoint
   #
   # If more next hop types are needed, they can be added below.
   #
@@ -109,15 +133,21 @@ locals {
         next_hop_type = rv.next_hop_type
         next_hop_map = {
           "internet_gateway" = try(module.vpc[rv.next_hop_key].igw_as_next_hop_set, null)
+          "nat_gateway"      = try(module.natgw_set[rv.next_hop_key].next_hop_set, null)
         }
-      }
+        destination_type       = rv.destination_type
+        managed_prefix_list_id = rv.managed_prefix_list_id
+      } if(rv.next_hop_type == "nat_gateway" && length(var.natgws) > 0) ||
+      rv.next_hop_type == "internet_gateway"
   ]]))
   vpc_routes = {
     for route in local.vpc_routes_with_next_hop_map : "${route.vpc}-${route.subnet}-${route.to_cidr}" => {
-      vpc          = route.vpc
-      subnet       = route.subnet
-      to_cidr      = route.to_cidr
-      next_hop_set = lookup(route.next_hop_map, route.next_hop_type, null)
+      vpc                    = route.vpc
+      subnet                 = route.subnet
+      to_cidr                = route.to_cidr
+      next_hop_set           = lookup(route.next_hop_map, route.next_hop_type, null)
+      destination_type       = route.destination_type
+      managed_prefix_list_id = route.managed_prefix_list_id
     }
   }
 }
@@ -127,9 +157,26 @@ module "vpc_routes" {
 
   for_each = local.vpc_routes
 
-  route_table_ids = module.subnet_sets["${each.value.vpc}-${each.value.subnet}"].unique_route_table_ids
-  to_cidr         = each.value.to_cidr
-  next_hop_set    = each.value.next_hop_set
+  route_table_ids        = module.subnet_sets["${each.value.vpc}-${each.value.subnet}"].unique_route_table_ids
+  to_cidr                = each.value.to_cidr
+  next_hop_set           = each.value.next_hop_set
+  destination_type       = each.value.destination_type
+  managed_prefix_list_id = each.value.managed_prefix_list_id
+}
+
+### NATGW ###
+
+module "natgw_set" {
+  source = "../../modules/nat_gateway_set"
+
+  for_each = var.natgws
+
+  create_nat_gateway = each.value.create_nat_gateway
+  nat_gateway_names  = each.value.nat_gateway_names
+  subnets            = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets
+  nat_gateway_tags   = each.value.nat_gateway_tags
+  create_eip         = each.value.create_eip
+  eips               = each.value.eips
 }
 
 ### IAM ROLES AND POLICIES ###
@@ -229,12 +276,18 @@ module "panorama" {
   ebs_volumes            = each.value.common.ebs.volumes
   ebs_encrypted          = each.value.common.ebs.encrypted
   panorama_version       = each.value.common.panos_version
+  product_code           = each.value.common.product_code
+  include_deprecated_ami = each.value.common.include_deprecated_ami
+  panorama_ami_id        = each.value.common.panorama_ami_id
+  instance_type          = each.value.common.instance_type
   ssh_key_name           = var.ssh_key_name
   ebs_kms_key_alias      = each.value.common.ebs.kms_key_alias
   subnet_id              = module.subnet_sets["${each.value.common.network.vpc}-${each.value.common.network.subnet_group}"].subnets[each.value.az].id
   vpc_security_group_ids = [module.vpc[each.value.common.network.vpc].security_group_ids[each.value.common.network.security_group]]
   panorama_iam_role      = aws_iam_instance_profile.this[each.key].name
   enable_imdsv2          = each.value.common.enable_imdsv2
+  enable_monitoring      = each.value.common.enable_monitoring
+  eip_domain             = each.value.common.eip_domain
 
   global_tags = var.global_tags
 
