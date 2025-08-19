@@ -408,7 +408,7 @@ module "vm_series_asg" {
   interfaces = {
     for k, v in each.value.interfaces : k => {
       device_index       = v.device_index
-      security_group_ids = try([module.vpc[each.value.vpc].security_group_ids[v.security_group]], [])
+      security_group_ids = try([module.vpc[each.value.common.vpc].security_group_ids[v.security_group]], [])
       source_dest_check  = v.source_dest_check
       subnet_id          = { for z, c in each.value.zones : c => module.subnet_sets[format("%s-%s", each.value.vpc, v.subnet_group)].subnets[c].id }
       create_public_ip   = v.create_public_ip

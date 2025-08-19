@@ -325,9 +325,9 @@ variable "panorama_connection" {
   ```
   EOF
   default = {
-    security_vpc                       = "security_vpc"
+    security_vpc   = "security_vpc"
     peering_vpc_id = null
-    vpc_cidr                      = "10.255.0.0/24"
+    vpc_cidr       = "10.255.0.0/24"
   }
   type = object({
     security_vpc   = string

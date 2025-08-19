@@ -132,13 +132,13 @@ locals {
         to_cidr       = rv.to_cidr
         next_hop_type = rv.next_hop_type
         next_hop_map = {
-          "internet_gateway"           = try(module.vpc[rv.next_hop_key].igw_as_next_hop_set, null)
-          "nat_gateway"                = try(module.natgw_set[rv.next_hop_key].next_hop_set, null)
-          "gwlbe_endpoint"             = try(module.gwlbe_endpoint[rv.next_hop_key].next_hop_set, null)
+          "internet_gateway" = try(module.vpc[rv.next_hop_key].igw_as_next_hop_set, null)
+          "nat_gateway"      = try(module.natgw_set[rv.next_hop_key].next_hop_set, null)
+          "gwlbe_endpoint"   = try(module.gwlbe_endpoint[rv.next_hop_key].next_hop_set, null)
         }
         destination_type       = rv.destination_type
         managed_prefix_list_id = rv.managed_prefix_list_id
-      } if (rv.next_hop_type == "gwlbe_endpoint" && length(var.gwlb_endpoints) > 0) ||
+      } if(rv.next_hop_type == "gwlbe_endpoint" && length(var.gwlb_endpoints) > 0) ||
       (rv.next_hop_type == "nat_gateway" && length(var.natgws) > 0) ||
       rv.next_hop_type == "internet_gateway"
   ]]))
@@ -373,7 +373,7 @@ module "vmseries" {
       device_index       = v.device_index
       name               = v.name
       description        = v.description
-      security_group_ids = try([module.vpc[each.value.vpc].security_group_ids[v.security_group]], [])
+      security_group_ids = try([module.vpc[each.value.common.vpc].security_group_ids[v.security_group]], [])
       source_dest_check  = v.source_dest_check
       subnet_id          = module.subnet_sets["${each.value.common.vpc}-${v.subnet_group}"].subnets[each.value.az].id
       create_public_ip   = v.create_public_ip

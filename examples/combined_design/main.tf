@@ -413,7 +413,7 @@ module "vmseries" {
       device_index       = v.device_index
       name               = v.name
       description        = v.description
-      security_group_ids = try([module.vpc[each.value.vpc].security_group_ids[v.security_group]], [])
+      security_group_ids = try([module.vpc[each.value.common.vpc].security_group_ids[v.security_group]], [])
       source_dest_check  = v.source_dest_check
       subnet_id          = module.subnet_sets["${each.value.common.vpc}-${v.subnet_group}"].subnets[each.value.az].id
       create_public_ip   = v.create_public_ip
