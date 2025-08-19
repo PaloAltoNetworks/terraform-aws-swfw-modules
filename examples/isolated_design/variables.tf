@@ -453,17 +453,23 @@ variable "vmseries" {
     }))
 
     bootstrap_options = object({
+      hostname                              = optional(string)
       mgmt-interface-swap                   = string
       plugin-op-commands                    = string
+      op-command-modes                      = optional(string)
       panorama-server                       = string
+      panorama-server-2                     = optional(string)
       auth-key                              = optional(string)
       vm-auth-key                           = optional(string)
       dgname                                = string
       tplname                               = optional(string)
-      dhcp-send-hostname                    = string
-      dhcp-send-client-id                   = string
-      dhcp-accept-server-hostname           = string
-      dhcp-accept-server-domain             = string
+      cgname                                = optional(string)
+      dns-primary                           = optional(string)
+      dns-secondary                         = optional(string)
+      dhcp-send-hostname                    = optional(string)
+      dhcp-send-client-id                   = optional(string)
+      dhcp-accept-server-hostname           = optional(string)
+      dhcp-accept-server-domain             = optional(string)
       authcodes                             = optional(string)
       vm-series-auto-registration-pin-id    = optional(string)
       vm-series-auto-registration-pin-value = optional(string)
