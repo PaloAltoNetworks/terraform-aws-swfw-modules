@@ -1,4 +1,4 @@
-##### App1 VPC #####
+##### Spokes VPC Load Balancers #####
 
 output "application_load_balancers" {
   description = <<-EOF

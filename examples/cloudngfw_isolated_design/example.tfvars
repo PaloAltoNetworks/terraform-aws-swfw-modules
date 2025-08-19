@@ -68,59 +68,66 @@ vpcs = {
       }
     }
     subnets = {
-      "10.104.0.0/24"   = { az = "eu-west-1a", set = "app1_vm", nacl = null }
-      "10.104.128.0/24" = { az = "eu-west-1b", set = "app1_vm", nacl = null }
-      "10.104.2.0/24"   = { az = "eu-west-1a", set = "app1_lb", nacl = null }
-      "10.104.130.0/24" = { az = "eu-west-1b", set = "app1_lb", nacl = null }
-      "10.104.3.0/24"   = { az = "eu-west-1a", set = "app1_gwlbe", nacl = null }
-      "10.104.131.0/24" = { az = "eu-west-1b", set = "app1_gwlbe", nacl = null }
-      "10.104.4.0/24"   = { az = "eu-west-1a", set = "app1_natgw", nacl = null }
-      "10.104.132.0/24" = { az = "eu-west-1b", set = "app1_natgw", nacl = null }
-      "10.104.5.0/24"   = { az = "eu-west-1a", set = "app1_gwlbe2", nacl = null }
-      "10.104.133.0/24" = { az = "eu-west-1b", set = "app1_gwlbe2", nacl = null }
+      "10.104.0.0/24"   = { az = "eu-west-1a", subnet_group = "app1_vm", nacl = null }
+      "10.104.128.0/24" = { az = "eu-west-1b", subnet_group = "app1_vm", nacl = null }
+      "10.104.2.0/24"   = { az = "eu-west-1a", subnet_group = "app1_lb", nacl = null }
+      "10.104.130.0/24" = { az = "eu-west-1b", subnet_group = "app1_lb", nacl = null }
+      "10.104.3.0/24"   = { az = "eu-west-1a", subnet_group = "app1_gwlbe", nacl = null }
+      "10.104.131.0/24" = { az = "eu-west-1b", subnet_group = "app1_gwlbe", nacl = null }
+      "10.104.4.0/24"   = { az = "eu-west-1a", subnet_group = "app1_natgw", nacl = null }
+      "10.104.132.0/24" = { az = "eu-west-1b", subnet_group = "app1_natgw", nacl = null }
+      "10.104.5.0/24"   = { az = "eu-west-1a", subnet_group = "app1_gwlbe2", nacl = null }
+      "10.104.133.0/24" = { az = "eu-west-1b", subnet_group = "app1_gwlbe2", nacl = null }
     }
     routes = {
-      # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
+      # Value of `subnet_group` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
       # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       gwlbe_default = {
-        vpc_subnet    = "app1_vpc-app1_gwlbe"
+        vpc           = "app1_vpc"
+        subnet_group  = "app1_gwlbe"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app1_vpc"
         next_hop_type = "internet_gateway"
       }
       lb_default = {
-        vpc_subnet    = "app1_vpc-app1_lb"
+        vpc           = "app1_vpc"
+        subnet_group  = "app1_lb"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app1_inbound"
         next_hop_type = "gwlbe_endpoint"
       }
       nat_default = {
-        vpc_subnet    = "app1_vpc-app1_natgw"
+        vpc           = "app1_vpc"
+        subnet_group  = "app1_natgw"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app1_vpc"
         next_hop_type = "internet_gateway"
       }
       nat_app_az1 = {
-        vpc_subnet    = "app1_vpc-app1_natgw"
+        vpc           = "app1_vpc"
+        subnet_group  = "app1_natgw"
         to_cidr       = "10.104.0.0/24"
         next_hop_key  = "app1_outbound"
         next_hop_type = "gwlbe_endpoint"
       }
       nat_app_az2 = {
-        vpc_subnet    = "app1_vpc-app1_natgw"
+        vpc           = "app1_vpc"
+        subnet_group  = "app1_natgw"
         to_cidr       = "10.104.128.0/24"
         next_hop_key  = "app1_outbound"
         next_hop_type = "gwlbe_endpoint"
       }
       app_default = {
-        vpc_subnet    = "app1_vpc-app1_vm"
+        vpc           = "app1_vpc"
+        subnet_group  = "app1_vm"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app1_outbound"
         next_hop_type = "gwlbe_endpoint"
       }
       gwlbe1_default = {
-        vpc_subnet    = "app1_vpc-app1_gwlbe2"
+        vpc           = "app1_vpc"
+        subnet_group  = "app1_gwlbe2"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app1_nat_gw"
         next_hop_type = "nat_gateway"
@@ -179,59 +186,66 @@ vpcs = {
       }
     }
     subnets = {
-      "10.105.0.0/24"   = { az = "eu-west-1a", set = "app2_vm", nacl = null }
-      "10.105.128.0/24" = { az = "eu-west-1b", set = "app2_vm", nacl = null }
-      "10.105.2.0/24"   = { az = "eu-west-1a", set = "app2_lb", nacl = null }
-      "10.105.130.0/24" = { az = "eu-west-1b", set = "app2_lb", nacl = null }
-      "10.105.3.0/24"   = { az = "eu-west-1a", set = "app2_gwlbe", nacl = null }
-      "10.105.131.0/24" = { az = "eu-west-1b", set = "app2_gwlbe", nacl = null }
-      "10.105.4.0/24"   = { az = "eu-west-1a", set = "app2_natgw", nacl = null }
-      "10.105.132.0/24" = { az = "eu-west-1b", set = "app2_natgw", nacl = null }
-      "10.105.5.0/24"   = { az = "eu-west-1a", set = "app2_gwlbe2", nacl = null }
-      "10.105.133.0/24" = { az = "eu-west-1b", set = "app2_gwlbe2", nacl = null }
+      "10.105.0.0/24"   = { az = "eu-west-1a", subnet_group = "app2_vm", nacl = null }
+      "10.105.128.0/24" = { az = "eu-west-1b", subnet_group = "app2_vm", nacl = null }
+      "10.105.2.0/24"   = { az = "eu-west-1a", subnet_group = "app2_lb", nacl = null }
+      "10.105.130.0/24" = { az = "eu-west-1b", subnet_group = "app2_lb", nacl = null }
+      "10.105.3.0/24"   = { az = "eu-west-1a", subnet_group = "app2_gwlbe", nacl = null }
+      "10.105.131.0/24" = { az = "eu-west-1b", subnet_group = "app2_gwlbe", nacl = null }
+      "10.105.4.0/24"   = { az = "eu-west-1a", subnet_group = "app2_natgw", nacl = null }
+      "10.105.132.0/24" = { az = "eu-west-1b", subnet_group = "app2_natgw", nacl = null }
+      "10.105.5.0/24"   = { az = "eu-west-1a", subnet_group = "app2_gwlbe2", nacl = null }
+      "10.105.133.0/24" = { az = "eu-west-1b", subnet_group = "app2_gwlbe2", nacl = null }
     }
     routes = {
-      # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
+      # Value of `subnet_group` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
       # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       gwlbe_default = {
-        vpc_subnet    = "app2_vpc-app2_gwlbe"
+        vpc           = "app2_vpc"
+        subnet_group  = "app2_gwlbe"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app2_vpc"
         next_hop_type = "internet_gateway"
       }
       lb_default = {
-        vpc_subnet    = "app2_vpc-app2_lb"
+        vpc           = "app2_vpc"
+        subnet_group  = "app2_lb"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app2_inbound"
         next_hop_type = "gwlbe_endpoint"
       }
       nat_default = {
-        vpc_subnet    = "app2_vpc-app2_natgw"
+        vpc           = "app2_vpc"
+        subnet_group  = "app2_natgw"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app2_vpc"
         next_hop_type = "internet_gateway"
       }
       nat_app_az1 = {
-        vpc_subnet    = "app2_vpc-app2_natgw"
+        vpc           = "app2_vpc"
+        subnet_group  = "app2_natgw"
         to_cidr       = "10.105.0.0/24"
         next_hop_key  = "app2_outbound"
         next_hop_type = "gwlbe_endpoint"
       }
       nat_app_az2 = {
-        vpc_subnet    = "app2_vpc-app2_natgw"
+        vpc           = "app2_vpc"
+        subnet_group  = "app2_natgw"
         to_cidr       = "10.105.128.0/24"
         next_hop_key  = "app2_outbound"
         next_hop_type = "gwlbe_endpoint"
       }
       app_default = {
-        vpc_subnet    = "app2_vpc-app2_vm"
+        vpc           = "app2_vpc"
+        subnet_group  = "app2_vm"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app2_outbound"
         next_hop_type = "gwlbe_endpoint"
       }
       gwlbe2_default = {
-        vpc_subnet    = "app2_vpc-app2_gwlbe2"
+        vpc           = "app2_vpc"
+        subnet_group  = "app2_gwlbe2"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app2_nat_gw"
         next_hop_type = "nat_gateway"
@@ -243,12 +257,12 @@ vpcs = {
 ### NAT GATEWAY
 natgws = {
   app1_nat_gw = {
-    name       = "natgw"
-    vpc_subnet = "app1_vpc-app1_natgw"
+    vpc          = "app1_vpc"
+    subnet_group = "app1_natgw"
   }
   app2_nat_gw = {
-    name       = "natgw"
-    vpc_subnet = "app2_vpc-app2_natgw"
+    vpc          = "app2_vpc"
+    subnet_group = "app2_natgw"
   }
 }
 
@@ -257,42 +271,54 @@ spoke_vms = {
   "app1_vm01" = {
     az             = "eu-west-1a"
     vpc            = "app1_vpc"
-    vpc_subnet     = "app1_vpc-app1_vm"
+    subnet_group   = "app1_vm"
     security_group = "app1_vm"
-    type           = "t3.micro"
   }
   "app1_vm02" = {
     az             = "eu-west-1b"
     vpc            = "app1_vpc"
-    vpc_subnet     = "app1_vpc-app1_vm"
+    subnet_group   = "app1_vm"
     security_group = "app1_vm"
-    type           = "t3.micro"
   }
   "app2_vm01" = {
     az             = "eu-west-1a"
     vpc            = "app2_vpc"
-    vpc_subnet     = "app2_vpc-app2_vm"
+    subnet_group   = "app2_vm"
     security_group = "app2_vm"
-    type           = "t3.micro"
   }
   "app2_vm02" = {
     az             = "eu-west-1b"
     vpc            = "app2_vpc"
-    vpc_subnet     = "app2_vpc-app2_vm"
+    subnet_group   = "app2_vm"
     security_group = "app2_vm"
-    type           = "t3.micro"
   }
 }
 
 ### SPOKE LOADBALANCERS
 spoke_nlbs = {
   "app1-nlb" = {
-    vpc_subnet = "app1_vpc-app1_lb"
-    vms        = ["app1_vm01", "app1_vm02"]
+    name         = "app1-nlb"
+    vpc          = "app1_vpc"
+    subnet_group = "app1_lb"
+    vms          = ["app1_vm01", "app1_vm02"]
+    balance_rules = {
+      "SSH" = {
+        port     = "22"
+        protocol = "TCP"
+      }
+    }
   }
   "app2-nlb" = {
-    vpc_subnet = "app2_vpc-app2_lb"
-    vms        = ["app2_vm01", "app2_vm02"]
+    name         = "app2-nlb"
+    vpc          = "app2_vpc"
+    subnet_group = "app2_lb"
+    vms          = ["app2_vm01", "app2_vm02"]
+    balance_rules = {
+      "SSH" = {
+        port     = "22"
+        protocol = "TCP"
+      }
+    }
   }
 }
 
@@ -301,12 +327,7 @@ spoke_albs = {
     vms = ["app1_vm01", "app1_vm02"]
     rules = {
       "app1" = {
-        protocol              = "HTTP"
-        port                  = 80
-        health_check_port     = "80"
-        health_check_matcher  = "200"
-        health_check_path     = "/"
-        health_check_interval = 10
+        health_check_port = "80"
         listener_rules = {
           "1" = {
             target_protocol = "HTTP"
@@ -317,19 +338,14 @@ spoke_albs = {
       }
     }
     vpc             = "app1_vpc"
-    vpc_subnet      = "app1_vpc-app1_lb"
+    subnet_group    = "app1_lb"
     security_groups = "app1_lb"
   }
   "app2-alb" = {
     vms = ["app2_vm01", "app2_vm02"]
     rules = {
       "app2" = {
-        protocol              = "HTTP"
-        port                  = 80
-        health_check_port     = "80"
-        health_check_matcher  = "200"
-        health_check_path     = "/"
-        health_check_interval = 10
+        health_check_port = "80"
         listener_rules = {
           "1" = {
             target_protocol = "HTTP"
@@ -340,17 +356,16 @@ spoke_albs = {
       }
     }
     vpc             = "app2_vpc"
-    vpc_subnet      = "app2_vpc-app2_lb"
+    subnet_group    = "app2_lb"
     security_groups = "app2_lb"
   }
 }
 
 cloudngfws = {
   cloudngfws_security = {
-    name        = "cloudngfw01"
-    vpc_subnet  = "app1_vpc-app1_gwlbe"
-    vpc         = "app1_vpc"
-    description = "Description"
+    name         = "cloudngfw01"
+    subnet_group = "app1_gwlbe"
+    vpc          = "app1_vpc"
     security_rules = {
       rule_1 = {
         rule_list                   = "LocalRule"
@@ -402,41 +417,41 @@ cloudngfws = {
 gwlb_endpoints = {
   # Value of `gwlb` must match key of objects stored in `gwlbs`
   # Value of `vpc` must match key of objects stored in `vpcs`
-  # Value of `vpc_subnet` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
+  # Value of `subnet_group` is built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
   app1_inbound = {
-    name            = "app1-gwlb-endpoint"
-    vpc             = "app1_vpc"
-    vpc_subnet      = "app1_vpc-app1_gwlbe"
-    act_as_next_hop = true
-    to_vpc_subnets  = "app1_vpc-app1_lb"
-    delay           = 60
-    cloudngfw       = "cloudngfws_security"
+    name                     = "app1-gwlb-endpoint"
+    vpc                      = "app1_vpc"
+    subnet_group             = "app1_gwlbe"
+    act_as_next_hop          = true
+    from_igw_to_vpc          = "app1_vpc"
+    from_igw_to_subnet_group = "app1_lb"
+    delay                    = 60
+    cloudngfw_key            = "cloudngfws_security"
   }
   app1_outbound = {
     name            = "app1-gwlb-out-endpoint"
     vpc             = "app1_vpc"
-    vpc_subnet      = "app1_vpc-app1_gwlbe2"
+    subnet_group    = "app1_gwlbe2"
     act_as_next_hop = false
-    to_vpc_subnets  = null
     delay           = 60
-    cloudngfw       = "cloudngfws_security"
+    cloudngfw_key   = "cloudngfws_security"
   }
   app2_inbound = {
-    name            = "app2-gwlb-endpoint"
-    vpc             = "app2_vpc"
-    vpc_subnet      = "app2_vpc-app2_gwlbe"
-    act_as_next_hop = true
-    to_vpc_subnets  = "app2_vpc-app2_lb"
-    delay           = 60
-    cloudngfw       = "cloudngfws_security"
+    name                     = "app2-gwlb-endpoint"
+    vpc                      = "app2_vpc"
+    subnet_group             = "app2_gwlbe"
+    act_as_next_hop          = true
+    from_igw_to_vpc          = "app2_vpc"
+    from_igw_to_subnet_group = "app2_lb"
+    delay                    = 60
+    cloudngfw_key            = "cloudngfws_security"
   }
   app2_outbound = {
     name            = "app2-gwlb-out-endpoint"
     vpc             = "app2_vpc"
-    vpc_subnet      = "app2_vpc-app2_gwlbe2"
+    subnet_group    = "app2_gwlbe2"
     act_as_next_hop = false
-    to_vpc_subnets  = null
     delay           = 60
-    cloudngfw       = "cloudngfws_security"
+    cloudngfw_key   = "cloudngfws_security"
   }
 }
