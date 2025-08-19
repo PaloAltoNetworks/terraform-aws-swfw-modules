@@ -597,7 +597,6 @@ vmseries = {
 
     # Value of `gwlb_endpoint` must match key of objects stored in `gwlb_endpoints`
     subinterfaces = {
-      inbound = {}
       outbound = {
         only_1_outbound = {
           gwlb_endpoint = "security_gwlb_outbound"

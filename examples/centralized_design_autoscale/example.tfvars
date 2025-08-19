@@ -598,7 +598,6 @@ vmseries_asgs = {
 
     # Value of `gwlb_endpoint` must match key of objects stored in `gwlb_endpoints`
     subinterfaces = {
-      inbound = {}
       outbound = {
         only_1_outbound = {
           gwlb_endpoint = "security_gwlb_outbound"
@@ -697,8 +696,8 @@ vmseries_asgs = {
 /* 
 panorama_attachment = {
   tgw_key = "tgw"
-  transit_gateway_attachment_id = null            # TODO: update here
-  vpc_cidr                      = "10.255.0.0/24" # TODO: update here
+  transit_gateway_attachment_id = "tgw-attach-123"  # TODO: update here
+  vpc_cidr                      = "10.255.0.0/24"   # TODO: update here
 }
 */
 
