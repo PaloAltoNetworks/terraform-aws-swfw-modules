@@ -320,6 +320,26 @@ vpcs = {
           }
         }
       }
+      app1_lb = {
+        name = "app1_lb"
+        rules = {
+          all_outbound = {
+            description = "Permit All traffic outbound"
+            type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+            cidr_blocks = ["0.0.0.0/0"]
+          }
+          https = {
+            description = "Permit HTTPS"
+            type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
+            cidr_blocks = ["1.1.1.1/32"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
+          }
+          http = {
+            description = "Permit HTTP"
+            type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
+            cidr_blocks = ["1.1.1.1/32"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
+          }
+        }
+      }
     }
     subnets = {
       "10.104.0.0/24"   = { az = "eu-west-1a", subnet_group = "app1_vm" }
@@ -378,6 +398,26 @@ vpcs = {
             description = "Permit HTTP"
             type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
             cidr_blocks = ["1.1.1.1/32", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
+          }
+        }
+      }
+      app2_lb = {
+        name = "app2_lb"
+        rules = {
+          all_outbound = {
+            description = "Permit All traffic outbound"
+            type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+            cidr_blocks = ["0.0.0.0/0"]
+          }
+          https = {
+            description = "Permit HTTPS"
+            type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
+            cidr_blocks = ["1.1.1.1/32"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
+          }
+          http = {
+            description = "Permit HTTP"
+            type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
+            cidr_blocks = ["1.1.1.1/32"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
         }
       }
@@ -687,11 +727,62 @@ spoke_nlbs = {
     vpc          = "app1_vpc"
     subnet_group = "app1_lb"
     vms          = ["app1_vm01", "app1_vm02"]
+    balance_rules = {
+      "SSH" = {
+        port     = "22"
+        protocol = "TCP"
+      }
+    }
   }
   "app2-nlb" = {
     name         = "app2-nlb"
     vpc          = "app2_vpc"
     subnet_group = "app2_lb"
     vms          = ["app2_vm01", "app2_vm02"]
+    balance_rules = {
+      "SSH" = {
+        port     = "22"
+        protocol = "TCP"
+      }
+    }
+  }
+}
+
+spoke_albs = {
+  "app1-alb" = {
+    vms = ["app1_vm01", "app1_vm02"]
+    rules = {
+      "app1" = {
+        health_check_port = "80"
+        listener_rules = {
+          "1" = {
+            target_protocol = "HTTP"
+            target_port     = 80
+            path_pattern    = ["/"]
+          }
+        }
+      }
+    }
+    vpc             = "app1_vpc"
+    subnet_group    = "app1_lb"
+    security_groups = "app1_lb"
+  }
+  "app2-alb" = {
+    vms = ["app2_vm01", "app2_vm02"]
+    rules = {
+      "app2" = {
+        health_check_port = "80"
+        listener_rules = {
+          "1" = {
+            target_protocol = "HTTP"
+            target_port     = 80
+            path_pattern    = ["/"]
+          }
+        }
+      }
+    }
+    vpc             = "app2_vpc"
+    subnet_group    = "app2_lb"
+    security_groups = "app2_lb"
   }
 }

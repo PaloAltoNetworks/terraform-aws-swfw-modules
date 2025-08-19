@@ -178,6 +178,7 @@ module "natgw_set" {
   create_nat_gateway = each.value.create_nat_gateway
   nat_gateway_names  = each.value.nat_gateway_names
   subnets            = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets
+  nat_gateway_tags   = each.value.nat_gateway_tags
   create_eip         = each.value.create_eip
   eips               = each.value.eips
 }
@@ -557,6 +558,23 @@ resource "aws_instance" "spoke_vms" {
   EOF
 }
 
+### SPOKE INBOUND APPLICATION LOAD BALANCER ###
+
+module "app_alb" {
+  source = "../../modules/alb"
+
+  for_each = var.spoke_albs
+
+  lb_name         = "${var.name_prefix}${each.key}"
+  subnets         = { for k, v in module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets : k => { id = v.id } }
+  vpc_id          = module.vpc[each.value.vpc].id
+  security_groups = [module.vpc[each.value.vpc].security_group_ids[each.value.security_groups]]
+  rules           = each.value.rules
+  targets         = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].private_ip }
+
+  tags = var.global_tags
+}
+
 ### SPOKE INBOUND NETWORK LOAD BALANCER ###
 
 module "app_nlb" {
@@ -569,29 +587,13 @@ module "app_nlb" {
   subnets     = { for k, v in module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets : k => { id = v.id } }
   vpc_id      = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].vpc_id
 
-  balance_rules = {
-    "SSH-traffic" = {
-      protocol    = "TCP"
-      port        = "22"
-      target_type = "instance"
-      stickiness  = true
-      targets     = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].id }
-    }
-    "HTTP-traffic" = {
-      protocol    = "TCP"
-      port        = "80"
-      target_type = "instance"
-      stickiness  = false
-      targets     = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].id }
-    }
-    "HTTPS-traffic" = {
-      protocol    = "TCP"
-      port        = "443"
-      target_type = "instance"
-      stickiness  = false
-      targets     = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].id }
-    }
-  }
+  balance_rules = { for rule_key, rule_value in each.value.balance_rules : rule_key => {
+    protocol    = rule_value.protocol
+    port        = rule_value.port
+    stickiness  = rule_value.stickiness
+    target_type = "instance"
+    targets     = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].id }
+  } }
 
   tags = var.global_tags
 }

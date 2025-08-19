@@ -257,6 +257,7 @@ variable "natgws" {
     Each value in the map is a custom name of a NAT Gateway in that Availability Zone.
   - `vpc`: key of the VPC
   - `subnet_group`: key of the subnet_group
+  - `nat_gateway_tags`: A map containing NAT GW tags
   - `create_eip`: Defaults to true, uses a data source to find EIP when set to false
   - `eips`: Optional map of Elastic IP attributes. Each key must be an Availability Zone name. 
 
@@ -285,6 +286,7 @@ variable "natgws" {
     nat_gateway_names  = optional(map(string), {})
     vpc                = string
     subnet_group       = string
+    nat_gateway_tags   = optional(map(string), {})
     create_eip         = optional(bool, true)
     eips = optional(map(object({
       name      = optional(string)
@@ -353,12 +355,13 @@ variable "gwlb_endpoints" {
   - `name`: name of the GWLB endpoint
   - `custom_names`: Optional map of names of the VPC Endpoints, used to override the default naming generated from the input `name`. 
     Each key is the Availability Zone identifier, for example `us-east-1b.
-  - `gwlb`: key of GWLB
+  - `gwlb`: key of GWLB. Required when GWLB Endpoint must connect to GWLB's service name
   - `vpc`: key of VPC
   - `subnet_group`: key of the subnet_group
   - `act_as_next_hop`: set to `true` if endpoint is part of an IGW route table e.g. for inbound traffic
   - `from_igw_to_vpc`: VPC to which traffic from IGW is routed to the GWLB endpoint
   - `from_igw_to_subnet_group` : subnet_group to which traffic from IGW is routed to the GWLB endpoint
+  - `cloudngfw_key`(optional): Key of the Cloud NGFW. Required when GWLB Endpoint must connect to Cloud NGFW's service name
 
   Example:
   ```
@@ -377,7 +380,7 @@ variable "gwlb_endpoints" {
   type = map(object({
     name                     = string
     custom_names             = optional(map(string), {})
-    gwlb                     = string
+    gwlb                     = optional(string)
     vpc                      = string
     subnet_group             = string
     act_as_next_hop          = bool
@@ -385,6 +388,7 @@ variable "gwlb_endpoints" {
     from_igw_to_subnet_group = optional(string)
     delay                    = optional(number, 0)
     tags                     = optional(map(string))
+    cloudngfw_key            = optional(string)
   }))
 }
 
@@ -689,7 +693,7 @@ variable "spoke_vms" {
   - `vpc`: name of the VPC (needs to be one of the keys in map `vpcs`)
   - `subnet_group`: key of the subnet_group
   - `security_group`: security group assigned to ENI used by VM
-  - `type`: EC2 type VM
+  - `type`: EC2 VM type
 
   Example:
   ```
@@ -710,7 +714,7 @@ variable "spoke_vms" {
     vpc            = string
     subnet_group   = string
     security_group = string
-    type           = string
+    type           = optional(string, "t2.micro")
   }))
 }
 
@@ -725,6 +729,7 @@ variable "spoke_nlbs" {
   - `subnet_group`: key of the subnet_group
   - `vms`: keys of spoke VMs
   - `internal_lb`(optional): flag to switch between internet_facing and internal NLB
+  - `balance_rules` (optional): Rules defining the method of traffic balancing 
 
   Example:
   ```
@@ -744,5 +749,44 @@ variable "spoke_nlbs" {
     subnet_group = string
     vms          = list(string)
     internal_lb  = optional(bool, false)
+    balance_rules = map(object({
+      protocol   = string
+      port       = string
+      stickiness = optional(bool, true)
+    }))
+  }))
+}
+
+variable "spoke_albs" {
+  description = <<-EOF
+  A map defining Application Load Balancers deployed in spoke VPCs.
+
+  Following properties are available:
+  - `rules`: Rules defining the method of traffic balancing
+  - `vms`: Instances to be the target group for ALB
+  - `vpc`: The VPC in which the load balancer is to be run
+  - `subnet_group`: The subnets in which the Load Balancer is to be run
+  - `security_gropus`: Security Groups to be associated with the ALB
+  ```
+  EOF
+  default     = {}
+  type = map(object({
+    rules = map(object({
+      protocol              = optional(string, "HTTP")
+      port                  = optional(number, 80)
+      health_check_port     = optional(string, "80")
+      health_check_matcher  = optional(string, "200")
+      health_check_path     = optional(string, "/")
+      health_check_interval = optional(number, 10)
+      listener_rules = map(object({
+        target_protocol = string
+        target_port     = number
+        path_pattern    = list(string)
+      }))
+    }))
+    vms             = list(string)
+    vpc             = string
+    subnet_group    = string
+    security_groups = string
   }))
 }
