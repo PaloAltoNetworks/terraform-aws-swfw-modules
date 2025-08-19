@@ -40,6 +40,7 @@ locals {
     {
       name                    = sv.name
       cidr                    = sk
+      ipv6_cidr               = try(cidrsubnet(module.vpc[vk].vpc.ipv6_cidr_block, 8, sv.ipv6_index), null)
       nacl                    = sv.nacl
       az                      = sv.az
       subnet                  = sv.subnet_group
@@ -61,6 +62,7 @@ locals {
     name                    = [for v in value : v.name]
     az                      = [for v in value : v.az]                                             # List of AZs
     cidr                    = [for v in value : v.cidr]                                           # List of CIDRs
+    ipv6_cidr               = [for v in value : try(v.ipv6_cidr, null)]                           # List of IPv6 CIDRs
     nacl                    = compact([for v in value : v.nacl])                                  # List of NACLs
     create_subnet           = [for v in value : try(v.create_subnet, true)]                       # List of create_subnet flags
     create_route_table      = [for v in value : try(v.create_route_table, v.create_subnet, true)] # List of create_route_table flags
@@ -95,6 +97,7 @@ module "subnet_sets" {
       route_table_name        = each.value.route_table_name[index]
       local_tags              = each.value.local_tags[index]
       map_public_ip_on_launch = each.value.map_public_ip_on_launch[index]
+      ipv6_cidr               = each.value.ipv6_cidr[index]
   } }
   global_tags = var.global_tags
 }
