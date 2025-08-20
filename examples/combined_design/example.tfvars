@@ -193,7 +193,7 @@ vpcs = {
       gwlbe_outbound_rfc1918 = {
         vpc           = "security_vpc"
         subnet_group  = "gwlbe_outbound"
-        to_cidr       = "0.0.0.0/0"
+        to_cidr       = "10.0.0.0/8"
         next_hop_key  = "security"
         next_hop_type = "transit_gateway_attachment"
       }

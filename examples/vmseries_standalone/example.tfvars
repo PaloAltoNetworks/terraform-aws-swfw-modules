@@ -74,7 +74,7 @@ vmseries = {
       dhcp-send-client-id         = "yes"                                                     # TODO: update here
       dhcp-accept-server-hostname = "yes"                                                     # TODO: update here
       dhcp-accept-server-domain   = "yes"                                                     # TODO: update here
-      auth-key                    = ""                                                        # TODO: update here
+      vm-auth-key                 = ""                                                        # TODO: update here
     }
     /* Uncomment this section if SCM bootstrap required (PAN-OS version 11.0 or higher) 
 
