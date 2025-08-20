@@ -99,6 +99,7 @@ variable "vpn_connection" {
   - tunnel2_startup_action - (Optional, Default add) The action to take when the establishing the tunnel for the second VPN connection. By default, your customer gateway device must initiate the IKE negotiation and bring up the tunnel. Specify start for AWS to initiate the IKE negotiation. Valid values are add | start.
   EOF
   type = object({
+    name                                    = optional(string, "")
     customer_gateway_id                     = string
     type                                    = optional(string, "ipsec.1")
     transit_gateway_id                      = optional(string)
