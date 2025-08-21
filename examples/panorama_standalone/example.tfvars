@@ -15,7 +15,6 @@ vpcs = {
   management_vpc = {
     name  = "management-vpc"
     cidr  = "10.255.0.0/16"
-    nacls = {}
     security_groups = {
       panorama_mgmt = {
         name = "panorama_mgmt"

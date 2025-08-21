@@ -19,8 +19,6 @@ vpcs = {
   security_vpc = {
     name            = "security_vpc"
     cidr            = "10.100.0.0/16"
-    nacls           = {}
-    security_groups = {}
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf
       # Value of `nacl` must match key of objects stored in `nacls`

@@ -128,8 +128,8 @@ variable "vpcs" {
         source_security_groups = optional(list(string))
         self                   = optional(bool)
       }))
-    })))
-    subnets = map(object({
+    })), {})
+    subnets = optional(map(object({
       name                    = optional(string)
       az                      = string
       subnet_group            = string
@@ -141,9 +141,8 @@ variable "vpcs" {
       associate_route_table   = optional(bool, true)
       local_tags              = optional(map(string), {})
       map_public_ip_on_launch = optional(bool, false)
-      ipv6_index              = optional(number)
-    }))
-    routes = map(object({
+    })), {})
+    routes = optional(map(object({
       vpc                    = string
       subnet_group           = string
       to_cidr                = string
@@ -151,7 +150,7 @@ variable "vpcs" {
       next_hop_type          = string
       destination_type       = optional(string, "ipv4")
       managed_prefix_list_id = optional(string)
-    }))
+    })), {})
     create_dhcp_options = optional(bool, false)
     domain_name         = optional(string)
     domain_name_servers = optional(list(string))
