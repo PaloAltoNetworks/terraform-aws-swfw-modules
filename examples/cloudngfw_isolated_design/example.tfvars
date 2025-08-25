@@ -17,8 +17,8 @@ ssh_key_name = "example-ssh-key" # TODO: update here
 ### VPC
 vpcs = {
   app1_vpc = {
-    name  = "app1-spoke-vpc"
-    cidr  = "10.104.0.0/16"
+    name = "app1-spoke-vpc"
+    cidr = "10.104.0.0/16"
     security_groups = {
       app1_vm = {
         name = "app1_vm"

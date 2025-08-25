@@ -13,8 +13,8 @@ ssh_key_name = "example-ssh-key" # TODO: update here
 ### VPC
 vpcs = {
   management_vpc = {
-    name  = "management-vpc"
-    cidr  = "10.255.0.0/16"
+    name = "management-vpc"
+    cidr = "10.255.0.0/16"
     security_groups = {
       panorama_mgmt = {
         name = "panorama_mgmt"

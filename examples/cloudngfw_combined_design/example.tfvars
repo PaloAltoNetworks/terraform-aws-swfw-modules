@@ -17,8 +17,8 @@ ssh_key_name = "example-ssh-key" # TODO: update here
 ### VPC
 vpcs = {
   security_vpc = {
-    name            = "security_vpc"
-    cidr            = "10.100.0.0/16"
+    name = "security_vpc"
+    cidr = "10.100.0.0/16"
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf
       # Value of `nacl` must match key of objects stored in `nacls`
