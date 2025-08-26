@@ -23,6 +23,7 @@ variable "global_tags" {
 variable "ssh_key_name" {
   description = "Name of the SSH key pair existing in AWS key pairs and used to authenticate to VM-Series or test boxes"
   type        = string
+  default     = ""
 }
 
 ### VPC
@@ -140,7 +141,7 @@ variable "vpcs" {
       }))
     })), {})
     subnets = optional(map(object({
-      name                    = optional(string)
+      name                    = optional(string, "")
       az                      = string
       subnet_group            = string
       nacl                    = optional(string)

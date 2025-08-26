@@ -84,7 +84,7 @@ module "subnet_sets" {
   }
   cidrs = {
     for index, cidr in each.value.cidr : cidr => {
-      name                    = each.value.name[index]
+      name                    = each.value.name[index] != "" ? "${var.name_prefix}${each.value.name[index]}" : each.value.name[index]
       az                      = each.value.az[index]
       create_subnet           = each.value.create_subnet[index]
       create_route_table      = each.value.create_route_table[index]
@@ -258,6 +258,7 @@ locals {
   panorama_instances = flatten([for kv, vv in var.panoramas : [for ki, vi in vv.instances : {
     group              = kv
     instance           = ki
+    name               = vi.name
     az                 = vi.az
     private_ip_address = vi.private_ip_address
     common             = vv
@@ -269,7 +270,7 @@ module "panorama" {
 
   for_each = { for panorama in local.panorama_instances : "${panorama.group}-${panorama.instance}" => panorama }
 
-  name                   = "${var.name_prefix}${each.key}"
+  name                   = each.value.name != null ? "${var.name_prefix}${each.value.name}" : "${var.name_prefix}${each.key}"
   availability_zone      = each.value.az
   create_public_ip       = each.value.common.network.create_public_ip
   private_ip_address     = each.value.private_ip_address
