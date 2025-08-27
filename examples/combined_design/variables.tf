@@ -266,7 +266,7 @@ variable "tgw_attachments" {
   - `asn`: ASN number
   - `vpc`: key of the attaching VPC 
   - `route_table`: route table key created under TGW taht must be associated with attachment
-  - `propagate_routes_to': route table key created under TGW
+  - `propagate_routes_to`: route table key created under TGW
 
   Example:
   ```
