@@ -22,72 +22,72 @@ variable "ssh_key_name" {
 ### VPC
 variable "vpcs" {
   description = <<-EOF
-  A map defining VPCs with security groups and subnets.
+    A map defining VPCs with security groups and subnets.
 
-  Following properties are available:
-  - `name`: VPC name
-  - `cidr`: CIDR for VPC
-  - `security_groups`: map of security groups
-  - `subnets`: map of subnets with properties:
-     - `az`: availability zone
-     - `subnet_group`: identity of the same purpose subnets group such as management
-  - `routes`: map of routes with properties:
-     - `vpc - key of the VPC
-     - `subnet_group` - key of the subnet group
-     - `next_hop_key` - must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
-     - `next_hop_type` - internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
+    Following properties are available:
+    - `name`: VPC name
+    - `cidr`: CIDR for VPC
+    - `security_groups`: map of security groups
+    - `subnets`: map of subnets with properties:
+        - `az`: availability zone
+        - `subnet_group`: identity of the same purpose subnets group such as management
+    - `routes`: map of routes with properties:
+        - `vpc`: key of the VPC
+        - `subnet_group`: key of the subnet group
+        - `next_hop_key`: must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
+        - `next_hop_type`: internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
 
-  Example:
-  ```
-  vpcs = {
-    example_vpc = {
-      name = "example-spoke-vpc"
-      cidr = "10.104.0.0/16"
-      nacls = {
-        trusted_path_monitoring = {
-          name               = "trusted-path-monitoring"
-          rules = {
-            allow_inbound = {
-              rule_number = 300
-              egress      = false
-              protocol    = "-1"
-              rule_action = "allow"
-              cidr_block  = "0.0.0.0/0"
-              from_port   = null
-              to_port     = null
+    Example:
+    ```
+    vpcs = {
+      example_vpc = {
+        name = "example-spoke-vpc"
+        cidr = "10.104.0.0/16"
+        nacls = {
+          trusted_path_monitoring = {
+            name               = "trusted-path-monitoring"
+            rules = {
+              allow_inbound = {
+                rule_number = 300
+                egress      = false
+                protocol    = "-1"
+                rule_action = "allow"
+                cidr_block  = "0.0.0.0/0"
+                from_port   = null
+                to_port     = null
+              }
             }
           }
         }
-      }
-      security_groups = {
-        example_vm = {
-          name = "example_vm"
-          rules = {
-            all_outbound = {
-              description = "Permit All traffic outbound"
-              type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
-              cidr_blocks = ["0.0.0.0/0"]
+        security_groups = {
+          example_vm = {
+            name = "example_vm"
+            rules = {
+              all_outbound = {
+                description = "Permit All traffic outbound"
+                type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+                cidr_blocks = ["0.0.0.0/0"]
+              }
             }
           }
         }
-      }
-      subnets = {
-        "10.104.0.0/24"   = { az = "eu-central-1a", subnet_group = "vm", nacl = null }
-        "10.104.128.0/24" = { az = "eu-central-1b", subnet_group = "vm", nacl = null }
-      }
-      routes = {
-        vm_default = {
-          vpc           = "app1_vpc"
-          subnet_group        = "app1_vm"
-          to_cidr       = "0.0.0.0/0"
-          next_hop_key  = "app1"
-          next_hop_type = "transit_gateway_attachment"
+        subnets = {
+          "10.104.0.0/24"   = { az = "eu-central-1a", subnet_group = "vm", nacl = null }
+          "10.104.128.0/24" = { az = "eu-central-1b", subnet_group = "vm", nacl = null }
+        }
+        routes = {
+          vm_default = {
+            vpc           = "app1_vpc"
+            subnet_group        = "app1_vm"
+            to_cidr       = "0.0.0.0/0"
+            next_hop_key  = "app1"
+            next_hop_type = "transit_gateway_attachment"
+          }
         }
       }
     }
-  }
-  ```
-  EOF
+    ```
+    EOF
   default     = {}
   type = map(object({
     name                             = string
