@@ -26,13 +26,13 @@ variable "vpcs" {
   - `cidr`: CIDR for VPC
   - `security_groups`: map of security groups
   - `subnets`: map of subnets with properties:
-     - `az`: availability zone
-     - `subnet_group`: identity of the same purpose subnets group such as management
+      - `az`: availability zone
+      - `subnet_group`: identity of the same purpose subnets group such as management
   - `routes`: map of routes with properties:
-     - `vpc - key of the VPC
-     - `subnet_group` - key of the subnet group
-     - `next_hop_key` - must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
-     - `next_hop_type` - internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
+      - `vpc` - key of the VPC
+      - `subnet_group` - key of the subnet group
+      - `next_hop_key` - must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
+      - `next_hop_type` - internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
 
   Example:
   ```
