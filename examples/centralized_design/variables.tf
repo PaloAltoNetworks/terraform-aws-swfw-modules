@@ -355,7 +355,7 @@ variable "gwlb_endpoints" {
     Following properties are available:
     - `name`: name of the GWLB endpoint
     - `custom_names`: Optional map of names of the VPC Endpoints, used to override the default naming generated from the input `name`.
-      Each key is the Availability Zone identifier, for example `us-east-1b.
+      Each key is the Availability Zone identifier, for example `us-east-1b`.
     - `gwlb`: key of GWLB. Required when GWLB Endpoint must connect to GWLB's service name
     - `vpc`: key of VPC
     - `subnet_group`: key of the subnet_group
