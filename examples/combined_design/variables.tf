@@ -318,7 +318,7 @@ variable "vmseries" {
   - `instances`: map of VM-Series instances
   - `bootstrap_options`: VM-Seriess bootstrap options used to connect to Panorama
   - `panos_version`: PAN-OS version used for VM-Series
-  - `airs_deployment (otpinal|false)`: flag to deploy AIRS product type 
+  - `airs_deployment (optional|false)`: flag to deploy AIRS product type 
   - `ebs_kms_id`: alias for AWS KMS used for EBS encryption in VM-Series
   - `vpc`: key of VPC
   - `gwlb`: key of GWLB
