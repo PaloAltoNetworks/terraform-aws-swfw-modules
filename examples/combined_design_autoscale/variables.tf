@@ -293,7 +293,7 @@ variable "vmseries_asgs" {
 
   Following properties are available:
   - `bootstrap_options`: VM-Seriess bootstrap options used to connect to Panorama
-  - `airs_deployment (otpinal|false)`: flag to deploy AIRS product type 
+  - `airs_deployment (optional|false)`: flag to deploy AIRS product type 
   - `panos_version`: PAN-OS version used for VM-Series
   - `ebs_kms_id`: alias for AWS KMS used for EBS encryption in VM-Series
   - `vpc`: key of VPC
