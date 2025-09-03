@@ -318,6 +318,7 @@ module "vm_series_asg" {
   region                          = var.region
   name_prefix                     = var.name_prefix
   global_tags                     = var.global_tags
+  airs_deployment                 = each.value.airs_deployment
   vmseries_version                = each.value.panos_version
   max_size                        = each.value.asg.max_size
   min_size                        = each.value.asg.min_size

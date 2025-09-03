@@ -23,6 +23,27 @@ variable "vmseries_product_code" {
   type        = string
 }
 
+variable "airs_deployment" {
+  description = "Deployment type VM-Series (False) or AI Runtime Security (True)"
+  type        = bool
+  default     = false
+}
+
+variable "airs_product_code" {
+  description = <<-EOF
+  Product code corresponding to a chosen AIRS license type model - by default - BYOL. 
+  To check the available license type models and their codes, please refer to the
+  EOF
+  default     = "b261y39exndwe1ltro1tqpeog"
+  type        = string
+}
+
+variable "airs_instance_type" {
+  description = "EC2 instance type."
+  default     = "c6in.xlarge"
+  type        = string
+}
+
 variable "include_deprecated_ami" {
   description = <<-EOF
   In certain scenarios, customers may deploy a VM-Series instance through the marketplace, 
