@@ -1,6 +1,18 @@
 variable "vmseries_version" {
-  description = "Select which FW version to deploy"
+  description = <<-EOF
+  VM-Series Firewall/AIRS version to deploy.
+  To list all available VM-Series versions, run the command provided below. 
+  Please have in mind that the `product-code` may need to be updated - check the `vmseries_product_code` variable for more information.
+  ```
+  aws ec2 describe-images --region us-west-1 --filters "Name=product-code,Values=6njl1pau431dv1qxipg63mvah" "Name=name,Values=PA-VM-AWS*" --output json --query "Images[].Description" \| grep -o 'PA-VM-AWS-.*' \| sort
+  ```
+  To list all available AIRS versions, run the command provided below. 
+  ```
+  aws ec2 describe-images --region us-west-1 --filters "Name=product-code,Values=b261y39exndwe1ltro1tqpeog" "Name=name,Values=PA-AI-Runtime-Security-AWS-*" --output json --query "Images[].Name" \| grep -o 'PA-AI-Runtime-Security-AWS-.*' \| sort
+  ```
+  EOF
   default     = "10.2.9-h1"
+  type        = string
 }
 
 variable "region" {

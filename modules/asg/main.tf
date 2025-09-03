@@ -20,7 +20,7 @@ data "aws_ami" "this" {
     values = [local.ami_image_product_code]
   }
 
-  name_regex = var.airs_deployment ? "^${local.ami_image_name}-prod-[a-zA-Z0-9]+$" : "^${local.ami_image_name}(?:-[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})?$"
+  name_regex = var.airs_deployment ? "^${local.ami_image_name}-prod-[[:alnum:]]+$" : "^${local.ami_image_name}-[[:alnum:]]{8}-([[:alnum:]]{4}-){3}[[:alnum:]]{12}$"
 
   include_deprecated = var.include_deprecated_ami
 }
