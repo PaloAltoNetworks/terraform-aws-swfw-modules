@@ -1,3 +1,9 @@
+locals {
+  ami_image_name         = var.airs_deployment ? "PA-AI-Runtime-Security-AWS-${var.vmseries_version}" : "PA-VM-AWS-${var.vmseries_version}"
+  ami_image_product_code = var.airs_deployment ? var.airs_product_code : var.vmseries_product_code
+  instance_type          = var.airs_deployment ? var.airs_instance_type : var.instance_type
+}
+
 # PA VM AMI ID Lookup based on license type, region, version
 data "aws_ami" "this" {
   count = var.vmseries_ami_id != null ? 0 : 1
@@ -7,14 +13,14 @@ data "aws_ami" "this" {
 
   filter {
     name   = "name"
-    values = ["PA-VM-AWS-${var.vmseries_version}*"]
+    values = ["${local.ami_image_name}*"]
   }
   filter {
     name   = "product-code"
-    values = [var.vmseries_product_code]
+    values = [local.ami_image_product_code]
   }
 
-  name_regex = "^PA-VM-AWS-${var.vmseries_version}-[[:alnum:]]{8}-([[:alnum:]]{4}-){3}[[:alnum:]]{12}$"
+  name_regex = var.airs_deployment ? "^${local.ami_image_name}-prod-[[:alnum:]]+$" : "^${local.ami_image_name}-[[:alnum:]]{8}-([[:alnum:]]{4}-){3}[[:alnum:]]{12}$"
 
   include_deprecated = var.include_deprecated_ami
 }
@@ -53,7 +59,7 @@ resource "aws_launch_template" "this" {
   name          = "${var.name_prefix}template"
   ebs_optimized = true
   image_id      = coalesce(var.vmseries_ami_id, try(data.aws_ami.this[0].id, null))
-  instance_type = var.instance_type
+  instance_type = local.instance_type
   key_name      = var.ssh_key_name
   tags          = var.global_tags
   dynamic "iam_instance_profile" {

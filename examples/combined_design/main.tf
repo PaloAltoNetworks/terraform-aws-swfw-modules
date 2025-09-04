@@ -329,6 +329,7 @@ module "vmseries" {
   for_each = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => vmseries }
 
   name             = "${var.name_prefix}${each.key}"
+  airs_deployment  = each.value.common.airs_deployment
   vmseries_version = each.value.common.panos_version
 
   interfaces = {

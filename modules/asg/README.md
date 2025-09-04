@@ -59,6 +59,9 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_airs_deployment"></a> [airs\_deployment](#input\_airs\_deployment) | Deployment type VM-Series (False) or AI Runtime Security (True) | `bool` | `false` | no |
+| <a name="input_airs_instance_type"></a> [airs\_instance\_type](#input\_airs\_instance\_type) | EC2 instance type. | `string` | `"c6in.xlarge"` | no |
+| <a name="input_airs_product_code"></a> [airs\_product\_code](#input\_airs\_product\_code) | Product code corresponding to a chosen AIRS license type model - by default - BYOL. <br/>To check the available license type models and their codes, please refer to the | `string` | `"b261y39exndwe1ltro1tqpeog"` | no |
 | <a name="input_asg_name"></a> [asg\_name](#input\_asg\_name) | Name of the autoscaling group to create | `string` | `"asg"` | no |
 | <a name="input_bootstrap_options"></a> [bootstrap\_options](#input\_bootstrap\_options) | Bootstrap options to put into userdata | `any` | `{}` | no |
 | <a name="input_delete_timeout"></a> [delete\_timeout](#input\_delete\_timeout) | Timeout needed to correctly drain autoscaling group while deleting ASG.<br/><br/>  By default in AWS timeout is set to 10 minutes, which is too low and causes issue:<br/>  Error: waiting for Auto Scaling Group (example-asg) drain: timeout while waiting for state to become '0' (last state: '1', timeout: 10m0s) | `string` | `"20m"` | no |
@@ -102,7 +105,7 @@ No modules.
 | <a name="input_vmseries_ami_id"></a> [vmseries\_ami\_id](#input\_vmseries\_ami\_id) | The AMI from which to launch the instance. Takes precedence over fw\_version and fw\_license\_type | `string` | `null` | no |
 | <a name="input_vmseries_iam_instance_profile"></a> [vmseries\_iam\_instance\_profile](#input\_vmseries\_iam\_instance\_profile) | IAM instance profile used in launch template | `string` | `""` | no |
 | <a name="input_vmseries_product_code"></a> [vmseries\_product\_code](#input\_vmseries\_product\_code) | Product code corresponding to a chosen VM-Series license type model - by default - BYOL.<br/>To check the available license type models and their codes, please refer to the<br/>[VM-Series documentation](https://docs.paloaltonetworks.com/vm-series/10-0/vm-series-deployment/set-up-the-vm-series-firewall-on-aws/deploy-the-vm-series-firewall-on-aws/obtain-the-ami/get-amazon-machine-image-ids.html) | `string` | `"6njl1pau431dv1qxipg63mvah"` | no |
-| <a name="input_vmseries_version"></a> [vmseries\_version](#input\_vmseries\_version) | Select which FW version to deploy | `string` | `"10.2.9-h1"` | no |
+| <a name="input_vmseries_version"></a> [vmseries\_version](#input\_vmseries\_version) | VM-Series Firewall/AIRS version to deploy.<br/>To list all available VM-Series versions, run the command provided below. <br/>Please have in mind that the `product-code` may need to be updated - check the `vmseries_product_code` variable for more information.<pre>aws ec2 describe-images --region us-west-1 --filters "Name=product-code,Values=6njl1pau431dv1qxipg63mvah" "Name=name,Values=PA-VM-AWS*" --output json --query "Images[].Description" \| grep -o 'PA-VM-AWS-.\*' \| sort</pre>To list all available AIRS versions, run the command provided below.<pre>aws ec2 describe-images --region us-west-1 --filters "Name=product-code,Values=b261y39exndwe1ltro1tqpeog" "Name=name,Values=PA-AI-Runtime-Security-AWS-\*" --output json --query "Images[].Name" \| grep -o 'PA-AI-Runtime-Security-AWS-.*' \| sort</pre> | `string` | `"11.1.4-h7"` | no |
 
 ### Outputs
 

@@ -1,5 +1,5 @@
 locals {
-  ami_image_name         = var.airs_deployment ? "PA-AI-Runtime-Security-AWS-${var.airs_version}" : "PA-VM-AWS-${var.vmseries_version}"
+  ami_image_name         = var.airs_deployment ? "PA-AI-Runtime-Security-AWS-${var.vmseries_version}" : "PA-VM-AWS-${var.vmseries_version}"
   ami_image_product_code = var.airs_deployment ? var.airs_product_code : var.vmseries_product_code
   instance_type          = var.airs_deployment ? var.airs_instance_type : var.instance_type
 }
@@ -20,7 +20,7 @@ data "aws_ami" "this" {
     values = [local.ami_image_product_code]
   }
 
-  name_regex = "^${local.ami_image_name}-[[:alnum:]]{8}-([[:alnum:]]{4}-){3}[[:alnum:]]{12}$"
+  name_regex = var.airs_deployment ? "^${local.ami_image_name}-prod-[[:alnum:]]+$" : "^${local.ami_image_name}-[[:alnum:]]{8}-([[:alnum:]]{4}-){3}[[:alnum:]]{12}$"
 
   include_deprecated = var.include_deprecated_ami
 }

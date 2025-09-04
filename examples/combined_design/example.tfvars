@@ -508,6 +508,7 @@ vmseries = {
     }
     */
 
+    # airs_deployment = true # Uncomment this line for AIRS deployment (PAN-OS version 11.2.4-h1 or higher)
     panos_version = "11.1.4-h7"     # TODO: update here
     ebs_kms_id    = "alias/aws/ebs" # TODO: update here
 
