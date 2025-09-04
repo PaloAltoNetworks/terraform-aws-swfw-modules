@@ -7,10 +7,18 @@ permissions:
   id-token: write
 
 on:
-  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
 concurrency: release
 
 jobs:
+  build:
+    name: Checkout code from the calling repository's feature branch
+    uses: actions/checkout@v4
+    with:
+      repository: ${{ github.repository }}
+      ref: ${{ github.ref }}
   release_wrkflw:
     name: Do release
     uses: PaloAltoNetworks/terraform-modules-swfw-ci-workflows/.github/workflows/release_ci.yml@exclude-cloudngfw-idempotence
