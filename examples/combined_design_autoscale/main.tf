@@ -382,21 +382,21 @@ module "vm_series_asg" {
 
   for_each = var.vmseries_asgs
 
-  ssh_key_name                    = var.ssh_key_name
-  region                          = var.region
-  name_prefix                     = var.name_prefix
-  global_tags                     = var.global_tags
-  airs_deployment                 = each.value.airs_deployment
-  vmseries_version                = each.value.panos_version
-  max_size                        = each.value.asg.max_size
-  min_size                        = each.value.asg.min_size
-  desired_capacity                = each.value.asg.desired_cap
-  lambda_execute_pip_install_once = each.value.asg.lambda_execute_pip_install_once
-  instance_refresh                = each.value.instance_refresh
-  launch_template_version         = each.value.launch_template_version
-  vmseries_iam_instance_profile   = aws_iam_instance_profile.vm_series_iam_instance_profile.name
-  subnet_ids                      = [for i, j in var.vpcs[each.value.vpc].subnets : module.subnet_sets[format("%s-lambda", each.value.vpc)].subnets[j.az].id if j.subnet_group == "lambda"]
-  security_group_ids              = contains(keys(module.vpc[each.value.vpc].security_group_ids), "lambda") ? [module.vpc[each.value.vpc].security_group_ids["lambda"]] : []
+  ssh_key_name                           = var.ssh_key_name
+  region                                 = var.region
+  name_prefix                            = var.name_prefix
+  global_tags                            = var.global_tags
+  airs_deployment                        = each.value.airs_deployment
+  vmseries_version                       = each.value.panos_version
+  max_size                               = each.value.asg.max_size
+  min_size                               = each.value.asg.min_size
+  desired_capacity                       = each.value.asg.desired_cap
+  lambda_execute_pip_install_once        = each.value.asg.lambda_execute_pip_install_once
+  instance_refresh                       = each.value.instance_refresh
+  launch_template_version                = each.value.launch_template_version
+  vmseries_iam_instance_profile          = aws_iam_instance_profile.vm_series_iam_instance_profile.name
+  subnet_ids                             = [for i, j in var.vpcs[each.value.vpc].subnets : module.subnet_sets[format("%s-lambda", each.value.vpc)].subnets[j.az].id if j.subnet_group == "lambda"]
+  security_group_ids                     = contains(keys(module.vpc[each.value.vpc].security_group_ids), "lambda") ? [module.vpc[each.value.vpc].security_group_ids["lambda"]] : []
   asg_name                               = each.value.asg_name
   lambda_timeout                         = each.value.lambda_timeout
   delicense_ssm_param_name               = each.value.delicense_ssm_param_name

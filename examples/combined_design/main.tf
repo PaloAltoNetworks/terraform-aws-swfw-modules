@@ -396,8 +396,8 @@ module "vmseries" {
 
   for_each = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => vmseries }
 
-  airs_deployment  = each.value.common.airs_deployment
-  vmseries_version = each.value.common.panos_version
+  airs_deployment                        = each.value.common.airs_deployment
+  vmseries_version                       = each.value.common.panos_version
   name                                   = each.value.name != null ? "${var.name_prefix}${each.value.name}" : "${var.name_prefix}${each.key}"
   vmseries_ami_id                        = each.value.common.vmseries_ami_id
   vmseries_product_code                  = each.value.common.vmseries_product_code

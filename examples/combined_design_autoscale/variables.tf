@@ -561,15 +561,14 @@ variable "vmseries_asgs" {
       vm-series-auto-registration-pin-value = optional(string)
     })
 
-    airs_deployment = optional(bool, false)
-    panos_version   = string
-    ebs_kms_id      = string
+    airs_deployment                        = optional(bool, false)
+    panos_version                          = string
+    ebs_kms_id                             = string
     vmseries_ami_id                        = optional(string)
     vmseries_product_code                  = optional(string, "6njl1pau431dv1qxipg63mvah")
     include_deprecated_ami                 = optional(bool, false)
     instance_type                          = optional(string, "m5.xlarge")
     ebs_encrypted                          = optional(bool, true)
-    ebs_kms_id                             = optional(string, "alias/aws/ebs")
     enable_instance_termination_protection = optional(bool, false)
     enable_monitoring                      = optional(bool, false)
     fw_license_type                        = optional(string, "byol")
