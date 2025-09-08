@@ -434,20 +434,6 @@ variable "cloudngfws" {
   }))
 }
 
-### ALB Loadbalancer ####
-variable "application_lb" {
-  description = "An ALB for application in spokes VPC"
-  type = map(object({
-    name            = string
-    subnet_group    = string
-    vpc             = string
-    security_group  = string
-    target_group_az = string
-    vms             = set(string)
-    rules           = any
-  }))
-}
-
 ### SPOKE VMS
 variable "spoke_vms" {
   description = <<-EOF
@@ -511,6 +497,7 @@ variable "spoke_albs" {
       }))
     }))
     vms             = list(string)
+    target_group_az = optional(string, "all")
     vpc             = string
     subnet_group    = string
     security_groups = string

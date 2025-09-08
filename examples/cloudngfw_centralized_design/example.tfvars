@@ -77,12 +77,12 @@ vpcs = {
       application_load_balancer = {
         name = "alb"
         rules = {
-          http_inbound_8081 = {
+          http_inbound = {
             description = "Permit incoming APP1 traffic"
             type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
             cidr_blocks = ["1.1.1.1/32"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
           }
-          http_inbound_8082 = {
+          https_inbound = {
             description = "Permit incoming APP2 traffic"
             type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
             cidr_blocks = ["1.1.1.1/32"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
@@ -112,6 +112,20 @@ vpcs = {
         vpc           = "security_vpc_ingress"
         subnet_group  = "tgw_attach"
         to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "cngfw_endpoint_ingress"
+        next_hop_type = "gwlbe_endpoint"
+      }
+      tgw_alb_a = {
+        vpc           = "security_vpc_ingress"
+        subnet_group  = "tgw_attach"
+        to_cidr       = "10.101.2.0/24"
+        next_hop_key  = "cngfw_endpoint_ingress"
+        next_hop_type = "gwlbe_endpoint"
+      }
+      tgw_alb_b = {
+        vpc           = "security_vpc_ingress"
+        subnet_group  = "tgw_attach"
+        to_cidr       = "10.101.66.0/24"
         next_hop_key  = "cngfw_endpoint_ingress"
         next_hop_type = "gwlbe_endpoint"
       }
@@ -279,6 +293,7 @@ tgw_attachments = {
     propagate_routes_to = "from_spoke_vpc"
   }
   app1 = {
+    tgw_key             = "tgw"
     name                = "app1-spoke-vpc"
     vpc                 = "app1_vpc"
     subnet_group        = "app1_vm"
@@ -286,6 +301,7 @@ tgw_attachments = {
     propagate_routes_to = "from_security_vpc_ew_ob"
   }
   app2 = {
+    tgw_key             = "tgw"
     name                = "app2-spoke-vpc"
     vpc                 = "app2_vpc"
     subnet_group        = "app2_vm"
@@ -460,9 +476,9 @@ spoke_albs = {
         }
       }
     }
-    vpc            = "security_vpc_ingress"
-    subnet_group   = "alb"
-    security_group = "application_load_balancer"
+    vpc             = "security_vpc_ingress"
+    subnet_group    = "alb"
+    security_groups = "application_load_balancer"
   }
   "app2-alb" = {
     vms = ["app2_vm01", "app2_vm02"]
@@ -478,9 +494,9 @@ spoke_albs = {
         }
       }
     }
-    vpc            = "security_vpc_ingress"
-    subnet_group   = "alb"
-    security_group = "application_load_balancer"
+    vpc             = "security_vpc_ingress"
+    subnet_group    = "alb"
+    security_groups = "application_load_balancer"
   }
 }
 

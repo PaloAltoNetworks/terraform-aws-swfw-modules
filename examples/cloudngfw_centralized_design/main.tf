@@ -242,7 +242,7 @@ module "cloudngfw" {
   for_each = var.cloudngfws
 
   name           = "${var.name_prefix}${each.value.name}"
-  subnets        = module.subnet_sets[each.value.vpc_subnet].subnets
+  subnets        = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets
   vpc_id         = module.vpc[each.value.vpc].id
   rulestack_name = "${var.name_prefix}${each.value.name}"
   description    = each.value.description
@@ -252,22 +252,21 @@ module "cloudngfw" {
 }
 
 ### GWLB ENDPOINTS ###
-
 module "gwlbe_endpoint" {
   source = "../../modules/gwlb_endpoint_set"
 
   for_each = var.gwlb_endpoints
 
   name              = "${var.name_prefix}${each.value.name}"
-  gwlb_service_name = module.cloudngfw[each.value.cloudngfw].cloudngfw_service_name
-  vpc_id            = module.subnet_sets["${each.value.vpc}-${each.value.subnet}"].vpc_id
-  subnets           = module.subnet_sets["${each.value.vpc}-${each.value.subnet}"].subnets
+  gwlb_service_name = module.cloudngfw[each.value.cloudngfw_key].cloudngfw_service_name
+  vpc_id            = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].vpc_id
+  subnets           = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets
   delay             = each.value.delay
 
   act_as_next_hop_for = each.value.act_as_next_hop ? {
     "from-igw-to-lb" = {
       route_table_id = module.vpc[each.value.vpc].internet_gateway_route_table.id
-      to_subnets     = module.subnet_sets["${each.value.from_igw_to_vpc}-${each.value.from_igw_to_subnet}"].subnets
+      to_subnets     = module.subnet_sets["${each.value.from_igw_to_vpc}-${each.value.from_igw_to_subnet_group}"].subnets
     }
     # The routes in this section are special in that they are on the "edge", that is they are part of an IGW route table,
     # and AWS allows their destinations to only be:
@@ -277,20 +276,20 @@ module "gwlbe_endpoint" {
   } : {}
 }
 
-### Public ALB used in cloudngfw centralized model ###
+### SPOKE INBOUND APPLICATION LOAD BALANCER ###
 
-module "public_alb" {
+module "app_alb" {
   source = "../../modules/alb"
 
-  for_each = var.application_lb
+  for_each = var.spoke_albs
 
-  lb_name         = "${var.name_prefix}${each.value.name}"
+  lb_name         = "${var.name_prefix}${each.key}"
   subnets         = { for k, v in module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets : k => { id = v.id } }
   vpc_id          = module.vpc[each.value.vpc].id
-  security_groups = [module.vpc[each.value.vpc].security_group_ids[each.value.security_group]]
-  target_group_az = each.value.target_group_az
+  security_groups = [module.vpc[each.value.vpc].security_group_ids[each.value.security_groups]]
   rules           = each.value.rules
   targets         = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].private_ip }
+  target_group_az = each.value.target_group_az
 
   tags = var.global_tags
 }
