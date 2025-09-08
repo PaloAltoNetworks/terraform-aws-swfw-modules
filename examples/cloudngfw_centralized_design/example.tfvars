@@ -17,54 +17,52 @@ ssh_key_name = "example-ssh-key" # TODO: update here
 ### VPC
 vpcs = {
   security_vpc_ew_ob = {
-    name            = "security_vpc_ew_ob"
-    cidr            = "10.100.0.0/16"
-    nacls           = {}
-    security_groups = {}
+    name = "security_vpc_ew_ob"
+    cidr = "10.100.0.0/16"
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf
       # Value of `nacl` must match key of objects stored in `nacls`
-      "10.100.0.0/24"  = { az = "eu-west-1a", set = "tgw_attach" }
-      "10.100.64.0/24" = { az = "eu-west-1b", set = "tgw_attach" }
-      "10.100.1.0/24"  = { az = "eu-west-1a", set = "cngfw_subnet" }
-      "10.100.65.0/24" = { az = "eu-west-1b", set = "cngfw_subnet" }
-      "10.100.2.0/24"  = { az = "eu-west-1a", set = "natgw" }
-      "10.100.66.0/24" = { az = "eu-west-1b", set = "natgw" }
+      "10.100.0.0/24"  = { az = "eu-west-1a", subnet_group = "tgw_attach" }
+      "10.100.64.0/24" = { az = "eu-west-1b", subnet_group = "tgw_attach" }
+      "10.100.1.0/24"  = { az = "eu-west-1a", subnet_group = "cngfw_subnet" }
+      "10.100.65.0/24" = { az = "eu-west-1b", subnet_group = "cngfw_subnet" }
+      "10.100.2.0/24"  = { az = "eu-west-1a", subnet_group = "natgw" }
+      "10.100.66.0/24" = { az = "eu-west-1b", subnet_group = "natgw" }
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
       # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       tgw_default = {
         vpc           = "security_vpc_ew_ob"
-        subnet        = "tgw_attach"
+        subnet_group  = "tgw_attach"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "cngfw_endpoint"
         next_hop_type = "gwlbe_endpoint"
       }
       eastwest_rfc1918 = {
         vpc           = "security_vpc_ew_ob"
-        subnet        = "cngfw_subnet"
+        subnet_group  = "cngfw_subnet"
         to_cidr       = "10.104.0.0/15"
         next_hop_key  = "security"
         next_hop_type = "transit_gateway_attachment"
       }
       cngfw_default = {
         vpc           = "security_vpc_ew_ob"
-        subnet        = "cngfw_subnet"
+        subnet_group  = "cngfw_subnet"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "security_nat_gw"
         next_hop_type = "nat_gateway"
       }
       nat_default = {
         vpc           = "security_vpc_ew_ob"
-        subnet        = "natgw"
+        subnet_group  = "natgw"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "security_vpc_ew_ob"
         next_hop_type = "internet_gateway"
       }
       nat_app = {
         vpc           = "security_vpc_ew_ob"
-        subnet        = "natgw"
+        subnet_group  = "natgw"
         to_cidr       = "10.104.0.0/15"
         next_hop_key  = "cngfw_endpoint"
         next_hop_type = "gwlbe_endpoint"
@@ -100,40 +98,40 @@ vpcs = {
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf
       # Value of `nacl` must match key of objects stored in `nacls`
-      "10.101.0.0/24"  = { az = "eu-west-1a", set = "tgw_attach" }
-      "10.101.64.0/24" = { az = "eu-west-1b", set = "tgw_attach" }
-      "10.101.1.0/24"  = { az = "eu-west-1a", set = "cngfw_subnet" }
-      "10.101.65.0/24" = { az = "eu-west-1b", set = "cngfw_subnet" }
-      "10.101.2.0/24"  = { az = "eu-west-1a", set = "alb" }
-      "10.101.66.0/24" = { az = "eu-west-1b", set = "alb" }
+      "10.101.0.0/24"  = { az = "eu-west-1a", subnet_group = "tgw_attach" }
+      "10.101.64.0/24" = { az = "eu-west-1b", subnet_group = "tgw_attach" }
+      "10.101.1.0/24"  = { az = "eu-west-1a", subnet_group = "cngfw_subnet" }
+      "10.101.65.0/24" = { az = "eu-west-1b", subnet_group = "cngfw_subnet" }
+      "10.101.2.0/24"  = { az = "eu-west-1a", subnet_group = "alb" }
+      "10.101.66.0/24" = { az = "eu-west-1b", subnet_group = "alb" }
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
       # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       tgw_default = {
         vpc           = "security_vpc_ingress"
-        subnet        = "tgw_attach"
+        subnet_group  = "tgw_attach"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "cngfw_endpoint_ingress"
         next_hop_type = "gwlbe_endpoint"
       }
       eastwest_rfc1918 = {
         vpc           = "security_vpc_ingress"
-        subnet        = "cngfw_subnet"
+        subnet_group  = "cngfw_subnet"
         to_cidr       = "10.104.0.0/15"
         next_hop_key  = "security_ingress"
         next_hop_type = "transit_gateway_attachment"
       }
       alb_default = {
         vpc           = "security_vpc_ingress"
-        subnet        = "alb"
+        subnet_group  = "alb"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "security_vpc_ingress"
         next_hop_type = "internet_gateway"
       }
       alb_app = {
         vpc           = "security_vpc_ingress"
-        subnet        = "alb"
+        subnet_group  = "alb"
         to_cidr       = "10.104.0.0/15"
         next_hop_key  = "cngfw_endpoint_ingress"
         next_hop_type = "gwlbe_endpoint"
@@ -173,15 +171,15 @@ vpcs = {
     }
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
-      "10.104.0.0/24"   = { az = "eu-west-1a", set = "app1_vm" }
-      "10.104.128.0/24" = { az = "eu-west-1b", set = "app1_vm" }
+      "10.104.0.0/24"   = { az = "eu-west-1a", subnet_group = "app1_vm" }
+      "10.104.128.0/24" = { az = "eu-west-1b", subnet_group = "app1_vm" }
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
       # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       vm_default = {
         vpc           = "app1_vpc"
-        subnet        = "app1_vm"
+        subnet_group  = "app1_vm"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app1"
         next_hop_type = "transit_gateway_attachment"
@@ -221,15 +219,15 @@ vpcs = {
     }
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
-      "10.105.0.0/24"   = { az = "eu-west-1a", set = "app2_vm" }
-      "10.105.128.0/24" = { az = "eu-west-1b", set = "app2_vm" }
+      "10.105.0.0/24"   = { az = "eu-west-1a", subnet_group = "app2_vm" }
+      "10.105.128.0/24" = { az = "eu-west-1b", subnet_group = "app2_vm" }
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
       # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       vm_default = {
         vpc           = "app2_vpc"
-        subnet        = "app2_vm"
+        subnet_group  = "app2_vm"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app2"
         next_hop_type = "transit_gateway_attachment"
@@ -239,81 +237,84 @@ vpcs = {
 }
 
 ### TRANSIT GATEWAY
-tgw = {
-  create = true
-  id     = null
-  name   = "tgw"
-  asn    = "64512"
-  route_tables = {
-    # Do not change keys `from_security_vpc_ew_ob` and `from_spoke_vpc` as they are used in `main.tf` and attachments
-    "from_security_vpc_ew_ob" = {
-      create = true
-      name   = "from_security_ew_ob"
-    }
-    "from_spoke_vpc" = {
-      create = true
-      name   = "from_spokes"
-    }
-    "from_security_ingress" = {
-      create = true
-      name   = "from_security_ingress"
-    }
-  }
-  attachments = {
-    # Value of `route_table` and `propagate_routes_to` must match `route_tables` stores under `tgw`
-    security = {
-      name                = "cloudngfw"
-      vpc                 = "security_vpc_ew_ob"
-      subnet              = "tgw_attach"
-      route_table         = "from_security_vpc_ew_ob"
-      propagate_routes_to = "from_spoke_vpc"
-    }
-    security_ingress = {
-      name                = "cloudngfw_ingress"
-      vpc                 = "security_vpc_ingress"
-      subnet              = "tgw_attach"
-      route_table         = "from_security_ingress"
-      propagate_routes_to = "from_spoke_vpc"
-    }
-    app1 = {
-      name                = "app1-spoke-vpc"
-      vpc                 = "app1_vpc"
-      subnet              = "app1_vm"
-      route_table         = "from_spoke_vpc"
-      propagate_routes_to = "from_security_vpc_ew_ob"
-    }
-    app2 = {
-      name                = "app2-spoke-vpc"
-      vpc                 = "app2_vpc"
-      subnet              = "app2_vm"
-      route_table         = "from_spoke_vpc"
-      propagate_routes_to = "from_security_vpc_ew_ob"
+tgws = {
+  tgw = {
+    name = "tgw"
+    asn  = "64512"
+    route_tables = {
+      # Do not change keys `from_security_vpc` and `from_spoke_vpc` as they are used in `main.tf` and attachments
+      "from_security_vpc_ew_ob" = {
+        create = true
+        name   = "from_security_ew_ob"
+      }
+      "from_spoke_vpc" = {
+        create = true
+        name   = "from_spokes"
+      }
+      "from_security_ingress" = {
+        create = true
+        name   = "from_security_ingress"
+      }
     }
   }
 }
 
+tgw_attachments = {
+  # Value of `route_table` and `propagate_routes_to` must match `route_tables` stores under `tgw`
+  security = {
+    tgw_key                 = "tgw"
+    security_vpc_attachment = true
+    name                    = "cloudngfw"
+    vpc                     = "security_vpc_ew_ob"
+    subnet_group            = "tgw_attach"
+    route_table             = "from_security_vpc_ew_ob"
+    propagate_routes_to     = "from_spoke_vpc"
+  }
+  security_ingress = {
+    tgw_key             = "tgw"
+    name                = "cloudngfw_ingress"
+    vpc                 = "security_vpc_ingress"
+    subnet_group        = "tgw_attach"
+    route_table         = "from_security_ingress"
+    propagate_routes_to = "from_spoke_vpc"
+  }
+  app1 = {
+    name                = "app1-spoke-vpc"
+    vpc                 = "app1_vpc"
+    subnet_group        = "app1_vm"
+    route_table         = "from_spoke_vpc"
+    propagate_routes_to = "from_security_vpc_ew_ob"
+  }
+  app2 = {
+    name                = "app2-spoke-vpc"
+    vpc                 = "app2_vpc"
+    subnet_group        = "app2_vm"
+    route_table         = "from_spoke_vpc"
+    propagate_routes_to = "from_security_vpc_ew_ob"
+  }
+}
+
+
 ### NAT GATEWAY
 natgws = {
   security_nat_gw = {
-    name   = "natgw"
-    vpc    = "security_vpc_ew_ob"
-    subnet = "natgw"
+    vpc          = "security_vpc_ew_ob"
+    subnet_group = "natgw"
   }
 }
 
 ### Cloud NGFW
 cloudngfws = {
   cloudngfws_security_ew_ob = {
-    name        = "cloudngfw01"
-    vpc_subnet  = "security_vpc_ew_ob-cngfw_subnet"
-    vpc         = "security_vpc_ew_ob"
-    description = "Description"
+    name         = "cloudngfw01"
+    vpc          = "security_vpc_ew_ob"
+    subnet_group = "cngfw_subnet"
     security_rules = {
       rule_1 = {
         rule_list                   = "LocalRule"
         priority                    = 3
         name                        = "tf-security-rule"
-        description                 = "Also configured by Terraform"
+        description                 = "Configured by Terraform"
         source_cidrs                = ["any"]
         destination_cidrs           = ["0.0.0.0/0"]
         negate_destination          = false
@@ -372,16 +373,15 @@ cloudngfws = {
   }
 
   cloudngfws_security_ingress = {
-    name        = "cloudngfw02"
-    vpc_subnet  = "security_vpc_ingress-cngfw_subnet"
-    vpc         = "security_vpc_ingress"
-    description = "Ingress Cloud NGFW"
+    name         = "cloudngfw02"
+    vpc          = "security_vpc_ingress"
+    subnet_group = "cngfw_subnet"
     security_rules = {
       rule_1 = {
         rule_list                   = "LocalRule"
         priority                    = 3
         name                        = "ingress-rule"
-        description                 = "Also configured by Terraform"
+        description                 = "Configured by Terraform"
         source_cidrs                = ["any"]
         destination_cidrs           = ["0.0.0.0/0"]
         negate_destination          = false
@@ -430,37 +430,27 @@ gwlb_endpoints = {
   cngfw_endpoint = {
     name            = "cngfw_endpoint"
     vpc             = "security_vpc_ew_ob"
-    subnet          = "cngfw_subnet"
+    subnet_group    = "cngfw_subnet"
     act_as_next_hop = false
     delay           = 60
-    cloudngfw       = "cloudngfws_security_ew_ob"
+    cloudngfw_key   = "cloudngfws_security_ew_ob"
   }
   cngfw_endpoint_ingress = {
     name            = "cngfw_endpoint_ingress"
     vpc             = "security_vpc_ingress"
-    subnet          = "cngfw_subnet"
+    subnet_group    = "cngfw_subnet"
     act_as_next_hop = false
     delay           = 60
-    cloudngfw       = "cloudngfws_security_ingress"
+    cloudngfw_key   = "cloudngfws_security_ingress"
   }
 }
 
-application_lb = {
-  app_lb1 = {
-    name            = "alb1"
-    vpc             = "security_vpc_ingress"
-    subnet_group    = "alb"
-    security_group  = "application_load_balancer"
-    target_group_az = "all"
-    vms             = ["app1_vm01", "app1_vm02"]
+spoke_albs = {
+  "app1-alb" = {
+    vms = ["app1_vm01", "app1_vm02"]
     rules = {
-      "app1-alb" = {
-        protocol              = "HTTP"
-        port                  = 80
-        health_check_port     = "80"
-        health_check_matcher  = "200"
-        health_check_path     = "/"
-        health_check_interval = 10
+      "app1" = {
+        health_check_port = "80"
         listener_rules = {
           "1" = {
             target_protocol = "HTTP"
@@ -470,22 +460,15 @@ application_lb = {
         }
       }
     }
+    vpc            = "security_vpc_ingress"
+    subnet_group   = "alb"
+    security_group = "application_load_balancer"
   }
-  app_lb2 = {
-    name            = "alb2"
-    vpc             = "security_vpc_ingress"
-    subnet_group    = "alb"
-    security_group  = "application_load_balancer"
-    target_group_az = "all"
-    vms             = ["app2_vm01", "app2_vm02"]
+  "app2-alb" = {
+    vms = ["app2_vm01", "app2_vm02"]
     rules = {
-      "app2-alb" = {
-        protocol              = "HTTP"
-        port                  = 80
-        health_check_port     = "80"
-        health_check_matcher  = "200"
-        health_check_path     = "/"
-        health_check_interval = 10
+      "app2" = {
+        health_check_port = "80"
         listener_rules = {
           "1" = {
             target_protocol = "HTTP"
@@ -495,6 +478,9 @@ application_lb = {
         }
       }
     }
+    vpc            = "security_vpc_ingress"
+    subnet_group   = "alb"
+    security_group = "application_load_balancer"
   }
 }
 
@@ -505,27 +491,23 @@ spoke_vms = {
     vpc            = "app1_vpc"
     subnet_group   = "app1_vm"
     security_group = "app1_vm"
-    type           = "t2.micro"
   }
   "app1_vm02" = {
     az             = "eu-west-1b"
     vpc            = "app1_vpc"
     subnet_group   = "app1_vm"
     security_group = "app1_vm"
-    type           = "t2.micro"
   }
   "app2_vm01" = {
     az             = "eu-west-1a"
     vpc            = "app2_vpc"
     subnet_group   = "app2_vm"
     security_group = "app2_vm"
-    type           = "t2.micro"
   }
   "app2_vm02" = {
     az             = "eu-west-1b"
     vpc            = "app2_vpc"
     subnet_group   = "app2_vm"
     security_group = "app2_vm"
-    type           = "t2.micro"
   }
 }
