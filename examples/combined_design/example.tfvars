@@ -480,7 +480,7 @@ vmseries = {
     # Value of `panorama-server`, `auth-key`, `dgname`, `tplname` can be taken from plugin `sw_fw_license`. Delete map if SCM bootstrap required.
     bootstrap_options = {
       mgmt-interface-swap         = "enable"
-      plugin-op-commands          = "panorama-licensing-mode-on,aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable" # TODO: update here
+      plugin-op-commands          = "panorama-licensing-mode-on,aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable,advance-routing:enable" # TODO: update here
       panorama-server             = ""                                                                                   # TODO: update here
       auth-key                    = ""                                                                                   # TODO: update here
       dgname                      = ""                                                                                   # TODO: update here
