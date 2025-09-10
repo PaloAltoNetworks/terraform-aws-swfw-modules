@@ -40,6 +40,8 @@ vpcs = {
     subnets = {
       "10.255.0.0/24" = { az = "eu-west-1a", subnet_group = "mgmt" }
       "10.255.1.0/24" = { az = "eu-west-1b", subnet_group = "mgmt" }
+      # "10.255.2.0/24" = { az = "eu-west-1a", subnet_group = "natgw" } # Uncomment this line if the NAT GW should be deployed
+      # "10.255.3.0/24" = { az = "eu-west-1b", subnet_group = "natgw" } # Uncomment this line if the NAT GW should be deployed
     }
     routes = {
       # Value of `next_hop_key` must match keys used to create TGW attachment, IGW, GWLB endpoint or other resources
@@ -52,8 +54,37 @@ vpcs = {
         next_hop_type = "internet_gateway"
       }
     }
+    /* Uncomment the following section if the NAT GW should be used. Remove the entire above 'routes' map before.
+    routes = {
+      # Value of `next_hop_key` must match keys used to create TGW attachment, IGW, GWLB endpoint or other resources
+      # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
+      natgw_default = {
+        vpc           = "management_vpc"
+        subnet_group  = "natgw"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "management_vpc"
+        next_hop_type = "internet_gateway"
+      }
+      mgmt_default = {
+        vpc           = "management_vpc"
+        subnet_group  = "mgmt"
+        to_cidr       = "0.0.0.0/0"
+        next_hop_key  = "mgmt_natgw"
+        next_hop_type = "nat_gateway"
+      }
+    }
+  */
   }
 }
+
+/* Uncomment the following section if the NAT GW should be deployed
+natgws = {
+  mgmt_natgw = {
+    vpc          = "management_vpc"
+    subnet_group = "natgw"
+  }
+}
+*/
 
 ### PANORAMA instances
 panoramas = {
@@ -75,7 +106,7 @@ panoramas = {
       vpc              = "management_vpc"
       subnet_group     = "mgmt"
       security_group   = "panorama_mgmt"
-      create_public_ip = true
+      create_public_ip = true # Set to false when NAT GW option is used
     }
 
     ebs = {
