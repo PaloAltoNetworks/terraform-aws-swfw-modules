@@ -13,10 +13,8 @@ ssh_key_name = "example-ssh-key" # TODO: update here
 ### VPC
 vpcs = {
   security_vpc = {
-    name                             = "security-vpc"
-    cidr                             = "10.100.0.0/16"
-    assign_generated_ipv6_cidr_block = false
-    nacls                            = {}
+    name = "security-vpc"
+    cidr = "10.100.0.0/16"
     security_groups = {
       vmseries_mgmt = {
         name = "vmseries_mgmt"
@@ -41,7 +39,7 @@ vpcs = {
     }
     subnets = {
       # Value of `nacl` must match key of objects stored in `nacls`
-      "10.100.0.0/24" = { az = "eu-west-1a", subnet_group = "mgmt", nacl = null, ipv6_index = null }
+      "10.100.0.0/24" = { az = "eu-west-1a", subnet_group = "mgmt" }
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
@@ -72,10 +70,11 @@ vmseries = {
       tplname                     = "aws_template"                                            # TODO: update here
       dgname                      = "aws_device_group"                                        # TODO: update here
       plugin-op-commands          = "aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable" # TODO: update here
-      dhcp-send-hostname          = "no"                                                      # TODO: update here
-      dhcp-send-client-id         = "no"                                                      # TODO: update here
-      dhcp-accept-server-hostname = "no"                                                      # TODO: update here
-      dhcp-accept-server-domain   = "no"                                                      # TODO: update here
+      dhcp-send-hostname          = "yes"                                                     # TODO: update here
+      dhcp-send-client-id         = "yes"                                                     # TODO: update here
+      dhcp-accept-server-hostname = "yes"                                                     # TODO: update here
+      dhcp-accept-server-domain   = "yes"                                                     # TODO: update here
+      vm-auth-key                 = ""                                                        # TODO: update here
     }
     /* Uncomment this section if SCM bootstrap required (PAN-OS version 11.0 or higher) 
 
@@ -83,18 +82,17 @@ vmseries = {
       mgmt-interface-swap                   = "disable"
       panorama-server                       = "cloud"                                         # TODO: update here
       dgname                                = "scm_folder_name"                               # TODO: update here
-      dhcp-send-hostname                    = "no"                                            # TODO: update here
-      dhcp-send-client-id                   = "no"                                            # TODO: update here
-      dhcp-accept-server-hostname           = "no"                                            # TODO: update here
-      dhcp-accept-server-domain             = "no"                                            # TODO: update here
+      dhcp-send-hostname                    = "yes"                                           # TODO: update here
+      dhcp-send-client-id                   = "yes"                                           # TODO: update here
+      dhcp-accept-server-hostname           = "yes"                                           # TODO: update here
+      dhcp-accept-server-domain             = "yes"                                           # TODO: update here
       plugin-op-commands                    = "advance-routing:enable"                        # TODO: update here
       vm-series-auto-registration-pin-id    = "1234ab56-1234-12a3-a1bc-a1bc23456de7"          # TODO: update here
       vm-series-auto-registration-pin-value = "12ab3c456d78901e2f3abc456d78ef9a"              # TODO: update here
     }
     */
 
-    panos_version = "11.1.4-h7"     # TODO: update here
-    ebs_kms_id    = "alias/aws/ebs" # TODO: update here
+    panos_version = "11.1.4-h7" # TODO: update here
 
     # Value of `vpc` must match key of objects stored in `vpcs`
     vpc = "security_vpc"
@@ -105,16 +103,16 @@ vmseries = {
         private_ip = {
           "01" = "10.100.0.4"
         }
-        security_group     = "vmseries_mgmt"
-        vpc                = "security_vpc"
-        subnet_group       = "mgmt"
-        ipv6_address_count = 0
-        create_public_ip   = true
-        source_dest_check  = true
-        eip_allocation_id = {
-          "01" = null
-        }
+        security_group    = "vmseries_mgmt"
+        vpc               = "security_vpc"
+        subnet_group      = "mgmt"
+        create_public_ip  = true
+        source_dest_check = true
       }
+    }
+    system_services = {
+      dns_primary = "4.2.2.2"      # TODO: update here
+      ntp_primary = "pool.ntp.org" # TODO: update here
     }
   }
 }

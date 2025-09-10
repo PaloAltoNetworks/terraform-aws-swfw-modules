@@ -75,7 +75,7 @@ resource "aws_s3_object" "init_cfg" {
 
   bucket  = local.aws_s3_bucket.id
   key     = "config/init-cfg.txt"
-  content = templatefile("${path.module}/init-cfg.txt.tmpl", { bootstrap_options = var.bootstrap_options })
+  content = templatefile("${path.module}/init-cfg.txt.tmpl", { bootstrap_options = { for k, v in var.bootstrap_options : k => v if v != null } })
 }
 
 locals {

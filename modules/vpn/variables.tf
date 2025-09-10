@@ -98,7 +98,71 @@ variable "vpn_connection" {
   - tunnel1_startup_action - (Optional, Default add) The action to take when the establishing the tunnel for the first VPN connection. By default, your customer gateway device must initiate the IKE negotiation and bring up the tunnel. Specify start for AWS to initiate the IKE negotiation. Valid values are add | start.
   - tunnel2_startup_action - (Optional, Default add) The action to take when the establishing the tunnel for the second VPN connection. By default, your customer gateway device must initiate the IKE negotiation and bring up the tunnel. Specify start for AWS to initiate the IKE negotiation. Valid values are add | start.
   EOF
-  type        = any
+  type = object({
+    name                                    = optional(string, "")
+    customer_gateway_id                     = string
+    type                                    = optional(string, "ipsec.1")
+    transit_gateway_id                      = optional(string)
+    static_routes_only                      = optional(bool, false)
+    enable_acceleration                     = optional(bool, false)
+    tags                                    = optional(map(string))
+    local_ipv4_network_cidr                 = optional(string, "0.0.0.0/0")
+    local_ipv6_network_cidr                 = optional(string, "::/0")
+    outside_ip_address_type                 = optional(string, "PublicIpv4")
+    remote_ipv4_network_cidr                = optional(string, "0.0.0.0/0")
+    remote_ipv6_network_cidr                = optional(string, "::/0")
+    tunnel_inside_ip_version                = optional(string, "ipv4")
+    tunnel1_inside_cidr                     = optional(string)
+    tunnel2_inside_cidr                     = optional(string)
+    tunnel1_inside_ipv6_cidr                = optional(string)
+    tunnel2_inside_ipv6_cidr                = optional(string)
+    tunnel1_preshared_key                   = optional(string)
+    tunnel2_preshared_key                   = optional(string)
+    tunnel1_dpd_timeout_action              = optional(string)
+    tunnel2_dpd_timeout_action              = optional(string)
+    tunnel1_dpd_timeout_seconds             = optional(number, 30)
+    tunnel2_dpd_timeout_seconds             = optional(number, 30)
+    tunnel1_enable_tunnel_lifecycle_control = optional(bool)
+    tunnel2_enable_tunnel_lifecycle_control = optional(bool)
+    tunnel1_ike_versions                    = optional(string)
+    tunnel2_ike_versions                    = optional(string)
+    tunnel1_log_options = object({
+      enabled           = bool
+      log_group         = string
+      retention_in_days = number
+      encrypted         = bool
+    })
+    tunnel2_log_options = object({
+      enabled           = bool
+      log_group         = string
+      retention_in_days = number
+      encrypted         = bool
+    })
+    tunnel1_phase1_dh_group_numbers      = optional(list(string))
+    tunnel2_phase1_dh_group_numbers      = optional(list(string))
+    tunnel1_phase1_encryption_algorithms = optional(list(string))
+    tunnel2_phase1_encryption_algorithms = optional(list(string))
+    tunnel1_phase1_integrity_algorithms  = optional(list(string))
+    tunnel2_phase1_integrity_algorithms  = optional(list(string))
+    tunnel1_phase1_lifetime_seconds      = optional(number, 28800)
+    tunnel2_phase1_lifetime_seconds      = optional(number, 28800)
+    tunnel1_phase2_dh_group_numbers      = optional(list(string))
+    tunnel2_phase2_dh_group_numbers      = optional(list(string))
+    tunnel1_phase2_encryption_algorithms = optional(list(string))
+    tunnel2_phase2_encryption_algorithms = optional(list(string))
+    tunnel1_phase2_integrity_algorithms  = optional(list(string))
+    tunnel2_phase2_integrity_algorithms  = optional(list(string))
+    tunnel1_phase2_lifetime_seconds      = optional(number, 3600)
+    tunnel2_phase2_lifetime_seconds      = optional(number, 3600)
+    tunnel1_rekey_fuzz_percentage        = optional(number, 100)
+    tunnel2_rekey_fuzz_percentage        = optional(number, 100)
+    tunnel1_rekey_margin_time_seconds    = optional(number, 540)
+    tunnel2_rekey_margin_time_seconds    = optional(number, 540)
+    tunnel1_replay_window_size           = optional(number, 1024)
+    tunnel2_replay_window_size           = optional(number, 1024)
+    tunnel1_startup_action               = optional(string, "add")
+    tunnel2_startup_action               = optional(string, "add")
+  })
 }
 
 variable "vpn_gateway_id" {

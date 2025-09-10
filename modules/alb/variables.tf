@@ -226,10 +226,33 @@ variable "rules" {
     ])))
     error_message = "Port and protocol value for each listener must be unique."
   }
-  # For the moment there is no other possibility to specify a `type` for this kind of variable.
-  # Even `map(any)` is to restrictive as it requires that all map elements must have the same type.
-  # Actually, in our case they have the same type, but they differ in the amount of inner elements.
-  type = any
+
+  type = map(object({
+    protocol                         = string
+    port                             = number
+    certificate_arn                  = optional(string)
+    ssl_policy                       = optional(string)
+    health_check_protocol            = optional(string)
+    health_check_port                = optional(string)
+    health_check_healthy_threshold   = optional(number)
+    health_check_unhealthy_threshold = optional(number)
+    health_check_interval            = optional(number)
+    health_check_timeout             = optional(number)
+    health_check_matcher             = optional(string, "200")
+    health_check_path                = optional(string, "/")
+    listener_rules = map(object({
+      target_port         = number
+      target_protocol     = string
+      protocol_version    = optional(string)
+      round_robin         = optional(bool, true)
+      host_headers        = optional(list(string))
+      http_headers        = optional(map(string))
+      http_request_method = optional(list(string))
+      path_pattern        = optional(list(string))
+      query_strings       = optional(map(string))
+      source_ip           = optional(list(string))
+    }))
+  }))
 }
 
 variable "targets" {

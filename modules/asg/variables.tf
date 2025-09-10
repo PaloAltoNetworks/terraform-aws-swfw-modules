@@ -205,9 +205,20 @@ variable "interfaces" {
   ]
   ```
   EOF
-  # For now it's not possible to have a more strict definition of variable type, optional
-  # object attributes are still experimental
-  type = map(any)
+
+  type = map(object({
+    device_index       = number
+    subnet_id          = map(string)
+    name               = optional(string)
+    description        = optional(string)
+    create_public_ip   = optional(bool, false)
+    eip_allocation_id  = optional(string)
+    private_ips        = optional(list(string))
+    ipv6_address_count = optional(number, null)
+    public_ipv4_pool   = optional(string)
+    source_dest_check  = optional(bool, false)
+    security_group_ids = optional(list(string), null)
+  }))
 }
 
 variable "target_group_arn" {

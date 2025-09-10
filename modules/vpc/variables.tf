@@ -134,7 +134,18 @@ variable "nacls" {
   ```
   EOF
   default     = {}
-  type        = any
+  type = map(object({
+    name = string
+    rules = map(object({
+      rule_number = number
+      egress      = bool
+      protocol    = string
+      rule_action = string
+      cidr_block  = string
+      from_port   = optional(number)
+      to_port     = optional(number)
+    }))
+  }))
 }
 
 variable "security_groups" {
@@ -142,7 +153,7 @@ variable "security_groups" {
   The `security_groups` variable is a map of maps, where each map represents an AWS Security Group.
   The key of each entry acts as the Security Group name.
   List of available attributes of each Security Group entry:
-  - `rules`: A list of objects representing a Security Group rule. The key of each entry acts as the name of the rule and
+  - `rules`: A map of objects representing a Security Group rule. The key of each entry
       needs to be unique across all rules in the Security Group.
       List of attributes available to define a Security Group rule:
       - `description`: Security Group description.
@@ -209,7 +220,21 @@ variable "security_groups" {
   EOF
 
   default = {}
-  type    = any
+  type = map(object({
+    name = string
+    rules = map(object({
+      description            = optional(string)
+      type                   = string
+      cidr_blocks            = optional(list(string))
+      ipv6_cidr_blocks       = optional(list(string))
+      from_port              = string
+      to_port                = string
+      protocol               = string
+      prefix_list_ids        = optional(list(string))
+      source_security_groups = optional(list(string))
+      self                   = optional(bool)
+    }))
+  }))
 }
 
 variable "create_dhcp_options" {

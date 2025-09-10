@@ -1,7 +1,14 @@
-output "app_inspected_dns_name" {
+##### Spokes ALB & NLB #####
+output "application_load_balancers" {
   description = <<-EOF
-  FQDN of App Internal Load Balancer.
-  Can be used in VM-Series configuration to balance traffic between the application instances.
+  FQDNs of Application Load Balancers
   EOF
-  value       = [for l in module.app_lb : l.lb_fqdn]
+  value       = { for k, v in module.app_alb : k => v.lb_fqdn }
+}
+
+output "network_load_balancers" {
+  description = <<-EOF
+  FQDNs of Network Load Balancers.
+  EOF
+  value       = { for k, v in module.app_nlb : k => v.lb_fqdn }
 }
