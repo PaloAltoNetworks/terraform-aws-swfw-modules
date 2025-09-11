@@ -32,12 +32,19 @@ variable "eips" {
     ```
     EOF
   default     = {}
+  type = map(object({
+    create_eip = optional(bool, true)
+    name       = optional(string)
+    public_ip  = optional(string)
+    id         = optional(string)
+    eip_tags   = optional(map(string), {})
+  }))
 }
 
 variable "nat_gateway_names" {
   description = <<EOF
-A map, where each key is an Availability Zone name, for example "us-east-1b". Each value in the map is a custom name of a NAT Gateway in that Availability Zone.
-The name is kept in an AWS standard Name tag.
+  A map, where each key is an Availability Zone name, for example "us-east-1b". Each value in the map is a custom name of a NAT Gateway in that Availability Zone.
+  The name is kept in an AWS standard Name tag.
   Example:
   ```
   nat_gateway_names = {

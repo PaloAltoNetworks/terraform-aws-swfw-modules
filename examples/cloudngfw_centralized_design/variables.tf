@@ -23,9 +23,9 @@ variable "global_tags" {
 variable "ssh_key_name" {
   description = "Name of the SSH key pair existing in AWS key pairs and used to authenticate to VM-Series or test boxes"
   type        = string
-  default     = ""
 }
-### VPC
+
+#VPC
 variable "vpcs" {
   description = <<-EOF
     A map defining VPCs with security groups and subnets.
@@ -219,111 +219,136 @@ variable "natgws" {
   }))
 }
 
-### SPOKE VMS
-variable "spoke_vms" {
+### TRANSIT GATEWAY
+variable "tgws" {
   description = <<-EOF
-  A map defining VMs in spoke VPCs.
+  A object defining Transit Gateway.
 
   Following properties are available:
-  - `az`: name of the Availability Zone
-  - `vpc`: name of the VPC (needs to be one of the keys in map `vpcs`)
-  - `subnet_group`: key of the subnet_group
-  - `security_group`: security group assigned to ENI used by VM
-  - `type`: EC2 VM type
+  - `create`: set to false, if existing TGW needs to be reused
+  - `id`:  id of existing TGW
+  - `name`: name of TGW to create or use
+  - `asn`: ASN number
+  - `route_tables`: map of route tables
 
   Example:
   ```
-  spoke_vms = {
-    "app1_vm01" = {
-      az             = "eu-central-1a"
-      vpc            = "app1_vpc"
-      subnet_group         = "app1_vm"
-      security_group = "app1_vm"
-      type           = "t2.micro"
+  tgw = {
+    create = true
+    id     = null
+    name   = "tgw"
+    asn    = "64512"
+    route_tables = {
+      "from_security_vpc" = {
+        create = true
+        name   = "from_security"
+      }
     }
   }
   ```
   EOF
   default     = {}
   type = map(object({
-    az             = string
-    vpc            = string
-    subnet_group   = string
-    security_group = string
-    type           = optional(string, "t3.micro")
+    create = optional(bool, true)
+    id     = optional(string)
+    name   = string
+    asn    = string
+    route_tables = map(object({
+      create = bool
+      name   = string
+    }))
   }))
 }
 
-### SPOKE LOADBALANCERS
-variable "spoke_nlbs" {
-  description = <<-EOF
-  A map defining Network Load Balancers deployed in spoke VPCs.
+variable "tgw_attachments" {
+  description = <<EOF
+  A object defining Transit Gateway Attachments.
 
   Following properties are available:
-  - `name`: Name of the NLB
-  - `vpc`: key of the VPC
-  - `subnet_group`: key of the subnet_group
-  - `vms`: keys of spoke VMs
-  - `internal_lb`(optional): flag to switch between internet_facing and internal NLB
-  - `balance_rules` (optional): Rules defining the method of traffic balancing 
+  - `tgw_key`: key of the TGW to be attached
+  - `create`: set to false, if existing TGW attachment needs to be reused
+  - `id`:  id of existing TGW
+  - `security_vpc_attachment`: set to true if default route from spoke VPCs towards
+     this attachment should be created 
+  - `name`: name of the TGW attachment to create or use
+  - `asn`: ASN number
+  - `vpc`: key of the attaching VPC 
+  - `route_table`: route table key created under TGW taht must be associated with attachment
+  - `propagate_routes_to`: route table key created under TGW
 
   Example:
   ```
-  spoke_lbs = {
-    "app1-nlb" = {
-      vpc    = "app1_vpc"
-      subnet_group = "app1_lb"
-      vms    = ["app1_vm01", "app1_vm02"]
+  tgw_attachments = {
+    security = {
+      tgw_key             = "tgw"
+      name                = "vmseries"
+      vpc                 = "security_vpc"
+      subnet_group        = "tgw_attach"
+      route_table         = "from_security_vpc"
+      propagate_routes_to = "from_spoke_vpc"
     }
   }
   ```
   EOF
   default     = {}
   type = map(object({
-    name         = string
-    vpc          = string
-    subnet_group = string
-    vms          = list(string)
-    internal_lb  = optional(bool, false)
-    balance_rules = map(object({
-      protocol   = string
-      port       = string
-      stickiness = optional(bool, true)
-    }))
+    tgw_key                 = string
+    create                  = optional(bool, true)
+    id                      = optional(string)
+    security_vpc_attachment = optional(bool, false)
+    name                    = string
+    vpc                     = string
+    subnet_group            = string
+    route_table             = string
+    propagate_routes_to     = string
+    appliance_mode_support  = optional(string, "enable")
+    dns_support             = optional(string, null)
+    tags                    = optional(map(string))
   }))
 }
 
-variable "spoke_albs" {
+variable "gwlb_endpoints" {
   description = <<-EOF
-  A map defining Application Load Balancers deployed in spoke VPCs.
+    A map defining GWLB endpoints.
 
-  Following properties are available:
-  - `rules`: Rules defining the method of traffic balancing
-  - `vms`: Instances to be the target group for ALB
-  - `vpc`: The VPC in which the load balancer is to be run
-  - `subnet_group`: The subnets in which the Load Balancer is to be run
-  - `security_gropus`: Security Groups to be associated with the ALB
-  ```
-  EOF
+    Following properties are available:
+    - `name`: name of the GWLB endpoint
+    - `custom_names`: Optional map of names of the VPC Endpoints, used to override the default naming generated from the input `name`.
+      Each key is the Availability Zone identifier, for example `us-east-1b`.
+    - `gwlb`: key of GWLB. Required when GWLB Endpoint must connect to GWLB's service name
+    - `vpc`: key of VPC
+    - `subnet_group`: key of the subnet_group
+    - `act_as_next_hop`: set to `true` if endpoint is part of an IGW route table e.g. for inbound traffic
+    - `from_igw_to_vpc`: VPC to which traffic from IGW is routed to the GWLB endpoint
+    - `from_igw_to_subnet_group` : subnet_group to which traffic from IGW is routed to the GWLB endpoint
+    - `cloudngfw_key`(optional): Key of the Cloud NGFW. Required when GWLB Endpoint must connect to Cloud NGFW's service name
+
+    Example:
+    ```
+    gwlb_endpoints = {
+      security_gwlb_eastwest = {
+        name            = "eastwest-gwlb-endpoint"
+        gwlb            = "security_gwlb"
+        vpc             = "security_vpc"
+        subnet_group    = "gwlbe_eastwest"
+        act_as_next_hop = false
+      }
+    }
+    ```
+    EOF
   default     = {}
   type = map(object({
-    rules = map(object({
-      protocol              = optional(string, "HTTP")
-      port                  = optional(number, 80)
-      health_check_port     = optional(string, "80")
-      health_check_matcher  = optional(string, "200")
-      health_check_path     = optional(string, "/")
-      health_check_interval = optional(number, 10)
-      listener_rules = map(object({
-        target_protocol = string
-        target_port     = number
-        path_pattern    = list(string)
-      }))
-    }))
-    vms             = list(string)
-    vpc             = string
-    subnet_group    = string
-    security_groups = string
+    name                     = string
+    custom_names             = optional(map(string), {})
+    gwlb                     = optional(string)
+    vpc                      = string
+    subnet_group             = string
+    act_as_next_hop          = bool
+    from_igw_to_vpc          = optional(string)
+    from_igw_to_subnet_group = optional(string)
+    delay                    = optional(number, 0)
+    tags                     = optional(map(string))
+    cloudngfw_key            = optional(string)
   }))
 }
 
@@ -333,7 +358,7 @@ variable "cloudngfws" {
 
   Following properties are available:
   - `name`       : name of CloudNGFW
-  - `vpc_subnet` : key of the VPC and subnet connected by '-' character
+  - `subnet_group`: key of the subnet_group
   - `vpc`        : key of the VPC
   - `description`: Use for internal purposes.
   - `security_rules`: Security Rules definition.
@@ -343,10 +368,10 @@ variable "cloudngfws" {
   ```
   cloudngfws = {
     cloudngfws_security = {
-      name        = "cloudngfw01"
-      vpc_subnet  = "app_vpc-app_gwlbe"
-      vpc         = "app_vpc"
-      description = "description"
+      name         = "cloudngfw01"
+      subnet_group = "app_gwlbe"
+      vpc          = "app_vpc"
+      description  = "description"
       security_rules = 
       { 
         rule_1 = { 
@@ -409,47 +434,72 @@ variable "cloudngfws" {
   }))
 }
 
-variable "gwlb_endpoints" {
+### SPOKE VMS
+variable "spoke_vms" {
   description = <<-EOF
-    A map defining GWLB endpoints.
+  A map defining VMs in spoke VPCs.
 
-    Following properties are available:
-    - `name`: name of the GWLB endpoint
-    - `custom_names`: Optional map of names of the VPC Endpoints, used to override the default naming generated from the input `name`.
-      Each key is the Availability Zone identifier, for example `us-east-1b`.
-    - `gwlb`: key of GWLB. Required when GWLB Endpoint must connect to GWLB's service name
-    - `vpc`: key of VPC
-    - `subnet_group`: key of the subnet_group
-    - `act_as_next_hop`: set to `true` if endpoint is part of an IGW route table e.g. for inbound traffic
-    - `from_igw_to_vpc`: VPC to which traffic from IGW is routed to the GWLB endpoint
-    - `from_igw_to_subnet_group` : subnet_group to which traffic from IGW is routed to the GWLB endpoint
-    - `cloudngfw_key`(optional): Key of the Cloud NGFW. Required when GWLB Endpoint must connect to Cloud NGFW's service name
+  Following properties are available:
+  - `az`: name of the Availability Zone
+  - `vpc`: name of the VPC (needs to be one of the keys in map `vpcs`)
+  - `subnet_group`: key of the subnet_group
+  - `security_group`: security group assigned to ENI used by VM
+  - `type`: EC2 VM type
 
-    Example:
-    ```
-    gwlb_endpoints = {
-      security_gwlb_eastwest = {
-        name            = "eastwest-gwlb-endpoint"
-        gwlb            = "security_gwlb"
-        vpc             = "security_vpc"
-        subnet_group    = "gwlbe_eastwest"
-        act_as_next_hop = false
-      }
+  Example:
+  ```
+  spoke_vms = {
+    "app1_vm01" = {
+      az             = "eu-central-1a"
+      vpc            = "app1_vpc"
+      subnet_group         = "app1_vm"
+      security_group = "app1_vm"
+      type           = "t3.micro"
     }
-    ```
-    EOF
+  }
+  ```
+  EOF
   default     = {}
   type = map(object({
-    name                     = string
-    custom_names             = optional(map(string), {})
-    gwlb                     = optional(string)
-    vpc                      = string
-    subnet_group             = string
-    act_as_next_hop          = bool
-    from_igw_to_vpc          = optional(string)
-    from_igw_to_subnet_group = optional(string)
-    delay                    = optional(number, 0)
-    tags                     = optional(map(string))
-    cloudngfw_key            = optional(string)
+    az             = string
+    vpc            = string
+    subnet_group   = string
+    security_group = string
+    type           = optional(string, "t3.micro")
+  }))
+}
+
+variable "spoke_albs" {
+  description = <<-EOF
+  A map defining Application Load Balancers deployed in spoke VPCs.
+
+  Following properties are available:
+  - `rules`: Rules defining the method of traffic balancing
+  - `vms`: Instances to be the target group for ALB
+  - `vpc`: The VPC in which the load balancer is to be run
+  - `subnet_group`: The subnets in which the Load Balancer is to be run
+  - `security_gropus`: Security Groups to be associated with the ALB
+  ```
+  EOF
+  default     = {}
+  type = map(object({
+    rules = map(object({
+      protocol              = optional(string, "HTTP")
+      port                  = optional(number, 80)
+      health_check_port     = optional(string, "80")
+      health_check_matcher  = optional(string, "200")
+      health_check_path     = optional(string, "/")
+      health_check_interval = optional(number, 10)
+      listener_rules = map(object({
+        target_protocol = string
+        target_port     = number
+        path_pattern    = list(string)
+      }))
+    }))
+    vms             = list(string)
+    target_group_az = optional(string, "all")
+    vpc             = string
+    subnet_group    = string
+    security_groups = string
   }))
 }

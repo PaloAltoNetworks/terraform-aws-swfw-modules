@@ -320,6 +320,26 @@ vpcs = {
           }
         }
       }
+      app1_lb = {
+        name = "app1_lb"
+        rules = {
+          all_outbound = {
+            description = "Permit All traffic outbound"
+            type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+            cidr_blocks = ["0.0.0.0/0"]
+          }
+          https = {
+            description = "Permit HTTPS"
+            type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
+            cidr_blocks = ["1.1.1.1/32"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
+          }
+          http = {
+            description = "Permit HTTP"
+            type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
+            cidr_blocks = ["1.1.1.1/32"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
+          }
+        }
+      }
     }
     subnets = {
       "10.104.0.0/24"   = { az = "eu-west-1a", subnet_group = "app1_vm", nacl = null }
@@ -381,6 +401,26 @@ vpcs = {
           }
         }
       }
+      app2_lb = {
+        name = "app2_lb"
+        rules = {
+          all_outbound = {
+            description = "Permit All traffic outbound"
+            type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+            cidr_blocks = ["0.0.0.0/0"]
+          }
+          https = {
+            description = "Permit HTTPS"
+            type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
+            cidr_blocks = ["1.1.1.1/32"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
+          }
+          http = {
+            description = "Permit HTTP"
+            type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
+            cidr_blocks = ["1.1.1.1/32"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
+          }
+        }
+      }
     }
     subnets = {
       "10.105.0.0/24"   = { az = "eu-west-1a", subnet_group = "app2_vm", nacl = null }
@@ -409,51 +449,53 @@ vpcs = {
   }
 }
 
-### TRANSIT GATEWAY
-tgw = {
-  create = true
-  id     = null
-  name   = "tgw"
-  asn    = "64512"
-  route_tables = {
-    # Do not change keys `from_security_vpc` and `from_spoke_vpc` as they are used in `main.tf` and attachments
-    "from_security_vpc" = {
-      create = true
-      name   = "from_security"
-    }
-    "from_spoke_vpc" = {
-      create = true
-      name   = "from_spokes"
-    }
-  }
-  attachments = {
-    # Value of `route_table` and `propagate_routes_to` must match `route_tables` stores under `tgw`
-    security = {
-      name                = "vmseries"
-      vpc                 = "security_vpc"
-      subnet_group        = "tgw_attach"
-      route_table         = "from_security_vpc"
-      propagate_routes_to = ["from_spoke_vpc"]
-    }
-    app1 = {
-      name                = "app1-spoke-vpc"
-      vpc                 = "app1_vpc"
-      subnet_group        = "app1_vm"
-      route_table         = "from_spoke_vpc"
-      propagate_routes_to = ["from_security_vpc"]
-    }
-    app2 = {
-      name                = "app2-spoke-vpc"
-      vpc                 = "app2_vpc"
-      subnet_group        = "app2_vm"
-      route_table         = "from_spoke_vpc"
-      propagate_routes_to = ["from_security_vpc"]
+## TRANSIT GATEWAY
+tgws = {
+  tgw = {
+    name = "tgw"
+    asn  = "64512"
+    route_tables = {
+      # Do not change keys `from_security_vpc` and `from_spoke_vpc` as they are used in `main.tf` and attachments
+      "from_security_vpc" = {
+        create = true
+        name   = "from_security"
+      }
+      "from_spoke_vpc" = {
+        create = true
+        name   = "from_spokes"
+      }
     }
   }
 }
 
-### NAT GATEWAY
-natgws = {}
+tgw_attachments = {
+  # Value of `route_table` and `propagate_routes_to` must match `route_tables` stores under `tgw`
+  security = {
+    tgw_key                 = "tgw"
+    security_vpc_attachment = true
+    name                    = "vmseries"
+    vpc                     = "security_vpc"
+    subnet_group            = "tgw_attach"
+    route_table             = "from_security_vpc"
+    propagate_routes_to     = "from_spoke_vpc"
+  }
+  app1 = {
+    tgw_key             = "tgw"
+    name                = "app1-spoke-vpc"
+    vpc                 = "app1_vpc"
+    subnet_group        = "app1_vm"
+    route_table         = "from_spoke_vpc"
+    propagate_routes_to = "from_security_vpc"
+  }
+  app2 = {
+    tgw_key             = "tgw"
+    name                = "app2-spoke-vpc"
+    vpc                 = "app2_vpc"
+    subnet_group        = "app2_vm"
+    route_table         = "from_spoke_vpc"
+    propagate_routes_to = "from_security_vpc"
+  }
+}
 
 ### GATEWAY LOADBALANCER
 gwlbs = {
@@ -517,8 +559,7 @@ vmseries_asgs = {
     }
     */
 
-    panos_version = "11.1.4-h7"     # TODO: update here
-    ebs_kms_id    = "alias/aws/ebs" # TODO: update here
+    panos_version = "11.1.4-h7" # TODO: update here
 
     # Value of `vpc` must match key of objects stored in `vpcs`
     vpc = "security_vpc"
@@ -557,7 +598,6 @@ vmseries_asgs = {
 
     # Value of `gwlb_endpoint` must match key of objects stored in `gwlb_endpoints`
     subinterfaces = {
-      inbound = {}
       outbound = {
         only_1_outbound = {
           gwlb_endpoint = "security_gwlb_outbound"
@@ -590,9 +630,6 @@ vmseries_asgs = {
         ManagedBy = "terraform"
       }
     }
-
-    launch_template_version = "$Latest"
-    instance_refresh        = null
 
     application_lb = {
       name           = "public-alb"
@@ -655,10 +692,14 @@ vmseries_asgs = {
 }
 
 ### PANORAMA
+# Uncomment the following section to add a route to Panorama TGW attachment on Security VPC attachment
+/* 
 panorama_attachment = {
-  transit_gateway_attachment_id = null            # TODO: update here
-  vpc_cidr                      = "10.255.0.0/24" # TODO: update here
+  tgw_key = "tgw"
+  transit_gateway_attachment_id = "tgw-attach-123"  # TODO: update here
+  vpc_cidr                      = "10.255.0.0/24"   # TODO: update here
 }
+*/
 
 ### SPOKE VMS
 spoke_vms = {
@@ -667,41 +708,90 @@ spoke_vms = {
     vpc            = "app1_vpc"
     subnet_group   = "app1_vm"
     security_group = "app1_vm"
-    type           = "t2.micro"
   }
   "app1_vm02" = {
     az             = "eu-west-1b"
     vpc            = "app1_vpc"
     subnet_group   = "app1_vm"
     security_group = "app1_vm"
-    type           = "t2.micro"
   }
   "app2_vm01" = {
     az             = "eu-west-1a"
     vpc            = "app2_vpc"
     subnet_group   = "app2_vm"
     security_group = "app2_vm"
-    type           = "t2.micro"
   }
   "app2_vm02" = {
     az             = "eu-west-1b"
     vpc            = "app2_vpc"
     subnet_group   = "app2_vm"
     security_group = "app2_vm"
-    type           = "t2.micro"
   }
 }
 
 ### SPOKE LOADBALANCERS
-spoke_lbs = {
+spoke_nlbs = {
   "app1-nlb" = {
+    name         = "app1-nlb"
     vpc          = "app1_vpc"
     subnet_group = "app1_lb"
     vms          = ["app1_vm01", "app1_vm02"]
+    balance_rules = {
+      "SSH" = {
+        port     = "22"
+        protocol = "TCP"
+      }
+    }
   }
   "app2-nlb" = {
+    name         = "app2-nlb"
     vpc          = "app2_vpc"
     subnet_group = "app2_lb"
     vms          = ["app2_vm01", "app2_vm02"]
+    balance_rules = {
+      "SSH" = {
+        port     = "22"
+        protocol = "TCP"
+      }
+    }
+  }
+}
+
+spoke_albs = {
+  "app1-alb" = {
+    vms = ["app1_vm01", "app1_vm02"]
+    rules = {
+      "app1" = {
+        health_check_port = "80"
+        listener_rules = {
+          "1" = {
+            target_protocol = "HTTP"
+            target_port     = 80
+            path_pattern    = ["/"]
+          }
+        }
+      }
+    }
+    vpc             = "app1_vpc"
+    subnet_group    = "app1_lb"
+    security_groups = "app1_lb"
+  }
+  "app2-alb" = {
+    vms = ["app2_vm01", "app2_vm02"]
+    rules = {
+      "app2" = {
+        health_check_port = "80"
+        listener_rules = {
+          "1" = {
+            target_protocol = "HTTP"
+            target_port     = 80
+            path_pattern    = ["/"]
+          }
+        }
+      }
+    }
+    vpc             = "app2_vpc"
+    subnet_group    = "app2_lb"
+    security_groups = "app2_lb"
   }
 }

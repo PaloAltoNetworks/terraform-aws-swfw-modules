@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 ### VPCS ###
 
 module "vpc" {
@@ -167,7 +169,6 @@ module "vpc_routes" {
   destination_type       = each.value.destination_type
   managed_prefix_list_id = each.value.managed_prefix_list_id
 }
-
 ### NATGW ###
 
 module "natgw_set" {
@@ -218,6 +219,7 @@ module "transit_gateway_attachment" {
   tags                   = merge(var.global_tags, each.value.tags)
 }
 
+#### Adding TGW routing #####
 resource "aws_ec2_transit_gateway_route" "from_spokes_to_security" {
   for_each                       = { for k, v in var.tgw_attachments : k => v if v["security_vpc_attachment"] }
   transit_gateway_route_table_id = module.transit_gateway[each.value.tgw_key].route_tables["from_spoke_vpc"].id
@@ -226,69 +228,40 @@ resource "aws_ec2_transit_gateway_route" "from_spokes_to_security" {
   blackhole                      = false
 }
 
-resource "aws_ec2_transit_gateway_route" "from_security_to_panorama" {
-  count                          = var.panorama_attachment.transit_gateway_attachment_id != null ? 1 : 0
-  transit_gateway_route_table_id = module.transit_gateway[var.panorama_attachment.tgw_key].route_tables["from_security_vpc"].id
-  transit_gateway_attachment_id  = var.panorama_attachment.transit_gateway_attachment_id
-  destination_cidr_block         = var.panorama_attachment.vpc_cidr
-  blackhole                      = false
+resource "aws_ec2_transit_gateway_route_table_propagation" "spokes_to_ingress" {
+  for_each                       = { for k, v in var.tgw_attachments : k => v if v["route_table"] == "from_spoke_vpc" }
+  transit_gateway_route_table_id = module.transit_gateway[each.value.tgw_key].route_tables["from_security_ingress"].id
+  transit_gateway_attachment_id  = module.transit_gateway_attachment[each.key].attachment.id
 }
 
-### GWLB ###
+### CloudNGFW ###
 
-module "gwlb" {
-  source = "../../modules/gwlb"
+module "cloudngfw" {
+  source = "../../modules/cloudngfw"
 
-  for_each = var.gwlbs
+  for_each = var.cloudngfws
 
-  name                          = "${var.name_prefix}${each.value.name}"
-  vpc_id                        = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].vpc_id
-  subnets                       = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets
-  tg_name                       = each.value.tg_name
-  target_instances              = each.value.target_instances
-  acceptance_required           = each.value.acceptance_required
-  allowed_principals            = each.value.allowed_principals
-  deregistration_delay          = each.value.deregistration_delay
-  health_check_enabled          = each.value.health_check_enabled
-  health_check_interval         = each.value.health_check_interval
-  health_check_matcher          = each.value.health_check_matcher
-  health_check_path             = each.value.health_check_path
-  health_check_port             = each.value.health_check_port
-  health_check_protocol         = each.value.health_check_protocol
-  health_check_timeout          = each.value.health_check_timeout
-  healthy_threshold             = each.value.healthy_threshold
-  unhealthy_threshold           = each.value.unhealthy_threshold
-  stickiness_type               = each.value.stickiness_type
-  rebalance_flows               = each.value.rebalance_flows
-  lb_tags                       = each.value.lb_tags
-  lb_target_group_tags          = each.value.lb_target_group_tags
-  endpoint_service_tags         = each.value.endpoint_service_tags
-  enable_lb_deletion_protection = each.value.enable_lb_deletion_protection
-  global_tags                   = var.global_tags
-}
-
-resource "aws_lb_target_group_attachment" "this" {
-  for_each = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => {
-    gwlb = vmseries.common.gwlb
-    id   = module.vmseries["${vmseries.group}-${vmseries.instance}"].instance.id
-  } }
-
-  target_group_arn = module.gwlb[each.value.gwlb].target_group.arn
-  target_id        = each.value.id
+  name           = "${var.name_prefix}${each.value.name}"
+  subnets        = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets
+  vpc_id         = module.vpc[each.value.vpc].id
+  rulestack_name = "${var.name_prefix}${each.value.name}"
+  description    = each.value.description
+  security_rules = each.value.security_rules
+  log_profiles   = each.value.log_profiles
+  profile_config = each.value.profile_config
 }
 
 ### GWLB ENDPOINTS ###
-
 module "gwlbe_endpoint" {
   source = "../../modules/gwlb_endpoint_set"
 
   for_each = var.gwlb_endpoints
 
   name              = "${var.name_prefix}${each.value.name}"
-  custom_names      = each.value.custom_names
-  gwlb_service_name = module.gwlb[each.value.gwlb].endpoint_service.service_name
+  gwlb_service_name = module.cloudngfw[each.value.cloudngfw_key].cloudngfw_service_name
   vpc_id            = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].vpc_id
   subnets           = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets
+  delay             = each.value.delay
 
   act_as_next_hop_for = each.value.act_as_next_hop ? {
     "from-igw-to-lb" = {
@@ -301,134 +274,24 @@ module "gwlbe_endpoint" {
     #     - The entire IPv4 or IPv6 CIDR block of a subnet in your VPC. (This is used here.)
     # Source: https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html#gateway-route-table
   } : {}
-  delay = each.value.delay
-  tags  = merge(var.global_tags, each.value.tags)
 }
 
-### GWLB ASSOCIATIONS WITH VM-Series ENDPOINTS ###
+### SPOKE INBOUND APPLICATION LOAD BALANCER ###
 
-locals {
-  subinterface_gwlb_endpoint_eastwest = try({ for i, j in var.vmseries : i => join(",", compact(concat(flatten([
-    for sk, sv in j.subinterfaces.eastwest : [for k, v in module.gwlbe_endpoint[sv.gwlb_endpoint].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, sv.subinterface)]
-  ])))) }, {})
-  subinterface_gwlb_endpoint_outbound = try({ for i, j in var.vmseries : i => join(",", compact(concat(flatten([
-    for sk, sv in j.subinterfaces.outbound : [for k, v in module.gwlbe_endpoint[sv.gwlb_endpoint].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, sv.subinterface)]
-  ])))) }, {})
-  subinterface_gwlb_endpoint_inbound = try({ for i, j in var.vmseries : i => join(",", compact(concat(flatten([
-    for sk, sv in j.subinterfaces.inbound : [for k, v in module.gwlbe_endpoint[sv.gwlb_endpoint].endpoints : format("aws-gwlb-associate-vpce:%s@%s", v.id, sv.subinterface)]
-  ])))) }, {})
-  plugin_op_commands_with_endpoints_mapping = { for i, j in var.vmseries : i => join(",", compact([j.bootstrap_options["plugin-op-commands"],
-  try(local.subinterface_gwlb_endpoint_eastwest[i], null), try(local.subinterface_gwlb_endpoint_outbound[i], null), try(local.subinterface_gwlb_endpoint_inbound[i], null)])) }
-  bootstrap_options_with_endpoints_mapping = { for i, j in var.vmseries : i => [
-    for k, v in j.bootstrap_options : k != "plugin-op-commands" ? "${k}=${v}" : "${k}=${local.plugin_op_commands_with_endpoints_mapping[i]}" if v != null
-  ] }
-}
+module "app_alb" {
+  source = "../../modules/alb"
 
-### IAM ROLES AND POLICIES ###
+  for_each = var.spoke_albs
 
-data "aws_caller_identity" "this" {}
+  lb_name         = "${var.name_prefix}${each.key}"
+  subnets         = { for k, v in module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets : k => { id = v.id } }
+  vpc_id          = module.vpc[each.value.vpc].id
+  security_groups = [module.vpc[each.value.vpc].security_group_ids[each.value.security_groups]]
+  rules           = each.value.rules
+  targets         = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].private_ip }
+  target_group_az = each.value.target_group_az
 
-data "aws_partition" "this" {}
-
-resource "aws_iam_role" "vm_series_ec2_iam_role" {
-  name               = "${var.name_prefix}vmseries"
-  assume_role_policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "sts:AssumeRole",
-            "Principal": {"Service": "ec2.amazonaws.com"}
-        }
-    ]
-}
-EOF
-}
-
-resource "aws_iam_role_policy" "vm_series_ec2_iam_policy" {
-  role   = aws_iam_role.vm_series_ec2_iam_role.id
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": [
-        "cloudwatch:PutMetricData",
-        "cloudwatch:GetMetricData",
-        "cloudwatch:ListMetrics"
-      ],
-      "Resource": [
-        "*"
-      ],
-      "Effect": "Allow"
-    },
-    {
-      "Action": [
-        "cloudwatch:PutMetricAlarm",
-        "cloudwatch:DescribeAlarms"
-      ],
-      "Resource": [
-        "arn:${data.aws_partition.this.partition}:cloudwatch:${var.region}:${data.aws_caller_identity.this.account_id}:alarm:*"
-      ],
-      "Effect": "Allow"
-    }
-  ]
-}
-
-EOF
-}
-
-resource "aws_iam_instance_profile" "vm_series_iam_instance_profile" {
-
-  name = "${var.name_prefix}vmseries_instance_profile"
-  role = aws_iam_role.vm_series_ec2_iam_role.name
-}
-
-### VM-Series INSTANCES
-
-locals {
-  vmseries_instances = flatten([for kv, vv in var.vmseries : [for ki, vi in vv.instances : { group = kv, instance = ki, az = vi.az, name = vi.name, common = vv }]])
-}
-
-module "vmseries" {
-  source = "../../modules/vmseries"
-
-  for_each = { for vmseries in local.vmseries_instances : "${vmseries.group}-${vmseries.instance}" => vmseries }
-
-  airs_deployment                        = each.value.common.airs_deployment
-  vmseries_version                       = each.value.common.panos_version
-  name                                   = each.value.name != null ? "${var.name_prefix}${each.value.name}" : "${var.name_prefix}${each.key}"
-  vmseries_ami_id                        = each.value.common.vmseries_ami_id
-  vmseries_product_code                  = each.value.common.vmseries_product_code
-  include_deprecated_ami                 = each.value.common.include_deprecated_ami
-  instance_type                          = each.value.common.instance_type
-  enable_instance_termination_protection = each.value.common.enable_instance_termination_protection
-  enable_monitoring                      = each.value.common.enable_monitoring
-  ebs_encrypted                          = each.value.common.ebs_encrypted
-  ebs_kms_key_alias                      = each.value.common.ebs_kms_id
-
-  interfaces = {
-    for k, v in each.value.common.interfaces : k => {
-      device_index       = v.device_index
-      name               = v.name
-      description        = v.description
-      security_group_ids = try([module.vpc[each.value.common.vpc].security_group_ids[v.security_group]], [])
-      source_dest_check  = v.source_dest_check
-      subnet_id          = module.subnet_sets["${each.value.common.vpc}-${v.subnet_group}"].subnets[each.value.az].id
-      create_public_ip   = v.create_public_ip
-      eip_allocation_id  = v.eip_allocation_id
-      private_ips        = v.private_ips
-      ipv6_address_count = v.ipv6_address_count
-      public_ipv4_pool   = v.public_ipv4_pool
-    }
-  }
-
-  bootstrap_options = join(";", compact(concat(local.bootstrap_options_with_endpoints_mapping[each.value.group])))
-
-  iam_instance_profile = aws_iam_instance_profile.vm_series_iam_instance_profile.name
-  ssh_key_name         = var.ssh_key_name
-  tags                 = merge(var.global_tags, each.value.common.tags)
+  tags = var.global_tags
 }
 
 ### SPOKE VM INSTANCES ####
@@ -518,44 +381,4 @@ resource "aws_instance" "spoke_vms" {
   find /var/www -type d -exec chmod 2775 {} \;
   find /var/www -type f -exec chmod 0664 {} \;
   EOF
-}
-
-### SPOKE INBOUND APPLICATION LOAD BALANCER ###
-
-module "app_alb" {
-  source = "../../modules/alb"
-
-  for_each = var.spoke_albs
-
-  lb_name         = "${var.name_prefix}${each.key}"
-  subnets         = { for k, v in module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets : k => { id = v.id } }
-  vpc_id          = module.vpc[each.value.vpc].id
-  security_groups = [module.vpc[each.value.vpc].security_group_ids[each.value.security_groups]]
-  rules           = each.value.rules
-  targets         = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].private_ip }
-
-  tags = var.global_tags
-}
-
-### SPOKE INBOUND NETWORK LOAD BALANCER ###
-
-module "app_nlb" {
-  source = "../../modules/nlb"
-
-  for_each = var.spoke_nlbs
-
-  name        = "${var.name_prefix}${each.value.name}"
-  internal_lb = each.value.internal_lb
-  subnets     = { for k, v in module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets : k => { id = v.id } }
-  vpc_id      = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].vpc_id
-
-  balance_rules = { for rule_key, rule_value in each.value.balance_rules : rule_key => {
-    protocol    = rule_value.protocol
-    port        = rule_value.port
-    stickiness  = rule_value.stickiness
-    target_type = "instance"
-    targets     = { for vm in each.value.vms : vm => aws_instance.spoke_vms[vm].id }
-  } }
-
-  tags = var.global_tags
 }

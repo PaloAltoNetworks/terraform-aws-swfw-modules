@@ -16,66 +16,180 @@ variable "global_tags" {
 variable "ssh_key_name" {
   description = "Name of the SSH key pair existing in AWS key pairs and used to authenticate to VM-Series or test boxes"
   type        = string
+  default     = ""
 }
 
 ### VPC
 variable "vpcs" {
   description = <<-EOF
-  A map defining VPCs with security groups and subnets.
+    A map defining VPCs with security groups and subnets.
 
-  Following properties are available:
-  - `name`: VPC name
-  - `cidr`: CIDR for VPC
-  - `security_groups`: map of security groups
-  - `subnets`: map of subnets with properties:
-     - `az`: availability zone
-     - `subnet_group`: identity of the same purpose subnets group such as management
-  - `routes`: map of routes with properties:
-     - `vpc`: key of VPC
-     - `subnet_group` - key of the subnet group
-     - `to_cidr`: destination IP range
-     - `next_hop_key`: must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
-     - `next_hop_type`: internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
+    Following properties are available:
+    - `name`: VPC name
+    - `cidr`: CIDR for VPC
+    - `security_groups`: map of security groups
+    - `subnets`: map of subnets with properties:
+        - `az`: availability zone
+        - `subnet_group`: identity of the same purpose subnets group such as management
+    - `routes`: map of routes with properties:
+        - `vpc`: key of the VPC
+        - `subnet_group`: key of the subnet group
+        - `next_hop_key`: must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
+        - `next_hop_type`: internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
 
-  Example:
-  ```
-  {
-    security_vpc = {
-      name = "security-vpc"
-      cidr = "10.100.0.0/16"
-      security_groups = {
-        panorama_mgmt = {
-          name = "panorama_mgmt"
-          rules = {
-            all_outbound = {
-              description = "Permit All traffic outbound"
-              type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
-              cidr_blocks = ["0.0.0.0/0"]
-            }
-            https = {
-              description = "Permit HTTPS"
-              type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-              cidr_blocks = ["130.41.247.0/24"]
-            }
-            ssh = {
-              description = "Permit SSH"
-              type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-              cidr_blocks = ["130.41.247.0/24"]
+    Example:
+    ```
+    vpcs = {
+      example_vpc = {
+        name = "example-spoke-vpc"
+        cidr = "10.104.0.0/16"
+        nacls = {
+          trusted_path_monitoring = {
+            name               = "trusted-path-monitoring"
+            rules = {
+              allow_inbound = {
+                rule_number = 300
+                egress      = false
+                protocol    = "-1"
+                rule_action = "allow"
+                cidr_block  = "0.0.0.0/0"
+                from_port   = null
+                to_port     = null
+              }
             }
           }
         }
+        security_groups = {
+          example_vm = {
+            name = "example_vm"
+            rules = {
+              all_outbound = {
+                description = "Permit All traffic outbound"
+                type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+                cidr_blocks = ["0.0.0.0/0"]
+              }
+            }
+          }
+        }
+        subnets = {
+          "10.104.0.0/24"   = { az = "eu-central-1a", subnet_group = "vm", nacl = null }
+          "10.104.128.0/24" = { az = "eu-central-1b", subnet_group = "vm", nacl = null }
+        }
+        routes = {
+          vm_default = {
+            vpc           = "app1_vpc"
+            subnet_group        = "app1_vm"
+            to_cidr       = "0.0.0.0/0"
+            next_hop_key  = "app1"
+            next_hop_type = "transit_gateway_attachment"
+          }
+        }
       }
-      subnets = {
-        "10.100.0.0/24"  = { az = "eu-central-1a", subnet_group = "mgmt" }
-        "10.100.64.0/24" = { az = "eu-central-1b", subnet_group = "mgmt" }
+    }
+    ```
+    EOF
+  default     = {}
+  type = map(object({
+    name                             = string
+    create_vpc                       = optional(bool, true)
+    cidr                             = string
+    secondary_cidr_blocks            = optional(list(string), [])
+    assign_generated_ipv6_cidr_block = optional(bool)
+    use_internet_gateway             = optional(bool, false)
+    name_internet_gateway            = optional(string)
+    create_internet_gateway          = optional(bool, true)
+    route_table_internet_gateway     = optional(string)
+    create_vpn_gateway               = optional(bool, false)
+    vpn_gateway_amazon_side_asn      = optional(string)
+    name_vpn_gateway                 = optional(string)
+    route_table_vpn_gateway          = optional(string)
+    enable_dns_hostnames             = optional(bool, true)
+    enable_dns_support               = optional(bool, true)
+    instance_tenancy                 = optional(string, "default")
+    nacls = optional(map(object({
+      name = string
+      rules = map(object({
+        rule_number = number
+        egress      = bool
+        protocol    = string
+        rule_action = string
+        cidr_block  = string
+        from_port   = optional(number)
+        to_port     = optional(number)
+      }))
+    })), {})
+    security_groups = optional(map(object({
+      name = string
+      rules = map(object({
+        description            = optional(string)
+        type                   = string
+        cidr_blocks            = optional(list(string))
+        ipv6_cidr_blocks       = optional(list(string))
+        from_port              = string
+        to_port                = string
+        protocol               = string
+        prefix_list_ids        = optional(list(string))
+        source_security_groups = optional(list(string))
+        self                   = optional(bool)
+      }))
+    })), {})
+    subnets = optional(map(object({
+      name                    = optional(string, "")
+      az                      = string
+      subnet_group            = string
+      nacl                    = optional(string)
+      create_subnet           = optional(bool, true)
+      create_route_table      = optional(bool, true)
+      existing_route_table_id = optional(string)
+      route_table_name        = optional(string)
+      associate_route_table   = optional(bool, true)
+      local_tags              = optional(map(string), {})
+      map_public_ip_on_launch = optional(bool, false)
+    })), {})
+    routes = optional(map(object({
+      vpc                    = string
+      subnet_group           = string
+      to_cidr                = string
+      next_hop_key           = string
+      next_hop_type          = string
+      destination_type       = optional(string, "ipv4")
+      managed_prefix_list_id = optional(string)
+    })), {})
+    create_dhcp_options = optional(bool, false)
+    domain_name         = optional(string)
+    domain_name_servers = optional(list(string))
+    ntp_servers         = optional(list(string))
+    vpc_tags            = optional(map(string), {})
+  }))
+}
+
+### NAT GATEWAY
+variable "natgws" {
+  description = <<-EOF
+  A map defining NAT Gateways.
+
+  Following properties are available:
+  - `nat_gateway_names`: A map, where each key is an Availability Zone name, for example "eu-west-1b". 
+    Each value in the map is a custom name of a NAT Gateway in that Availability Zone.
+  - `vpc`: key of the VPC
+  - `subnet_group`: key of the subnet_group
+  - `nat_gateway_tags`: A map containing NAT GW tags
+  - `create_eip`: Defaults to true, uses a data source to find EIP when set to false
+  - `eips`: Optional map of Elastic IP attributes. Each key must be an Availability Zone name. 
+
+  Example:
+  ```
+  natgws = {
+    sec_natgw = {
+      vpc = "security_vpc"
+      subnet_group = "natgw"
+      nat_gateway_names = {
+        "eu-west-1a" = "nat-gw-1"
+        "eu-west-1b" = "nat-gw-2"
       }
-      routes = {
-        mgmt_default = {
-          vpc           = "security_vpc
-          subnet_group  = "mgmt"
-          to_cidr       = "0.0.0.0/0"
-          next_hop_key  = "security_vpc"
-          next_hop_type = "internet_gateway"
+      eips ={
+        "eu-west-1a" = { 
+          name = "natgw-1-pip"
         }
       }
     }
@@ -84,49 +198,18 @@ variable "vpcs" {
   EOF
   default     = {}
   type = map(object({
-    name = string
-    cidr = string
-    nacls = map(object({
-      name = string
-      rules = map(object({
-        rule_number = number
-        egress      = bool
-        protocol    = string
-        rule_action = string
-        cidr_block  = string
-        from_port   = optional(string)
-        to_port     = optional(string)
-      }))
-    }))
-    security_groups = map(object({
-      name = string
-      rules = map(object({
-        description = string
-        type        = string
-        from_port   = string
-        to_port     = string
-        protocol    = string
-        cidr_blocks = list(string)
-      }))
-    }))
-    subnets = map(object({
-      az                      = string
-      subnet_group            = string
-      nacl                    = optional(string)
-      create_subnet           = optional(bool, true)
-      create_route_table      = optional(bool, true)
-      existing_route_table_id = optional(string)
-      associate_route_table   = optional(bool, true)
-      route_table_name        = optional(string)
-      local_tags              = optional(map(string), {})
-    }))
-    routes = map(object({
-      vpc           = string
-      subnet_group  = string
-      to_cidr       = string
-      next_hop_key  = string
-      next_hop_type = string
-    }))
+    create_nat_gateway = optional(bool, true)
+    nat_gateway_names  = optional(map(string), {})
+    vpc                = string
+    subnet_group       = string
+    nat_gateway_tags   = optional(map(string), {})
+    create_eip         = optional(bool, true)
+    eips = optional(map(object({
+      name      = optional(string)
+      public_ip = optional(string)
+      id        = optional(string)
+      eip_tags  = optional(map(string), {})
+    })), {})
   }))
 }
 
@@ -208,6 +291,7 @@ variable "panoramas" {
   default     = {}
   type = map(object({
     instances = map(object({
+      name               = optional(string)
       az                 = string
       private_ip_address = string
     }))
@@ -226,16 +310,25 @@ variable "panoramas" {
         name            = string
         ebs_device_name = string
         ebs_size        = string
+        force_detach    = optional(bool, false)
+        skip_destroy    = optional(bool, false)
       }))
       encrypted     = bool
-      kms_key_alias = string
+      kms_key_alias = optional(string, "alias/aws/ebs")
     })
+
+    product_code           = optional(string, "eclz7j04vu9lf8ont8ta3n17o")
+    include_deprecated_ami = optional(bool, false)
+    panorama_ami_id        = optional(string)
+    instance_type          = optional(string, "c5.4xlarge")
+    enable_monitoring      = optional(bool, false)
+    eip_domain             = optional(string, "vpc")
 
     iam = object({
       create_role = bool
       role_name   = string
     })
 
-    enable_imdsv2 = bool
+    enable_imdsv2 = optional(bool, false)
   }))
 }

@@ -6,19 +6,30 @@ variable "name" {
 
 variable "cidrs" {
   description = <<-EOF
-  Map describing configuration of subnets and route tables to create and/or use in the set.
-  Keys are CIDR blocks, values can consist of following items:
-  - `create_subnet`           - (Optional|bool) When `true` (default), subnet is created, otherwise existing one is used.
-  - `create_route_table`      - (Optional|bool) When `true`  a dedicated route table is created, unless existing subnet is used.
-  - `associate_route_table`   - (Optional|bool) Unless set to `false`, route table is associated with the subnet.
-  - `existing_route_table_id` - (Optional|string) Id of an existing route table to associate with the subnet.
-  - `name`                    - (Optional|string) Name (tag) of a subnet and, optionally a route table, to create or use. Defaults to set name appended with zone letter id.
-  - `route_table_name`        - (Optional|string) Name (tag) of a subnet and, optionally a route table, to create or use.  Defaults to `name` value.
-  - `ipv6_cidr_block`         - (Optional|string) IPv6 CIDR block. The subnet size must use a /64 prefix length.
-  - `map_public_ip_on_launch` - (Optional|bool) Specify true to indicate that instances launched into the subnet should be assigned a public IP address.
-  - `local_tags`              - (Optional|map) Map of tags to assign to created resources.
-  EOF
-  type        = map(any)
+    Map describing configuration of subnets and route tables to create and/or use in the set.
+    Keys are CIDR blocks, values can consist of following items:
+    - `create_subnet`           - (Optional|bool) When `true` (default), subnet is created, otherwise existing one is used.
+    - `create_route_table`      - (Optional|bool) When `true`  a dedicated route table is created, unless existing subnet is used.
+    - `associate_route_table`   - (Optional|bool) Unless set to `false`, route table is associated with the subnet.
+    - `existing_route_table_id` - (Optional|string) Id of an existing route table to associate with the subnet.
+    - `name`                    - (Optional|string) Name (tag) of a subnet and, optionally a route table, to create or use. Defaults to set name appended with zone letter id.
+    - `route_table_name`        - (Optional|string) Name (tag) of a subnet and, optionally a route table, to create or use.  Defaults to `name` value.
+    - `ipv6_cidr_block`         - (Optional|string) IPv6 CIDR block. The subnet size must use a /64 prefix length.
+    - `map_public_ip_on_launch` - (Optional|bool) Specify true to indicate that instances launched into the subnet should be assigned a public IP address.
+    - `local_tags`              - (Optional|map) Map of tags to assign to created resources.
+    EOF
+  type = map(object({
+    az                      = string
+    create_subnet           = optional(bool, true)
+    create_route_table      = optional(bool, true)
+    associate_route_table   = optional(bool, true)
+    existing_route_table_id = optional(string)
+    name                    = optional(string)
+    route_table_name        = optional(string)
+    ipv6_cidr               = optional(string)
+    map_public_ip_on_launch = optional(bool)
+    local_tags              = optional(map(string))
+  }))
 }
 
 variable "vpc_id" {

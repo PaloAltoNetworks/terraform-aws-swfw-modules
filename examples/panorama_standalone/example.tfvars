@@ -13,9 +13,8 @@ ssh_key_name = "example-ssh-key" # TODO: update here
 ### VPC
 vpcs = {
   management_vpc = {
-    name  = "management-vpc"
-    cidr  = "10.255.0.0/16"
-    nacls = {}
+    name = "management-vpc"
+    cidr = "10.255.0.0/16"
     security_groups = {
       panorama_mgmt = {
         name = "panorama_mgmt"
@@ -92,15 +91,12 @@ panoramas = {
           ebs_size        = "2000"
         }
       ]
-      encrypted     = true
-      kms_key_alias = "alias/aws/ebs"
+      encrypted = true
     }
 
     iam = {
       create_role = true
       role_name   = "panorama"
     }
-
-    enable_imdsv2 = false
   }
 }

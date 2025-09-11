@@ -415,8 +415,7 @@ vmseries = {
     }
     */
 
-    panos_version = "11.1.4-h7"     # TODO: update here
-    ebs_kms_id    = "alias/aws/ebs" # TODO: update here
+    panos_version = "11.1.4-h7" # TODO: update here
 
     # Value of `vpc` must match key of objects stored in `vpcs`
     vpc = "security_vpc"
@@ -463,34 +462,24 @@ vmseries = {
           subinterface  = "ethernet1/1.12"
         }
       }
-      outbound = {}
-      eastwest = {}
     }
 
     system_services = {
       dns_primary = "4.2.2.2"      # TODO: update here
-      dns_secondy = null           # TODO: update here
       ntp_primary = "pool.ntp.org" # TODO: update here
-      ntp_secondy = null           # TODO: update here
-    }
-
-    application_lb = {
-      name  = null
-      rules = {}
-    }
-    network_lb = {
-      name  = null
-      rules = {}
     }
   }
 }
 
 ### PANORAMA
+# Uncomment the following section to add a route to Panorama VPC peering
+/* 
 panorama_connection = {
   security_vpc   = "security_vpc"
-  peering_vpc_id = null            # TODO: update here
-  vpc_cidr       = "10.255.0.0/24" # TODO: update here
+  peering_vpc_id = "vpc-1234567890"  # TODO: update here
+  vpc_cidr       = "10.255.0.0/24"   # TODO: update here
 }
+*/
 
 ### SPOKE VMS
 spoke_vms = {
@@ -499,42 +488,52 @@ spoke_vms = {
     vpc            = "app1_vpc"
     subnet_group   = "app1_vm"
     security_group = "app1_vm"
-    type           = "t2.micro"
   }
   "app1_vm02" = {
     az             = "eu-west-1b"
     vpc            = "app1_vpc"
     subnet_group   = "app1_vm"
     security_group = "app1_vm"
-    type           = "t2.micro"
   }
   "app2_vm01" = {
     az             = "eu-west-1a"
     vpc            = "app2_vpc"
     subnet_group   = "app2_vm"
     security_group = "app2_vm"
-    type           = "t2.micro"
   }
   "app2_vm02" = {
     az             = "eu-west-1b"
     vpc            = "app2_vpc"
     subnet_group   = "app2_vm"
     security_group = "app2_vm"
-    type           = "t2.micro"
   }
 }
 
 ### SPOKE LOADBALANCERS
 spoke_nlbs = {
   "app1-nlb" = {
+    name         = "app1-nlb"
     vpc          = "app1_vpc"
     subnet_group = "app1_lb"
     vms          = ["app1_vm01", "app1_vm02"]
+    balance_rules = {
+      "SSH" = {
+        port     = "22"
+        protocol = "TCP"
+      }
+    }
   }
   "app2-nlb" = {
+    name         = "app2-nlb"
     vpc          = "app2_vpc"
     subnet_group = "app2_lb"
     vms          = ["app2_vm01", "app2_vm02"]
+    balance_rules = {
+      "SSH" = {
+        port     = "22"
+        protocol = "TCP"
+      }
+    }
   }
 }
 
@@ -543,12 +542,7 @@ spoke_albs = {
     vms = ["app1_vm01", "app1_vm02"]
     rules = {
       "app1" = {
-        protocol              = "HTTP"
-        port                  = 80
-        health_check_port     = "80"
-        health_check_matcher  = "200"
-        health_check_path     = "/"
-        health_check_interval = 10
+        health_check_port = "80"
         listener_rules = {
           "1" = {
             target_protocol = "HTTP"
@@ -566,12 +560,7 @@ spoke_albs = {
     vms = ["app2_vm01", "app2_vm02"]
     rules = {
       "app2" = {
-        protocol              = "HTTP"
-        port                  = 80
-        health_check_port     = "80"
-        health_check_matcher  = "200"
-        health_check_path     = "/"
-        health_check_interval = 10
+        health_check_port = "80"
         listener_rules = {
           "1" = {
             target_protocol = "HTTP"

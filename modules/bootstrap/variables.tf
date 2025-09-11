@@ -58,6 +58,7 @@ variable "bootstrap_options" {
 
   There are available bootstrap parameters:
   - `hostname`                    - (`string`, optional) The hostname of the VM-series instance.
+  - `mgmt-interface-swap`         - (`string`, optional) Allows to swap the management interface with the dataplane interface eth1/1.
   - `panorama-server`             - (`string`, optional) The FQDN or IP address of the primary Panorama server.
   - `panorama-server-2`           - (`string`, optional) The FQDN or IP address of the secondary Panorama server.
   - `tplname`                     - (`string`, optional) The Panorama template stack name.
@@ -73,14 +74,33 @@ variable "bootstrap_options" {
   - `dhcp-send-client-id`         - (`string`, optional) The DHCP server determines a value of yes or no. If yes, the firewall sends its client ID to the DHCP server.
   - `dhcp-accept-server-hostname` - (`string`, optional) The DHCP server determines a value of yes or no. If yes, the firewall accepts its hostname from the DHCP server.
   - `dhcp-accept-server-domain`   - (`string`, optional) The DHCP server determines a value of yes or no. If yes, the firewall accepts its DNS server from the DHCP server.
+  - `authcodes`                   - (`string`, optional) The authcode use to register the VM-Series firewall. 
+  - `vm-series-auto-registration-pin-id` - (`string`, optional) The VM-Series registration PIN ID for installing the device certificate on the VM-Series firewall.
+  - `vm-series-auto-registration-pin-value` - (`string`, optional) The VM-Series registration PIN Value for installing the device certificate on the VM-Series firewall.
   EOF
-  default = {
-    dhcp-send-hostname          = "yes"
-    dhcp-send-client-id         = "yes"
-    dhcp-accept-server-hostname = "yes"
-    dhcp-accept-server-domain   = "yes"
-  }
-  type = any
+
+  type = object({
+    hostname                              = optional(string)
+    mgmt-interface-swap                   = optional(string)
+    panorama-server                       = optional(string)
+    panorama-server-2                     = optional(string)
+    tplname                               = optional(string)
+    dgname                                = optional(string)
+    cgname                                = optional(string)
+    dns-primary                           = optional(string)
+    dns-secondary                         = optional(string)
+    auth-key                              = optional(string)
+    vm-auth-key                           = optional(string)
+    op-command-modes                      = optional(string)
+    plugin-op-commands                    = optional(string)
+    dhcp-send-hostname                    = optional(string)
+    dhcp-send-client-id                   = optional(string)
+    dhcp-accept-server-hostname           = optional(string)
+    dhcp-accept-server-domain             = optional(string)
+    authcodes                             = optional(string)
+    vm-series-auto-registration-pin-id    = optional(string)
+    vm-series-auto-registration-pin-value = optional(string)
+  })
 }
 
 variable "create_bucket" {

@@ -150,10 +150,21 @@ variable "balance_rules" {
   }
   ```
   EOF
-  # For the moment there is no other possibility to specify a `type` for this kind of variable.
-  # Even `map(any)` is to restrictive as it requires that all map elements must have the same type.
-  # Actually, in our case they have the same type, but they differ in the mount of inner elements.
-  type = any
+  type = map(object({
+    protocol           = string
+    port               = string
+    health_check_port  = optional(string, "traffic-port")
+    threshold          = optional(number)
+    interval           = optional(number)
+    target_port        = optional(string)
+    target_type        = string
+    targets            = map(string)
+    target_az          = optional(string)
+    preserve_client_ip = optional(bool)
+    stickiness         = optional(bool)
+    certificate_arn    = optional(string)
+    alpn_policy        = optional(string)
+  }))
 }
 
 variable "tags" {
