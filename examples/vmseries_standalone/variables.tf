@@ -142,6 +142,7 @@ variable "vpcs" {
       associate_route_table   = optional(bool, true)
       local_tags              = optional(map(string), {})
       map_public_ip_on_launch = optional(bool, false)
+      ipv6_index              = optional(number)
     })), {})
     routes = optional(map(object({
       vpc                    = string
