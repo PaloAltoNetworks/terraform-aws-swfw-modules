@@ -66,15 +66,14 @@ vmseries = {
     # Value of `panorama-server`, `auth-key`, `dgname`, `tplname` can be taken from plugin `sw_fw_license`. Delete map if SCM bootstrap required.
     bootstrap_options = {
       mgmt-interface-swap         = "disable"
-      panorama-server             = "10.10.0.4"                                               # TODO: update here
-      tplname                     = "aws_template"                                            # TODO: update here
-      dgname                      = "aws_device_group"                                        # TODO: update here
-      plugin-op-commands          = "aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable" # TODO: update here
-      dhcp-send-hostname          = "yes"                                                     # TODO: update here
-      dhcp-send-client-id         = "yes"                                                     # TODO: update here
-      dhcp-accept-server-hostname = "yes"                                                     # TODO: update here
-      dhcp-accept-server-domain   = "yes"                                                     # TODO: update here
-      vm-auth-key                 = ""                                                        # TODO: update here
+      panorama-server             = "10.10.0.4"                                                                      # TODO: update here
+      tplname                     = "aws_template"                                                                   # TODO: update here
+      dgname                      = "aws_device_group"                                                               # TODO: update here
+      plugin-op-commands          = "aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable,advance-routing:enable" # TODO: update here
+      dhcp-send-hostname          = "no"                                                                             # TODO: update here
+      dhcp-send-client-id         = "no"                                                                             # TODO: update here
+      dhcp-accept-server-hostname = "no"                                                                             # TODO: update here
+      dhcp-accept-server-domain   = "no"                                                                             # TODO: update here
     }
     /* Uncomment this section if SCM bootstrap required (PAN-OS version 11.0 or higher) 
 

@@ -387,15 +387,15 @@ vmseries = {
     # Value of `panorama-server`, `auth-key`, `dgname`, `tplname` can be taken from plugin `sw_fw_license`. Delete map if SCM bootstrap required.
     bootstrap_options = {
       mgmt-interface-swap         = "enable"
-      plugin-op-commands          = "panorama-licensing-mode-on,aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable" # TODO: update here
-      panorama-server             = ""                                                                                   # TODO: update here
-      auth-key                    = ""                                                                                   # TODO: update here
-      dgname                      = ""                                                                                   # TODO: update here
-      tplname                     = ""                                                                                   # TODO: update here
-      dhcp-send-hostname          = "yes"                                                                                # TODO: update here
-      dhcp-send-client-id         = "yes"                                                                                # TODO: update here
-      dhcp-accept-server-hostname = "yes"                                                                                # TODO: update here
-      dhcp-accept-server-domain   = "yes"                                                                                # TODO: update here
+      plugin-op-commands          = "panorama-licensing-mode-on,aws-gwlb-inspect:enable,aws-gwlb-overlay-routing:enable,advance-routing:enable" # TODO: update here
+      panorama-server             = ""                                                                                                          # TODO: update here
+      auth-key                    = ""                                                                                                          # TODO: update here
+      dgname                      = ""                                                                                                          # TODO: update here
+      tplname                     = ""                                                                                                          # TODO: update here
+      dhcp-send-hostname          = "yes"                                                                                                       # TODO: update here
+      dhcp-send-client-id         = "yes"                                                                                                       # TODO: update here
+      dhcp-accept-server-hostname = "yes"                                                                                                       # TODO: update here
+      dhcp-accept-server-domain   = "yes"                                                                                                       # TODO: update here
     }
 
     /* Uncomment this section if SCM bootstrap required (PAN-OS version 11.0 or higher) 
