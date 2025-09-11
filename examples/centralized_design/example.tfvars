@@ -1,6 +1,6 @@
 ### General
 region      = "eu-west-1" # TODO: update here
-name_prefix = "exampl-"  # TODO: update here
+name_prefix = "example-"  # TODO: update here
 
 global_tags = {
   ManagedBy   = "terraform"
@@ -8,7 +8,7 @@ global_tags = {
   Owner       = "PS Team"
 }
 
-ssh_key_name = "exampl-ssh-key" # TODO: update here
+ssh_key_name = "example-ssh-key" # TODO: update here
 
 ### VPC
 vpcs = {
