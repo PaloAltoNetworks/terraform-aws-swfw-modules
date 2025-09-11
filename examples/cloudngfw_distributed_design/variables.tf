@@ -27,77 +27,91 @@ variable "ssh_key_name" {
 ### VPC
 variable "vpcs" {
   description = <<-EOF
-  A map defining VPCs with security groups and subnets.
+    A map defining VPCs with security groups and subnets.
 
-  Following properties are available:
-  - `name`: VPC name
-  - `cidr`: CIDR for VPC
-  - `nacls`: map of network ACLs
-  - `security_groups`: map of security groups
-  - `subnets`: map of subnets with properties:
-     - `az`: availability zone
-     - `set`: internal identifier referenced by main.tf
-     - `nacl`: key of NACL (can be null)
-  - `routes`: map of routes with properties:
-     - `vpc_subnet` - built from key of VPCs concatenate with `-` and key of subnet in format: `VPCKEY-SUBNETKEY`
-     - `next_hop_key` - must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
-     - `next_hop_type` - internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
+    Following properties are available:
+    - `name`: VPC name
+    - `cidr`: CIDR for VPC
+    - `security_groups`: map of security groups
+    - `subnets`: map of subnets with properties:
+        - `az`: availability zone
+        - `subnet_group`: identity of the same purpose subnets group such as management
+    - `routes`: map of routes with properties:
+        - `vpc`: key of the VPC
+        - `subnet_group`: key of the subnet group
+        - `next_hop_key`: must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
+        - `next_hop_type`: internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
 
-  Example:
-  ```
-  vpcs = {
-    example_vpc = {
-      name = "example-spoke-vpc"
-      cidr = "10.104.0.0/16"
-      nacls = {
-        trusted_path_monitoring = {
-          name               = "trusted-path-monitoring"
-          rules = {
-            allow_inbound = {
-              rule_number = 300
-              egress      = false
-              protocol    = "-1"
-              rule_action = "allow"
-              cidr_block  = "0.0.0.0/0"
-              from_port   = null
-              to_port     = null
+    Example:
+    ```
+    vpcs = {
+      example_vpc = {
+        name = "example-spoke-vpc"
+        cidr = "10.104.0.0/16"
+        nacls = {
+          trusted_path_monitoring = {
+            name               = "trusted-path-monitoring"
+            rules = {
+              allow_inbound = {
+                rule_number = 300
+                egress      = false
+                protocol    = "-1"
+                rule_action = "allow"
+                cidr_block  = "0.0.0.0/0"
+                from_port   = null
+                to_port     = null
+              }
             }
           }
         }
-      }
-      security_groups = {
-        example_vm = {
-          name = "example_vm"
-          rules = {
-            all_outbound = {
-              description = "Permit All traffic outbound"
-              type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
-              cidr_blocks = ["0.0.0.0/0"]
+        security_groups = {
+          example_vm = {
+            name = "example_vm"
+            rules = {
+              all_outbound = {
+                description = "Permit All traffic outbound"
+                type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
+                cidr_blocks = ["0.0.0.0/0"]
+              }
             }
           }
         }
-      }
-      subnets = {
-        "10.104.0.0/24"   = { az = "eu-central-1a", set = "vm", nacl = null }
-        "10.104.128.0/24" = { az = "eu-central-1b", set = "vm", nacl = null }
-      }
-      routes = {
-        vm_default = {
-          vpc_subnet    = "app1_vpc-app1_vm"
-          to_cidr       = "0.0.0.0/0"
-          next_hop_key  = "app1"
-          next_hop_type = "transit_gateway_attachment"
+        subnets = {
+          "10.104.0.0/24"   = { az = "eu-central-1a", subnet_group = "vm", nacl = null }
+          "10.104.128.0/24" = { az = "eu-central-1b", subnet_group = "vm", nacl = null }
+        }
+        routes = {
+          vm_default = {
+            vpc           = "app1_vpc"
+            subnet_group        = "app1_vm"
+            to_cidr       = "0.0.0.0/0"
+            next_hop_key  = "app1"
+            next_hop_type = "transit_gateway_attachment"
+          }
         }
       }
     }
-  }
-  ```
-  EOF
+    ```
+    EOF
   default     = {}
   type = map(object({
-    name = string
-    cidr = string
-    nacls = map(object({
+    name                             = string
+    create_vpc                       = optional(bool, true)
+    cidr                             = string
+    secondary_cidr_blocks            = optional(list(string), [])
+    assign_generated_ipv6_cidr_block = optional(bool)
+    use_internet_gateway             = optional(bool, false)
+    name_internet_gateway            = optional(string)
+    create_internet_gateway          = optional(bool, true)
+    route_table_internet_gateway     = optional(string)
+    create_vpn_gateway               = optional(bool, false)
+    vpn_gateway_amazon_side_asn      = optional(string)
+    name_vpn_gateway                 = optional(string)
+    route_table_vpn_gateway          = optional(string)
+    enable_dns_hostnames             = optional(bool, true)
+    enable_dns_support               = optional(bool, true)
+    instance_tenancy                 = optional(string, "default")
+    nacls = optional(map(object({
       name = string
       rules = map(object({
         rule_number = number
@@ -105,92 +119,147 @@ variable "vpcs" {
         protocol    = string
         rule_action = string
         cidr_block  = string
-        from_port   = string
-        to_port     = string
+        from_port   = optional(number)
+        to_port     = optional(number)
       }))
-    }))
-    security_groups = any
-    subnets = map(object({
-      az   = string
-      set  = string
-      nacl = string
-    }))
-    routes = map(object({
-      vpc           = string
-      subnet        = string
-      to_cidr       = string
-      next_hop_key  = string
-      next_hop_type = string
-    }))
+    })), {})
+    security_groups = optional(map(object({
+      name = string
+      rules = map(object({
+        description            = optional(string)
+        type                   = string
+        cidr_blocks            = optional(list(string))
+        ipv6_cidr_blocks       = optional(list(string))
+        from_port              = string
+        to_port                = string
+        protocol               = string
+        prefix_list_ids        = optional(list(string))
+        source_security_groups = optional(list(string))
+        self                   = optional(bool)
+      }))
+    })), {})
+    subnets = optional(map(object({
+      name                    = optional(string, "")
+      az                      = string
+      subnet_group            = string
+      nacl                    = optional(string)
+      create_subnet           = optional(bool, true)
+      create_route_table      = optional(bool, true)
+      existing_route_table_id = optional(string)
+      route_table_name        = optional(string)
+      associate_route_table   = optional(bool, true)
+      local_tags              = optional(map(string), {})
+      map_public_ip_on_launch = optional(bool, false)
+    })), {})
+    routes = optional(map(object({
+      vpc                    = string
+      subnet_group           = string
+      to_cidr                = string
+      next_hop_key           = string
+      next_hop_type          = string
+      destination_type       = optional(string, "ipv4")
+      managed_prefix_list_id = optional(string)
+    })), {})
+    create_dhcp_options = optional(bool, false)
+    domain_name         = optional(string)
+    domain_name_servers = optional(list(string))
+    ntp_servers         = optional(list(string))
+    vpc_tags            = optional(map(string), {})
   }))
 }
 
+### NAT GATEWAY
 variable "natgws" {
   description = <<-EOF
   A map defining NAT Gateways.
 
   Following properties are available:
-  - `name`: name of NAT Gateway
+  - `nat_gateway_names`: A map, where each key is an Availability Zone name, for example "eu-west-1b". 
+    Each value in the map is a custom name of a NAT Gateway in that Availability Zone.
   - `vpc`: key of the VPC
-  - `subnet`: key of the subnet
+  - `subnet_group`: key of the subnet_group
+  - `nat_gateway_tags`: A map containing NAT GW tags
+  - `create_eip`: Defaults to true, uses a data source to find EIP when set to false
+  - `eips`: Optional map of Elastic IP attributes. Each key must be an Availability Zone name. 
 
   Example:
   ```
   natgws = {
-    security_nat_gw = {
-      name   = "natgw"
-      vpc    = "security_vpc"
-      subnet = "natgw"
+    sec_natgw = {
+      vpc = "security_vpc"
+      subnet_group = "natgw"
+      nat_gateway_names = {
+        "eu-west-1a" = "nat-gw-1"
+        "eu-west-1b" = "nat-gw-2"
+      }
+      eips ={
+        "eu-west-1a" = { 
+          name = "natgw-1-pip"
+        }
+      }
     }
   }
   ```
   EOF
   default     = {}
   type = map(object({
-    name   = string
-    vpc    = string
-    subnet = string
+    create_nat_gateway = optional(bool, true)
+    nat_gateway_names  = optional(map(string), {})
+    vpc                = string
+    subnet_group       = string
+    nat_gateway_tags   = optional(map(string), {})
+    create_eip         = optional(bool, true)
+    eips = optional(map(object({
+      name      = optional(string)
+      public_ip = optional(string)
+      id        = optional(string)
+      eip_tags  = optional(map(string), {})
+    })), {})
   }))
 }
 
 variable "gwlb_endpoints" {
   description = <<-EOF
-  A map defining GWLB endpoints.
+    A map defining GWLB endpoints.
 
-  Following properties are available:
-  - `name`: name of the GWLB endpoint
-  - `gwlb`: key of GWLB
-  - `vpc`: key of VPC
-  - `subnet`: key of the subnet
-  - `act_as_next_hop`: set to `true` if endpoint is part of an IGW route table e.g. for inbound traffic
-  - `from_igw_to_vpc`: VPC to which traffic from IGW is routed to the GWLB endpoint
-  - `from_igw_to_subnet` : subnet to which traffic from IGW is routed to the GWLB endpoint
+    Following properties are available:
+    - `name`: name of the GWLB endpoint
+    - `custom_names`: Optional map of names of the VPC Endpoints, used to override the default naming generated from the input `name`.
+      Each key is the Availability Zone identifier, for example `us-east-1b`.
+    - `gwlb`: key of GWLB. Required when GWLB Endpoint must connect to GWLB's service name
+    - `vpc`: key of VPC
+    - `subnet_group`: key of the subnet_group
+    - `act_as_next_hop`: set to `true` if endpoint is part of an IGW route table e.g. for inbound traffic
+    - `from_igw_to_vpc`: VPC to which traffic from IGW is routed to the GWLB endpoint
+    - `from_igw_to_subnet_group` : subnet_group to which traffic from IGW is routed to the GWLB endpoint
+    - `cloudngfw_key`(optional): Key of the Cloud NGFW. Required when GWLB Endpoint must connect to Cloud NGFW's service name
 
-  Example:
-  ```
-  gwlb_endpoints = {
-    security_gwlb_eastwest = {
-      name            = "eastwest-gwlb-endpoint"
-      gwlb            = "security_gwlb"
-      vpc             = "security_vpc"
-      subnet          = "gwlbe_eastwest"
-      act_as_next_hop = false
-      delay           = 60
-      cloudngfw       = "cloudngfw"
+    Example:
+    ```
+    gwlb_endpoints = {
+      security_gwlb_eastwest = {
+        name            = "eastwest-gwlb-endpoint"
+        gwlb            = "security_gwlb"
+        vpc             = "security_vpc"
+        subnet_group    = "gwlbe_eastwest"
+        act_as_next_hop = false
+      }
     }
-  }
-  ```
-  EOF
+    ```
+    EOF
   default     = {}
   type = map(object({
-    name               = string
-    vpc                = string
-    subnet             = string
-    act_as_next_hop    = bool
-    from_igw_to_vpc    = optional(string)
-    from_igw_to_subnet = optional(string)
-    delay              = number
-    cloudngfw          = string
+    name                     = string
+    custom_names             = optional(map(string), {})
+    gwlb                     = optional(string)
+    vpc                      = string
+    subnet_group             = string
+    act_as_next_hop          = bool
+    from_igw_to_vpc          = optional(string)
+    from_igw_to_subnet_group = optional(string)
+    delay                    = optional(number, 0)
+    tags                     = optional(map(string))
+    cloudngfw_key            = optional(string)
   }))
 }
 
@@ -267,9 +336,9 @@ variable "cloudngfws" {
   default     = {}
   type = map(object({
     name           = string
-    vpc_subnet     = string
+    subnet_group   = string
     vpc            = string
-    description    = string
+    description    = optional(string, "Palo Alto Cloud NGFW")
     security_rules = map(any)
     log_profiles   = map(any)
     profile_config = map(any)
@@ -284,9 +353,9 @@ variable "spoke_vms" {
   Following properties are available:
   - `az`: name of the Availability Zone
   - `vpc`: name of the VPC (needs to be one of the keys in map `vpcs`)
-  - `subnet`: key of the subnet
+  - `subnet_group`: key of the subnet_group
   - `security_group`: security group assigned to ENI used by VM
-  - `type`: EC2 type VM
+  - `type`: EC2 VM type
 
   Example:
   ```
@@ -294,9 +363,9 @@ variable "spoke_vms" {
     "app1_vm01" = {
       az             = "eu-central-1a"
       vpc            = "app1_vpc"
-      subnet         = "app1_vm"
+      subnet_group         = "app1_vm"
       security_group = "app1_vm"
-      type           = "t2.micro"
+      type           = "t3.micro"
     }
   }
   ```
@@ -305,58 +374,44 @@ variable "spoke_vms" {
   type = map(object({
     az             = string
     vpc            = string
-    subnet         = string
+    subnet_group   = string
     security_group = string
-    type           = string
+    type           = optional(string, "t3.micro")
   }))
 }
 
 ### SPOKE LOADBALANCERS
-variable "inbound_nlbs" {
+variable "spoke_albs" {
   description = <<-EOF
-  A map defining Network Load Balancers deployed in spoke VPCs.
-
-  Following properties are available:
-  - `vpc`: key of the VPC
-  - `subnet`: key of the subnet
-  - `vms`: keys of spoke VMs
-
-  Example:
-  ```
-  spoke_lbs = {
-    "app1-nlb" = {
-      vpc    = "app1_vpc"
-      subnet = "app1_lb"
-      vms    = ["app1_vm01", "app1_vm02"]
-    }
-  }
-  ```
-  EOF
-  default     = {}
-  type = map(object({
-    vpc    = string
-    subnet = string
-    vms    = list(string)
-  }))
-}
-
-variable "inbound_albs" {
-  description = <<-EOF
-  A map defining Application Load Balancers deployed in inbound VPC.
+  A map defining Application Load Balancers deployed in spoke VPCs.
 
   Following properties are available:
   - `rules`: Rules defining the method of traffic balancing
   - `vms`: Instances to be the target group for ALB
   - `vpc`: The VPC in which the load balancer is to be run
-  - `subnet`: The subnets in which the Load Balancer is to be run
+  - `subnet_group`: The subnets in which the Load Balancer is to be run
   - `security_gropus`: Security Groups to be associated with the ALB
   ```
   EOF
+  default     = {}
   type = map(object({
-    rules           = any
+    name = optional(string)
+    rules = map(object({
+      protocol              = optional(string, "HTTP")
+      port                  = optional(number, 80)
+      health_check_port     = optional(string, "80")
+      health_check_matcher  = optional(string, "200")
+      health_check_path     = optional(string, "/")
+      health_check_interval = optional(number, 10)
+      listener_rules = map(object({
+        target_protocol = string
+        target_port     = number
+        path_pattern    = list(string)
+      }))
+    }))
     vms             = list(string)
     vpc             = string
-    subnet          = string
+    subnet_group    = string
     security_groups = string
   }))
 }

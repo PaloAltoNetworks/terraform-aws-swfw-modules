@@ -17,9 +17,8 @@ ssh_key_name = "example-ssh-key" # TODO: update here
 ### VPC
 vpcs = {
   app1_vpc = {
-    name  = "app1-spoke-vpc"
-    cidr  = "10.104.0.0/16"
-    nacls = {}
+    name = "app1-spoke-vpc"
+    cidr = "10.104.0.0/16"
     security_groups = {
       app1_vm = {
         name = "app1_vm"
@@ -29,20 +28,15 @@ vpcs = {
             type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
             cidr_blocks = ["0.0.0.0/0"]
           }
-          ssh = {
-            description = "Permit SSH"
-            type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-            cidr_blocks = ["1.1.1.1/32", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
-          }
           https = {
             description = "Permit HTTPS"
             type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-            cidr_blocks = ["1.1.1.1/32", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
+            cidr_blocks = ["10.104.2.0/24", "10.104.130.0/24"]
           }
           http = {
             description = "Permit HTTP"
             type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
-            cidr_blocks = ["1.1.1.1/32", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
+            cidr_blocks = ["10.104.2.0/24", "10.104.130.0/24"]
           }
         }
       }
@@ -69,84 +63,61 @@ vpcs = {
     }
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
-      "10.104.0.0/24"   = { az = "eu-west-1a", set = "app1_vm", nacl = null }
-      "10.104.128.0/24" = { az = "eu-west-1b", set = "app1_vm", nacl = null }
-      "10.104.2.0/24"   = { az = "eu-west-1a", set = "app1_lb", nacl = null }
-      "10.104.130.0/24" = { az = "eu-west-1b", set = "app1_lb", nacl = null }
-      "10.104.3.0/24"   = { az = "eu-west-1a", set = "cngfw_subnet", nacl = null }
-      "10.104.131.0/24" = { az = "eu-west-1b", set = "cngfw_subnet", nacl = null }
-      "10.104.4.0/24"   = { az = "eu-west-1a", set = "natgw", nacl = null }
-      "10.104.132.0/24" = { az = "eu-west-1b", set = "natgw", nacl = null }
+      "10.104.0.0/24"   = { az = "eu-west-1a", subnet_group = "app1_vm" }
+      "10.104.128.0/24" = { az = "eu-west-1b", subnet_group = "app1_vm" }
+      "10.104.2.0/24"   = { az = "eu-west-1a", subnet_group = "public" }
+      "10.104.130.0/24" = { az = "eu-west-1b", subnet_group = "public" }
+      "10.104.3.0/24"   = { az = "eu-west-1a", subnet_group = "cngfw_subnet" }
+      "10.104.131.0/24" = { az = "eu-west-1b", subnet_group = "cngfw_subnet" }
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
       # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       vm_default = {
         vpc           = "app1_vpc"
-        subnet        = "app1_vm"
+        subnet_group  = "app1_vm"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "cngfw_endpoint_app1"
         next_hop_type = "gwlbe_endpoint"
       }
       vm_lb_az1 = {
         vpc           = "app1_vpc"
-        subnet        = "app1_vm"
+        subnet_group  = "app1_vm"
         to_cidr       = "10.104.2.0/24"
         next_hop_key  = "cngfw_endpoint_app1"
         next_hop_type = "gwlbe_endpoint"
       }
       vm_lb_az2 = {
         vpc           = "app1_vpc"
-        subnet        = "app1_vm"
+        subnet_group  = "app1_vm"
         to_cidr       = "10.104.130.0/24"
         next_hop_key  = "cngfw_endpoint_app1"
         next_hop_type = "gwlbe_endpoint"
       }
       cngfw_default = {
         vpc           = "app1_vpc"
-        subnet        = "cngfw_subnet"
+        subnet_group  = "cngfw_subnet"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app1_nat_gw"
         next_hop_type = "nat_gateway"
       }
-      lb_default = {
+      public_default = {
         vpc           = "app1_vpc"
-        subnet        = "app1_lb"
+        subnet_group  = "public"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app1_vpc"
         next_hop_type = "internet_gateway"
       }
-      lb_app_az1 = {
+      public_app_az1 = {
         vpc           = "app1_vpc"
-        subnet        = "app1_lb"
+        subnet_group  = "public"
         to_cidr       = "10.104.0.0/24"
         next_hop_key  = "cngfw_endpoint_app1"
         next_hop_type = "gwlbe_endpoint"
       }
-      lb_app_az2 = {
+      public_app_az2 = {
         vpc           = "app1_vpc"
-        subnet        = "app1_lb"
-        to_cidr       = "10.104.128.0/24"
-        next_hop_key  = "cngfw_endpoint_app1"
-        next_hop_type = "gwlbe_endpoint"
-      }
-      natgw_default = {
-        vpc           = "app1_vpc"
-        subnet        = "natgw"
-        to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app1_vpc"
-        next_hop_type = "internet_gateway"
-      }
-      nat_app_az1 = {
-        vpc           = "app1_vpc"
-        subnet        = "natgw"
-        to_cidr       = "10.104.0.0/24"
-        next_hop_key  = "cngfw_endpoint_app1"
-        next_hop_type = "gwlbe_endpoint"
-      }
-      nat_app_az2 = {
-        vpc           = "app1_vpc"
-        subnet        = "natgw"
+        subnet_group  = "public"
         to_cidr       = "10.104.128.0/24"
         next_hop_key  = "cngfw_endpoint_app1"
         next_hop_type = "gwlbe_endpoint"
@@ -154,9 +125,8 @@ vpcs = {
     }
   }
   app2_vpc = {
-    name  = "app2-spoke-vpc"
-    cidr  = "10.105.0.0/16"
-    nacls = {}
+    name = "app2-spoke-vpc"
+    cidr = "10.105.0.0/16"
     security_groups = {
       app2_vm = {
         name = "app2_vm"
@@ -166,20 +136,15 @@ vpcs = {
             type        = "egress", from_port = "0", to_port = "0", protocol = "-1"
             cidr_blocks = ["0.0.0.0/0"]
           }
-          ssh = {
-            description = "Permit SSH"
-            type        = "ingress", from_port = "22", to_port = "22", protocol = "tcp"
-            cidr_blocks = ["1.1.1.1/32", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
-          }
           https = {
             description = "Permit HTTPS"
             type        = "ingress", from_port = "443", to_port = "443", protocol = "tcp"
-            cidr_blocks = ["1.1.1.1/32", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
+            cidr_blocks = ["10.105.2.0/24", "10.105.130.0/24"]
           }
           http = {
             description = "Permit HTTP"
             type        = "ingress", from_port = "80", to_port = "80", protocol = "tcp"
-            cidr_blocks = ["1.1.1.1/32", "10.104.0.0/16", "10.105.0.0/16"] # TODO: update here (replace 1.1.1.1/32 with your IP range)
+            cidr_blocks = ["10.105.2.0/24", "10.105.130.0/24"]
           }
         }
       }
@@ -206,84 +171,61 @@ vpcs = {
     }
     subnets = {
       # Do not modify value of `set=`, it is an internal identifier referenced by main.tf.
-      "10.105.0.0/24"   = { az = "eu-west-1a", set = "app2_vm", nacl = null }
-      "10.105.128.0/24" = { az = "eu-west-1b", set = "app2_vm", nacl = null }
-      "10.105.2.0/24"   = { az = "eu-west-1a", set = "app2_lb", nacl = null }
-      "10.105.130.0/24" = { az = "eu-west-1b", set = "app2_lb", nacl = null }
-      "10.105.3.0/24"   = { az = "eu-west-1a", set = "cngfw_subnet", nacl = null }
-      "10.105.131.0/24" = { az = "eu-west-1b", set = "cngfw_subnet", nacl = null }
-      "10.105.4.0/24"   = { az = "eu-west-1a", set = "natgw", nacl = null }
-      "10.105.132.0/24" = { az = "eu-west-1b", set = "natgw", nacl = null }
+      "10.105.0.0/24"   = { az = "eu-west-1a", subnet_group = "app2_vm" }
+      "10.105.128.0/24" = { az = "eu-west-1b", subnet_group = "app2_vm" }
+      "10.105.2.0/24"   = { az = "eu-west-1a", subnet_group = "public" }
+      "10.105.130.0/24" = { az = "eu-west-1b", subnet_group = "public" }
+      "10.105.3.0/24"   = { az = "eu-west-1a", subnet_group = "cngfw_subnet" }
+      "10.105.131.0/24" = { az = "eu-west-1b", subnet_group = "cngfw_subnet" }
     }
     routes = {
       # Value of `next_hop_key` must match keys use to create TGW attachment, IGW, GWLB endpoint or other resources
       # Value of `next_hop_type` is internet_gateway, nat_gateway, transit_gateway_attachment or gwlbe_endpoint
       vm_default = {
         vpc           = "app2_vpc"
-        subnet        = "app2_vm"
+        subnet_group  = "app2_vm"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "cngfw_endpoint_app2"
         next_hop_type = "gwlbe_endpoint"
       }
       vm_lb_az1 = {
         vpc           = "app2_vpc"
-        subnet        = "app2_vm"
+        subnet_group  = "app2_vm"
         to_cidr       = "10.105.2.0/24"
         next_hop_key  = "cngfw_endpoint_app2"
         next_hop_type = "gwlbe_endpoint"
       }
       vm_lb_az2 = {
         vpc           = "app2_vpc"
-        subnet        = "app2_vm"
+        subnet_group  = "app2_vm"
         to_cidr       = "10.105.130.0/24"
         next_hop_key  = "cngfw_endpoint_app2"
         next_hop_type = "gwlbe_endpoint"
       }
       cngfw_default = {
         vpc           = "app2_vpc"
-        subnet        = "cngfw_subnet"
+        subnet_group  = "cngfw_subnet"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app2_nat_gw"
         next_hop_type = "nat_gateway"
       }
-      lb_default = {
+      public_default = {
         vpc           = "app2_vpc"
-        subnet        = "app2_lb"
+        subnet_group  = "public"
         to_cidr       = "0.0.0.0/0"
         next_hop_key  = "app2_vpc"
         next_hop_type = "internet_gateway"
       }
-      lb_app_az1 = {
+      public_app_az1 = {
         vpc           = "app2_vpc"
-        subnet        = "app2_lb"
+        subnet_group  = "public"
         to_cidr       = "10.105.0.0/24"
         next_hop_key  = "cngfw_endpoint_app2"
         next_hop_type = "gwlbe_endpoint"
       }
-      lb_app_az2 = {
+      public_app_az2 = {
         vpc           = "app2_vpc"
-        subnet        = "app2_lb"
-        to_cidr       = "10.105.128.0/24"
-        next_hop_key  = "cngfw_endpoint_app2"
-        next_hop_type = "gwlbe_endpoint"
-      }
-      natgw_default = {
-        vpc           = "app2_vpc"
-        subnet        = "natgw"
-        to_cidr       = "0.0.0.0/0"
-        next_hop_key  = "app2_vpc"
-        next_hop_type = "internet_gateway"
-      }
-      nat_app_az1 = {
-        vpc           = "app2_vpc"
-        subnet        = "natgw"
-        to_cidr       = "10.105.0.0/24"
-        next_hop_key  = "cngfw_endpoint_app2"
-        next_hop_type = "gwlbe_endpoint"
-      }
-      nat_app_az2 = {
-        vpc           = "app2_vpc"
-        subnet        = "natgw"
+        subnet_group  = "public"
         to_cidr       = "10.105.128.0/24"
         next_hop_key  = "cngfw_endpoint_app2"
         next_hop_type = "gwlbe_endpoint"
@@ -295,30 +237,29 @@ vpcs = {
 ### NAT GATEWAY
 natgws = {
   app1_nat_gw = {
-    name   = "app1-natgw"
-    vpc    = "app1_vpc"
-    subnet = "natgw"
+    name         = "app1-natgw"
+    vpc          = "app1_vpc"
+    subnet_group = "public"
   }
   app2_nat_gw = {
-    name   = "app2-natgw"
-    vpc    = "app2_vpc"
-    subnet = "natgw"
+    name         = "app2-natgw"
+    vpc          = "app2_vpc"
+    subnet_group = "public"
   }
 }
 
 ### Cloud NGFW
 cloudngfws = {
   cloudngfws_security_app1 = {
-    name        = "cloudngfw01"
-    vpc_subnet  = "app1_vpc-cngfw_subnet"
-    vpc         = "app1_vpc"
-    description = "Description"
+    name         = "cloudngfw01"
+    subnet_group = "cngfw_subnet"
+    vpc          = "app1_vpc"
     security_rules = {
       rule_1 = {
         rule_list                   = "LocalRule"
         priority                    = 3
         name                        = "tf-security-rule"
-        description                 = "Also configured by Terraform"
+        description                 = "Configured by Terraform"
         source_cidrs                = ["any"]
         destination_cidrs           = ["0.0.0.0/0"]
         negate_destination          = false
@@ -330,22 +271,6 @@ cloudngfws = {
         logging                     = true
         audit_comment               = "initial config"
       }
-      #rule_2 = {
-      #  rule_list                   = "LocalRule"
-      #  priority                    = 1
-      #  name                        = "eastwest"
-      #  description                 = "East West test rule"
-      #  source_cidrs                = ["any"]
-      #  destination_cidrs           = ["10.104.0.0/23"]
-      #  negate_destination          = false
-      #  protocol                    = "application-default"
-      #  applications                = ["any"]
-      #  category_feeds              = null
-      #  category_url_category_names = null
-      #  action                      = "DenySilent"
-      #  logging                     = true
-      #  audit_comment               = "initial config"
-      #}
     }
     log_profiles = {
       dest_1 = {
@@ -376,16 +301,15 @@ cloudngfws = {
     }
   }
   cloudngfws_security_app2 = {
-    name        = "cloudngfw02"
-    vpc_subnet  = "app2_vpc-cngfw_subnet"
-    vpc         = "app2_vpc"
-    description = "Description"
+    name         = "cloudngfw02"
+    subnet_group = "cngfw_subnet"
+    vpc          = "app2_vpc"
     security_rules = {
       rule_1 = {
         rule_list                   = "LocalRule"
         priority                    = 3
         name                        = "tf-security-rule"
-        description                 = "Also configured by Terraform"
+        description                 = "Configured by Terraform"
         source_cidrs                = ["any"]
         destination_cidrs           = ["0.0.0.0/0"]
         negate_destination          = false
@@ -397,22 +321,6 @@ cloudngfws = {
         logging                     = true
         audit_comment               = "initial config"
       }
-      #rule_2 = {
-      #  rule_list                   = "LocalRule"
-      #  priority                    = 1
-      #  name                        = "eastwest"
-      #  description                 = "East West test rule"
-      #  source_cidrs                = ["any"]
-      #  destination_cidrs           = ["10.104.0.0/23"]
-      #  negate_destination          = false
-      #  protocol                    = "application-default"
-      #  applications                = ["any"]
-      #  category_feeds              = null
-      #  category_url_category_names = null
-      #  action                      = "DenySilent"
-      #  logging                     = true
-      #  audit_comment               = "initial config"
-      #}
     }
     log_profiles = {
       dest_1 = {
@@ -450,18 +358,18 @@ gwlb_endpoints = {
   cngfw_endpoint_app1 = {
     name            = "cngfw_app1_endpoint"
     vpc             = "app1_vpc"
-    subnet          = "cngfw_subnet"
+    subnet_group    = "cngfw_subnet"
     act_as_next_hop = false
     delay           = 60
-    cloudngfw       = "cloudngfws_security_app1"
+    cloudngfw_key   = "cloudngfws_security_app1"
   }
   cngfw_endpoint_app2 = {
     name            = "cngfw_app2_endpoint"
     vpc             = "app2_vpc"
-    subnet          = "cngfw_subnet"
+    subnet_group    = "cngfw_subnet"
     act_as_next_hop = false
     delay           = 60
-    cloudngfw       = "cloudngfws_security_app2"
+    cloudngfw_key   = "cloudngfws_security_app2"
   }
 }
 
@@ -470,46 +378,36 @@ spoke_vms = {
   "app1_vm01" = {
     az             = "eu-west-1a"
     vpc            = "app1_vpc"
-    subnet         = "app1_vm"
+    subnet_group   = "app1_vm"
     security_group = "app1_vm"
-    type           = "t2.micro"
   }
   "app1_vm02" = {
     az             = "eu-west-1b"
     vpc            = "app1_vpc"
-    subnet         = "app1_vm"
+    subnet_group   = "app1_vm"
     security_group = "app1_vm"
-    type           = "t2.micro"
   }
   "app2_vm01" = {
     az             = "eu-west-1a"
     vpc            = "app2_vpc"
-    subnet         = "app2_vm"
+    subnet_group   = "app2_vm"
     security_group = "app2_vm"
-    type           = "t2.micro"
   }
   "app2_vm02" = {
     az             = "eu-west-1b"
     vpc            = "app2_vpc"
-    subnet         = "app2_vm"
+    subnet_group   = "app2_vm"
     security_group = "app2_vm"
-    type           = "t2.micro"
   }
 }
 
 ### INBOUND LOADBALANCERS
-inbound_albs = {
-  "in-alb" = {
+spoke_albs = {
+  "app1-alb" = {
     vms = ["app1_vm01", "app1_vm02"]
     rules = {
       "app1" = {
-        name                  = "app"
-        protocol              = "HTTP"
-        port                  = 80
-        health_check_port     = "80"
-        health_check_matcher  = "200"
-        health_check_path     = "/"
-        health_check_interval = 10
+        health_check_port = "80"
         listener_rules = {
           "1" = {
             target_protocol = "HTTP"
@@ -520,7 +418,25 @@ inbound_albs = {
       }
     }
     vpc             = "app1_vpc"
-    subnet          = "app1_lb"
+    subnet_group    = "public"
     security_groups = "app1_lb"
+  }
+  "app2-alb" = {
+    vms = ["app2_vm01", "app2_vm02"]
+    rules = {
+      "app2" = {
+        health_check_port = "80"
+        listener_rules = {
+          "1" = {
+            target_protocol = "HTTP"
+            target_port     = 80
+            path_pattern    = ["/"]
+          }
+        }
+      }
+    }
+    vpc             = "app2_vpc"
+    subnet_group    = "public"
+    security_groups = "app2_lb"
   }
 }
