@@ -33,6 +33,34 @@ jobs:
               pull_number: context.issue.number,
             })
             console.log(pr.data.head.sha)
+
+            let ac = await github.request('GET /repos/{owner}/{repo}/activity?ref={ref}', {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: pr.data.head.ref,
+              headers: {
+                'X-GitHub-Api-Version': '2022-11-28'
+              }
+            })
+            comment_timestamp = context.payload.comment.created_at;
+            comment_date = Date.parse(comment_timestamp);
+
+            push_sha = ac.data[0].after;
+            push_timestamp = ac.data[0].timestamp;
+            push_date = Date.parse(push_timestamp);
+            
+            if (push_sha == pr.data.head.sha) {
+              if (comment_date > push_date) {
+                console.log("Ok: comment after push");
+              } else {
+                console.log("Error: comment before push");
+                process.exit(1);
+              }
+            } else {
+              console.log("Error: commit sha does not match latest commit");
+              process.exit(1);
+            }
+            
             return pr.data.head.sha
 
       - name: get PR repository
