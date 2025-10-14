@@ -319,7 +319,7 @@ variable "lambda_execute_pip_install_once" {
   In summary while executing code from scratch, two consecutive calls of terraform apply are not idempotent.
   The third execution of terraform apply show no changes.
   While using modules in CI/CD pipelines, when agents are selected randomly, set this value to false
-  in order to check every time, if pan_os_python package is downloaded. sdfdsf sdfvars
+  in order to check every time, if pan_os_python package is downloaded.
   EOF
   type        = bool
   default     = false
