@@ -33,7 +33,7 @@ Example was prepared for PAN-OS in **10.2.3** version as described in [AWS Deplo
 2. Clone the repository: `git clone https://github.com/PaloAltoNetworks/terraform-aws-swfw-modules`
 3. Go to Panorama example: `cd terraform-aws-swfw-modules/examples/panorama_standalone`
 4. Copy `example.tfvars` into `terraform.tfvars`
-5. Review `terraform.tfvars` file, especially with lines commented by ` # TODO: update here`
+5. Review `terraform.tfvars` file, especially with lines commented by ` # TODO: update here`. To deploy Panorama with NAT Gateway for outbound access, please refer to the `# NAT GW` comments in the file.
 6. Initialize Terraform: `terraform init`
 7. Prepare plan: `terraform plan`
 8. Deploy infrastructure: `terraform apply -auto-approve`
