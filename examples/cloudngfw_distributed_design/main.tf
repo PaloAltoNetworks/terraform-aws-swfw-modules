@@ -86,7 +86,7 @@ module "subnet_sets" {
   }
   cidrs = {
     for index, cidr in each.value.cidr : cidr => {
-      name                    = each.value.name[index] != "" ? "${var.name_prefix}${each.value.name[index]}" : each.value.name[index]
+      name                    = each.value.name[index]
       az                      = each.value.az[index]
       create_subnet           = each.value.create_subnet[index]
       create_route_table      = each.value.create_route_table[index]
