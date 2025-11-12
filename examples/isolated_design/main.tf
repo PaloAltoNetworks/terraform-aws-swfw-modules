@@ -477,6 +477,7 @@ resource "aws_instance" "spoke_vms" {
   chmod 2775 /var/www
   find /var/www -type d -exec chmod 2775 {} \;
   find /var/www -type f -exec chmod 0664 {} \;
+  echo "200 OK" > /var/www/html/index.html
   EOF
 }
 
