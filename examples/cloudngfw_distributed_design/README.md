@@ -1,10 +1,10 @@
 ---
 short_title: Distributed Design
 type: refarch
-show_in_hub: false
+show_in_hub: true
 swfw: cloudngfw
 ---
-### Distributed Design model
+# Distributed Design model
 - Cloud NGFW is deployed for each VPC which requires protection
 - Reduces the possibility of misconfiguration and limits the scope of impact
 - Each VPC is protected individually and blast radius is reduced through VPC isolation

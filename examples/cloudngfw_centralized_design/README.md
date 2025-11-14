@@ -1,10 +1,10 @@
 ---
 short_title: Centralized Design
 type: refarch
-show_in_hub: false
+show_in_hub: true
 swfw: cloudngfw
 ---
-### Centralized Design model
+# Centralized Design model
 - Separated Firewall Cluster(s) to inspect applications in spoke VPCs.
 - Centralized Inbound VPC to inspect ingress traffic. 
 - Transparently insert inspection in your application VPCs for Ingress, Egress and East-West Traffic.
@@ -148,3 +148,4 @@ To enable access from the session manager, the Internet connection for a public 
 | <a name="output_app_inspected_dns_name"></a> [app\_inspected\_dns\_name](#output\_app\_inspected\_dns\_name) | FQDN of App Load Balancers.<br/>Can be used in Cloud NGFW configuration to balance traffic between the application instances. |
 | <a name="output_cloudngfws"></a> [cloudngfws](#output\_cloudngfws) | #### Cloud NGFW ##### |
 <!-- END_TF_DOCS -->
+
