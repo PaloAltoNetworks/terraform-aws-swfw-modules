@@ -464,9 +464,9 @@ variable "vmseries" {
         dhcp-accept-server-domain   = "yes"
       }
 
-      panos_version   = "10.2.3"        # TODO: update here
-      ebs_kms_id      = "alias/aws/ebs" # TODO: update here
-      ebs_volume_type = "gp2"           # TODO: update here
+      panos_version   = "10.2.3"
+      ebs_kms_id      = "alias/aws/ebs"
+      ebs_volume_type = "gp2"
 
       # Value of `vpc` must match key of objects stored in `vpcs`
       vpc = "security_vpc"

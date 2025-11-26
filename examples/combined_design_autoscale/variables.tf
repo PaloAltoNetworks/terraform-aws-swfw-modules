@@ -438,9 +438,9 @@ variable "vmseries_asgs" {
         dhcp-accept-server-domain   = "yes"                                                                                # TODO: update here
       }
 
-      panos_version   = "10.2.3"        # TODO: update here
-      ebs_kms_id      = "alias/aws/ebs" # TODO: update here
-      ebs_volume_type = "gp2"           # TODO: update here
+      panos_version   = "10.2.3"
+      ebs_kms_id      = "alias/aws/ebs"
+      ebs_volume_type = "gp2"
 
       vpc               = "security_vpc"
       gwlb              = "security_gwlb"

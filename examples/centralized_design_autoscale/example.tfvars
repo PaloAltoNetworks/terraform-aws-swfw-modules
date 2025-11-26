@@ -560,7 +560,6 @@ vmseries_asgs = {
     */
 
     panos_version   = "11.1.4-h7" # TODO: update here
-    ebs_volume_type = "gp2"       # TODO: update here
 
     # Value of `vpc` must match key of objects stored in `vpcs`
     vpc = "security_vpc"
