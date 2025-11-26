@@ -19,10 +19,6 @@ data "aws_ami" "this" {
     name   = "product-code"
     values = [local.ami_image_product_code]
   }
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
-  }
 
   name_regex = var.airs_deployment ? "^${local.ami_image_name}-prod-[[:alnum:]]+$" : "^${local.ami_image_name}-[[:alnum:]]{8}-([[:alnum:]]{4}-){3}[[:alnum:]]{12}$"
 
