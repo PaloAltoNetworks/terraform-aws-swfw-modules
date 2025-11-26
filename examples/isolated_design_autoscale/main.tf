@@ -375,6 +375,7 @@ module "vm_series_asg" {
     }
   }
   ebs_kms_id        = each.value.ebs_kms_id
+  ebs_volume_type   = each.value.ebs_volume_type
   target_group_arn  = module.gwlb[each.value.gwlb].target_group.arn
   bootstrap_options = join(";", compact(concat(local.bootstrap_options_with_endpoints_mapping[each.key])))
 
@@ -473,7 +474,7 @@ resource "aws_instance" "spoke_vms" {
   chmod 2775 /var/www
   find /var/www -type d -exec chmod 2775 {} \;
   find /var/www -type f -exec chmod 0664 {} \;
-  echo "200 OK" > /var/www/html/index.html
+  echo "Health check OK" > /var/www/html/index.html
   EOF
 }
 

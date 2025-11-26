@@ -19,6 +19,10 @@ data "aws_ami" "this" {
     name   = "product-code"
     values = [local.ami_image_product_code]
   }
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
 
   name_regex = var.airs_deployment ? "^${local.ami_image_name}-prod-[[:alnum:]]+$" : "^${local.ami_image_name}-[[:alnum:]]{8}-([[:alnum:]]{4}-){3}[[:alnum:]]{12}$"
 
@@ -93,6 +97,7 @@ resource "aws_instance" "this" {
     delete_on_termination = true
     encrypted             = var.ebs_encrypted
     kms_key_id            = var.ebs_encrypted == false ? null : data.aws_kms_alias.current_arn[0].target_key_arn
+    volume_type           = var.ebs_volume_type
   }
 
   # Attach primary interface to the instance
