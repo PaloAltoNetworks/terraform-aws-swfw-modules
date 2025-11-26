@@ -86,6 +86,7 @@ resource "aws_launch_template" "this" {
       delete_on_termination = true
       kms_key_id            = data.aws_kms_alias.ebs_kms.arn
       encrypted             = true
+      volume_type           = var.ebs_volume_type
     }
   }
 

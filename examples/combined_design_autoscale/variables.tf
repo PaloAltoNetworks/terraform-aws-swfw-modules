@@ -403,6 +403,7 @@ variable "vmseries_asgs" {
   - `airs_deployment (optional|false)`: flag to deploy AIRS product type 
   - `panos_version`: PAN-OS version used for VM-Series
   - `ebs_kms_id`: alias for AWS KMS used for EBS encryption in VM-Series
+  - `ebs_volume_type`: type of EBS volume used
   - `vpc`: key of VPC
   - `gwlb`: key of GWLB
   - `zones`: zones for the Autoscaling Group to be built in
@@ -437,8 +438,9 @@ variable "vmseries_asgs" {
         dhcp-accept-server-domain   = "yes"                                                                                # TODO: update here
       }
 
-      panos_version = "10.2.3"        # TODO: update here
-      ebs_kms_id    = "alias/aws/ebs" # TODO: update here
+      panos_version   = "10.2.3"
+      ebs_kms_id      = "alias/aws/ebs"
+      ebs_volume_type = "gp2"
 
       vpc               = "security_vpc"
       gwlb              = "security_gwlb"
@@ -569,6 +571,7 @@ variable "vmseries_asgs" {
     include_deprecated_ami                 = optional(bool, false)
     instance_type                          = optional(string, "m5.xlarge")
     ebs_encrypted                          = optional(bool, true)
+    ebs_volume_type                        = optional(string, "gp2")
     enable_instance_termination_protection = optional(bool, false)
     enable_monitoring                      = optional(bool, false)
     fw_license_type                        = optional(string, "byol")

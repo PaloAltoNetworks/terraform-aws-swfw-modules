@@ -407,6 +407,7 @@ module "vmseries" {
   enable_monitoring                      = each.value.common.enable_monitoring
   ebs_encrypted                          = each.value.common.ebs_encrypted
   ebs_kms_key_alias                      = each.value.common.ebs_kms_id
+  ebs_volume_type                        = each.value.common.ebs_volume_type
 
   interfaces = {
     for k, v in each.value.common.interfaces : k => {
@@ -444,6 +445,11 @@ data "aws_ami" "this" {
   filter {
     name   = "name"
     values = ["amzn2-ami-hvm*"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
   }
 
   owners = ["137112412989"]

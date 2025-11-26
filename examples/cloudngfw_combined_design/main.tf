@@ -285,6 +285,11 @@ data "aws_ami" "this" {
     values = ["amzn2-ami-hvm*"]
   }
 
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
   owners = ["137112412989"]
 }
 

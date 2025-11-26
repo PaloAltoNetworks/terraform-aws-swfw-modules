@@ -415,6 +415,7 @@ module "vm_series_asg" {
     }
   }
   ebs_kms_id       = each.value.ebs_kms_id
+  ebs_volume_type  = each.value.ebs_volume_type
   target_group_arn = module.gwlb[each.value.gwlb].target_group.arn
   ip_target_groups = concat(
     [for k, v in module.public_alb[each.key].target_group : { arn : v.arn, port : v.port }],
@@ -483,6 +484,10 @@ data "aws_ami" "this" {
   filter {
     name   = "name"
     values = ["amzn2-ami-hvm*"]
+  }
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
   }
 
   owners = ["137112412989"]

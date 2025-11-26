@@ -346,6 +346,7 @@ variable "vmseries_asgs" {
   - `bootstrap_options`: VM-Seriess bootstrap options used to connect to Panorama
   - `panos_version`: PAN-OS version used for VM-Series
   - `ebs_kms_id`: alias for AWS KMS used for EBS encryption in VM-Series
+  - `ebs_volume_type`: type of EBS volume used
   - `vpc`: key of VPC
   - `gwlb`: key of GWLB
   - `zones`: zones for the Autoscaling Group to be built in
@@ -380,8 +381,9 @@ variable "vmseries_asgs" {
         dhcp-accept-server-domain   = "yes"                                                                                # TODO: update here
       }
 
-      panos_version = "10.2.3"        # TODO: update here
-      ebs_kms_id    = "alias/aws/ebs" # TODO: update here
+      panos_version   = "10.2.3"
+      ebs_kms_id      = "alias/aws/ebs"
+      ebs_volume_type = "gp2"
 
       vpc               = "security_vpc"
       gwlb              = "security_gwlb"
@@ -511,6 +513,7 @@ variable "vmseries_asgs" {
     instance_type                          = optional(string, "m5.xlarge")
     ebs_encrypted                          = optional(bool, true)
     ebs_kms_id                             = optional(string, "alias/aws/ebs")
+    ebs_volume_type                        = optional(string, "gp2")
     enable_instance_termination_protection = optional(bool, false)
     enable_monitoring                      = optional(bool, false)
     fw_license_type                        = optional(string, "byol")
