@@ -269,12 +269,12 @@ variable "tgw_attachments" {
   - `create`: set to false, if existing TGW attachment needs to be reused
   - `id`:  id of existing TGW
   - `security_vpc_attachment`: set to true if default route from spoke VPCs towards
-     this attachment should be created 
+     this attachment should be created
   - `name`: name of the TGW attachment to create or use
   - `asn`: ASN number
-  - `vpc`: key of the attaching VPC 
+  - `vpc`: key of the attaching VPC
   - `route_table`: route table key created under TGW taht must be associated with attachment
-  - `propagate_routes_to`: route table key created under TGW
+  - `propagate_routes_to`: list of route table keys created under TGW to which routes should be propagated
 
   Example:
   ```
@@ -285,7 +285,7 @@ variable "tgw_attachments" {
       vpc                 = "security_vpc"
       subnet_group        = "tgw_attach"
       route_table         = "from_security_vpc"
-      propagate_routes_to = "from_spoke_vpc"
+      propagate_routes_to = ["from_spoke_vpc"]
     }
   }
   ```
@@ -300,7 +300,7 @@ variable "tgw_attachments" {
     vpc                     = string
     subnet_group            = string
     route_table             = string
-    propagate_routes_to     = string
+    propagate_routes_to     = list(string)
     appliance_mode_support  = optional(string, "enable")
     dns_support             = optional(string, null)
     tags                    = optional(map(string))

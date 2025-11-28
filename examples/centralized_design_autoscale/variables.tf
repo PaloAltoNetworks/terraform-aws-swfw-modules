@@ -215,7 +215,7 @@ variable "tgw_attachments" {
   - `asn`: ASN number
   - `vpc`: key of the attaching VPC 
   - `route_table`: route table key created under TGW taht must be associated with attachment
-  - `propagate_routes_to`: route table key created under TGW
+  - `propagate_routes_to`: list of route table keys created under TGW to which routes should be propagated
 
   Example:
   ```
@@ -226,7 +226,7 @@ variable "tgw_attachments" {
       vpc                 = "security_vpc"
       subnet_group        = "tgw_attach"
       route_table         = "from_security_vpc"
-      propagate_routes_to = "from_spoke_vpc"
+      propagate_routes_to = ["from_spoke_vpc"]
     }
   }
   ```
@@ -241,7 +241,7 @@ variable "tgw_attachments" {
     vpc                     = string
     subnet_group            = string
     route_table             = string
-    propagate_routes_to     = string
+    propagate_routes_to     = list(string)
     appliance_mode_support  = optional(string, "enable")
     dns_support             = optional(string, null)
     tags                    = optional(map(string))
