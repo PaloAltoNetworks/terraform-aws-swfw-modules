@@ -406,7 +406,7 @@ tgw_attachments = {
     vpc                     = "security_vpc"
     subnet_group            = "tgw_attach"
     route_table             = "from_security_vpc"
-    propagate_routes_to     = "from_spoke_vpc"
+    propagate_routes_to     = ["from_spoke_vpc"]
   }
   app1 = {
     tgw_key             = "tgw"
@@ -414,7 +414,7 @@ tgw_attachments = {
     vpc                 = "app1_vpc"
     subnet_group        = "app1_vm"
     route_table         = "from_spoke_vpc"
-    propagate_routes_to = "from_security_vpc"
+    propagate_routes_to = ["from_security_vpc"]
   }
   app2 = {
     tgw_key             = "tgw"
@@ -422,7 +422,7 @@ tgw_attachments = {
     vpc                 = "app2_vpc"
     subnet_group        = "app2_vm"
     route_table         = "from_spoke_vpc"
-    propagate_routes_to = "from_security_vpc"
+    propagate_routes_to = ["from_security_vpc"]
   }
 }
 
