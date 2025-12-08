@@ -211,7 +211,7 @@ module "transit_gateway_attachment" {
   subnets                     = module.subnet_sets["${each.value.vpc}-${each.value.subnet_group}"].subnets
   transit_gateway_route_table = module.transit_gateway[each.value.tgw_key].route_tables[each.value.route_table]
   propagate_routes_to = {
-    to1 = module.transit_gateway[each.value.tgw_key].route_tables[each.value.propagate_routes_to].id
+    for idx, rt_key in each.value.propagate_routes_to : rt_key => module.transit_gateway[each.value.tgw_key].route_tables[rt_key].id
   }
   appliance_mode_support = each.value.appliance_mode_support
   dns_support            = each.value.dns_support
