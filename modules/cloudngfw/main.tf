@@ -1,16 +1,20 @@
 data "aws_caller_identity" "current" {}
 
 locals {
-  new_log_cw = toset(distinct([for _, v in var.log_profiles : v.name if v.create_cw]))
+  new_log_cw       = toset(distinct([for _, v in var.log_profiles : v.name if v.create_cw && var.create_log_profiles]))
+  aws_account_id   = coalesce(var.aws_account_id, data.aws_caller_identity.current.id)
+  global_rulestack = coalesce(var.global_rulestack, var.name)
 }
 
 resource "cloudngfwaws_ngfw" "this" {
-  name        = var.name
-  vpc_id      = var.vpc_id
-  account_id  = data.aws_caller_identity.current.id
-  description = var.description
+  name             = var.name
+  vpc_id           = var.vpc_id
+  account_id       = local.aws_account_id
+  description      = var.description
+  global_rulestack = local.global_rulestack
 
   endpoint_mode = var.endpoint_mode
+  link_id       = var.link_id
 
   dynamic "subnet_mapping" {
     for_each = var.subnets
@@ -21,13 +25,15 @@ resource "cloudngfwaws_ngfw" "this" {
     }
   }
 
-  rulestack = cloudngfwaws_commit_rulestack.this.rulestack
+  rulestack = try(cloudngfwaws_commit_rulestack.this[0].rulestack, null)
 
   tags = var.tags
 }
 
 resource "cloudngfwaws_commit_rulestack" "this" {
-  rulestack = cloudngfwaws_rulestack.this.name
+  count = var.create_security_rules ? 1 : 0
+
+  rulestack = cloudngfwaws_rulestack.this[0].name
 
   state = "Running"
 
@@ -39,10 +45,12 @@ resource "cloudngfwaws_commit_rulestack" "this" {
 }
 
 resource "cloudngfwaws_rulestack" "this" {
+  count = var.create_security_rules ? 1 : 0
+
   name  = var.rulestack_name
   scope = var.rulestack_scope
 
-  account_id  = data.aws_caller_identity.current.id
+  account_id  = local.aws_account_id
   description = var.description_rule
 
   profile_config {
@@ -57,7 +65,7 @@ resource "cloudngfwaws_rulestack" "this" {
 resource "cloudngfwaws_security_rule" "this" {
   for_each = var.security_rules
 
-  rulestack = cloudngfwaws_rulestack.this.name
+  rulestack = cloudngfwaws_rulestack.this[0].name
 
   rule_list   = each.value.rule_list
   priority    = each.value.priority
@@ -87,8 +95,10 @@ resource "cloudngfwaws_security_rule" "this" {
 }
 
 resource "cloudngfwaws_ngfw_log_profile" "this" {
+  count = var.create_log_profiles ? 1 : 0
+
   ngfw       = cloudngfwaws_ngfw.this.name
-  account_id = data.aws_caller_identity.current.id
+  account_id = local.aws_account_id
 
   dynamic "log_destination" {
     for_each = var.log_profiles
