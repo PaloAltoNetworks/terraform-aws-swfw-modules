@@ -273,11 +273,16 @@ resource "aws_api_gateway_deployment" "pan_failover" {
   aws_api_gateway_rest_api.pan_failover, aws_lambda_function.rt_failover]
 
   rest_api_id = aws_api_gateway_rest_api.pan_failover.id
-  stage_name  = "prod"
 
   lifecycle {
     create_before_destroy = true
   }
+}
+
+resource "aws_api_gateway_stage" "example" {
+  deployment_id = aws_api_gateway_deployment.pan_failover.id
+  rest_api_id   = aws_api_gateway_rest_api.pan_failover.id
+  stage_name    = "prod"
 }
 
 
