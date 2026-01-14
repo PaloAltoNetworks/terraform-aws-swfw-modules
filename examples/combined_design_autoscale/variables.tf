@@ -440,7 +440,7 @@ variable "vmseries_asgs" {
 
       panos_version   = "10.2.3"
       ebs_kms_id      = "alias/aws/ebs"
-      ebs_volume_type = "gp2"
+      ebs_volume_type = "gp3"
 
       vpc               = "security_vpc"
       gwlb              = "security_gwlb"
@@ -571,7 +571,7 @@ variable "vmseries_asgs" {
     include_deprecated_ami                 = optional(bool, false)
     instance_type                          = optional(string, "m5.xlarge")
     ebs_encrypted                          = optional(bool, true)
-    ebs_volume_type                        = optional(string, "gp2")
+    ebs_volume_type                        = optional(string, "gp3")
     enable_instance_termination_protection = optional(bool, false)
     enable_monitoring                      = optional(bool, false)
     fw_license_type                        = optional(string, "byol")

@@ -466,7 +466,7 @@ variable "vmseries" {
 
       panos_version   = "10.2.3"
       ebs_kms_id      = "alias/aws/ebs"
-      ebs_volume_type = "gp2"
+      ebs_volume_type = "gp3"
 
       # Value of `vpc` must match key of objects stored in `vpcs`
       vpc = "security_vpc"
@@ -570,7 +570,7 @@ variable "vmseries" {
     panos_version                          = string
     airs_deployment                        = optional(bool, false)
     ebs_kms_id                             = string
-    ebs_volume_type                        = optional(string, "gp2")
+    ebs_volume_type                        = optional(string, "gp3")
     vmseries_ami_id                        = optional(string)
     vmseries_product_code                  = optional(string, "6njl1pau431dv1qxipg63mvah")
     include_deprecated_ami                 = optional(bool, false)
