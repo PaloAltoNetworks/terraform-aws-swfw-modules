@@ -283,6 +283,7 @@ module "panorama" {
   instance_type          = each.value.common.instance_type
   ssh_key_name           = var.ssh_key_name
   ebs_kms_key_alias      = each.value.common.ebs.kms_key_alias
+  ebs_volume_type        = each.value.common.ebs.ebs_volume_type
   subnet_id              = module.subnet_sets["${each.value.common.network.vpc}-${each.value.common.network.subnet_group}"].subnets[each.value.az].id
   vpc_security_group_ids = [module.vpc[each.value.common.network.vpc].security_group_ids[each.value.common.network.security_group]]
   panorama_iam_role      = aws_iam_instance_profile.this[each.key].name

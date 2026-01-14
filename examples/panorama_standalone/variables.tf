@@ -230,6 +230,7 @@ variable "panoramas" {
     - `create_public_ip`: true, if public IP address for management should be created
   - `ebs`: EBS settings defined in object with attributes:
     - `volumes`: list of EBS volumes attached to each instance
+    - `ebs_volume_type`: type of EBS volume used
     - `kms_key_alias`: KMS key alias used for encrypting Panorama EBS
   - `iam`: IAM settings in object with attrbiutes:
     - `create_role`: enable creation of IAM role
@@ -275,7 +276,8 @@ variable "panoramas" {
             ebs_encrypted   = true
           }
         ]
-        kms_key_alias = "aws/ebs"
+        kms_key_alias   = "aws/ebs"
+        ebs_volume_type = "gp3"
       }
 
       iam = {
@@ -313,8 +315,9 @@ variable "panoramas" {
         force_detach    = optional(bool, false)
         skip_destroy    = optional(bool, false)
       }))
-      encrypted     = bool
-      kms_key_alias = optional(string, "alias/aws/ebs")
+      encrypted       = bool
+      kms_key_alias   = optional(string, "alias/aws/ebs")
+      ebs_volume_type = optional(string, "gp3")
     })
 
     product_code           = optional(string, "eclz7j04vu9lf8ont8ta3n17o")
