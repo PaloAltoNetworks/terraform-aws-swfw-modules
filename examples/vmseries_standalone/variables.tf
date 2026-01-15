@@ -346,7 +346,6 @@ variable "vmseries" {
       dhcp-send-client-id                   = optional(string)
       dhcp-accept-server-hostname           = optional(string)
       dhcp-accept-server-domain             = optional(string)
-      authcodes                             = optional(string)
       vm-series-auto-registration-pin-id    = optional(string)
       vm-series-auto-registration-pin-value = optional(string)
     })
@@ -407,4 +406,10 @@ variable "vmseries" {
       rules        = optional(any)
     }), {})
   }))
+}
+
+
+variable "test_var" {
+  default = null
+  type    = string
 }
