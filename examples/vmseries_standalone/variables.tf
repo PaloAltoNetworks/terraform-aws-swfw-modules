@@ -407,9 +407,3 @@ variable "vmseries" {
     }), {})
   }))
 }
-
-
-variable "test_var" {
-  default = null
-  type    = string
-}
