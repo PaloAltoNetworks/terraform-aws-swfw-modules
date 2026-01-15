@@ -210,6 +210,6 @@ variable "eip_domain" {
 
 variable "ebs_volume_type" {
   description = "Indicates the type of ebs volume for EC2 instance"
-  default     = "gp2"
+  default     = "gp3"
   type        = string
 }
