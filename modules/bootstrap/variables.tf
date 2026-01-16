@@ -74,7 +74,6 @@ variable "bootstrap_options" {
   - `dhcp-send-client-id`         - (`string`, optional) The DHCP server determines a value of yes or no. If yes, the firewall sends its client ID to the DHCP server.
   - `dhcp-accept-server-hostname` - (`string`, optional) The DHCP server determines a value of yes or no. If yes, the firewall accepts its hostname from the DHCP server.
   - `dhcp-accept-server-domain`   - (`string`, optional) The DHCP server determines a value of yes or no. If yes, the firewall accepts its DNS server from the DHCP server.
-  - `authcodes`                   - (`string`, optional) The authcode use to register the VM-Series firewall. 
   - `vm-series-auto-registration-pin-id` - (`string`, optional) The VM-Series registration PIN ID for installing the device certificate on the VM-Series firewall.
   - `vm-series-auto-registration-pin-value` - (`string`, optional) The VM-Series registration PIN Value for installing the device certificate on the VM-Series firewall.
   EOF
@@ -97,7 +96,6 @@ variable "bootstrap_options" {
     dhcp-send-client-id                   = optional(string)
     dhcp-accept-server-hostname           = optional(string)
     dhcp-accept-server-domain             = optional(string)
-    authcodes                             = optional(string)
     vm-series-auto-registration-pin-id    = optional(string)
     vm-series-auto-registration-pin-value = optional(string)
   })
