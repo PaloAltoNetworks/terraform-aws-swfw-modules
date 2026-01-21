@@ -32,7 +32,7 @@ variable "subnets" {
   EOF
   type = map(object({
     id   = string
-    tags = map(string)
+    tags = optional(map(string))
   }))
 }
 
@@ -151,10 +151,40 @@ variable "endpoint_mode" {
   type        = string
 }
 
+variable "aws_account_id" {
+  description = "The AWS Account ID."
+  default     = null
+  type        = string
+}
+
+variable "link_id" {
+  description = "The link ID of integrated policy management tool."
+  default     = null
+  type        = string
+}
+
+variable "create_security_rules" {
+  description = "The option allows disable local rule stack creation to set link_id."
+  default     = true
+  type        = bool
+}
+
+variable "create_log_profiles" {
+  description = "The log profiles can be disable if link_id integration allows logging to CDL."
+  default     = true
+  type        = bool
+}
+
 variable "retention_in_days" {
   description = "CloudWatch log groups retains logs."
   default     = 365
   type        = number
+}
+
+variable "global_rulestack" {
+  description = "The global rulestack for this NGFW."
+  default     = null
+  type        = string
 }
 
 variable "tags" {
