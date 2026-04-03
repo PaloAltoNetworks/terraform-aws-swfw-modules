@@ -563,6 +563,7 @@ variable "vmseries_asgs" {
     })
 
     panos_version                          = string
+    arm_deployment                         = optional(bool, false)
     vmseries_ami_id                        = optional(string)
     vmseries_product_code                  = optional(string, "6njl1pau431dv1qxipg63mvah")
     include_deprecated_ami                 = optional(bool, false)

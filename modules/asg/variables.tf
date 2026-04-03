@@ -41,6 +41,24 @@ variable "airs_deployment" {
   default     = false
 }
 
+variable "arm_deployment" {
+  description = <<-EOF
+  Whether to deploy an ARM-based VM-Series instance. When set to `true`, the module will search for an ARM AMI.
+  EOF
+  type        = bool
+  default     = false
+}
+
+variable "arm_product_code" {
+  description = <<-EOF
+  Product code corresponding to a chosen ARM VM-Series license type model - by default - BYOL.
+  To check the available license type models and their codes, please refer to the
+  [VM-Series documentation](https://docs.paloaltonetworks.com/vm-series/10-0/vm-series-deployment/set-up-the-vm-series-firewall-on-aws/deploy-the-vm-series-firewall-on-aws/obtain-the-ami/get-amazon-machine-image-ids.html)
+  EOF
+  default     = "70xbkm08ivye46l4gfa6c85v7"
+  type        = string
+}
+
 variable "airs_product_code" {
   description = <<-EOF
   Product code corresponding to a chosen AIRS license type model - by default - BYOL. 
