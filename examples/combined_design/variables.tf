@@ -569,6 +569,7 @@ variable "vmseries" {
 
     panos_version                          = string
     airs_deployment                        = optional(bool, false)
+    arm_deployment                         = optional(bool, false)
     ebs_kms_id                             = string
     ebs_volume_type                        = optional(string, "gp3")
     vmseries_ami_id                        = optional(string)
