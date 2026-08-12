@@ -55,3 +55,7 @@ modules/asg/scripts/pan_os_python-1.11.0.dist-info/
 modules/asg/scripts/pan_python-0.17.0.dist-info/
 modules/asg/scripts/panos/
 go.sum
+# Python test artifacts
+.venv*/
+__pycache__/
+.pytest_cache/

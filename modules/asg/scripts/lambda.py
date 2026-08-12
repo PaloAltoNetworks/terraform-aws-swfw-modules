@@ -160,6 +160,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
                 interface[eni]["index"] = int(v) if 'device_index' in k else interface.get(eni).get('index')
                 interface[eni]["sg"] = v if 'security_group_ids' in k else interface.get(eni).get('sg')
                 interface[eni]["c_pub_ip"] = v if 'create_public_ip' in k else interface.get(eni).get('c_pub_ip')
+                interface[eni]["pub_pool"] = v if 'public_ipv4_pool' in k else interface.get(eni).get('pub_pool')
                 interface[eni]["s_dest_ch"] = v if 'source_dest_check' in k else interface.get(eni).get('s_dest_ch')
                 if 'subnet_id' in k:
                     for az, subnet in v.items():
@@ -229,17 +230,24 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
                 self.modify_network_interface(interface_id, attachment_id, interface['s_dest_ch'])
             # If EIP is required for ENI, add public IP
             if interface['c_pub_ip']:
-                self.add_public_ip_to_eni(interface_id)
+                self.add_public_ip_to_eni(interface_id, interface.get('pub_pool'))
 
-    def add_public_ip_to_eni(self, interface_id: str):
+    def add_public_ip_to_eni(self, interface_id: str, public_ipv4_pool: str = None):
         """
         This function is used to create public ip and associate it with provided ENI ID.
 
         :param interface_id: Network Interface id
+        :param public_ipv4_pool: EC2 IPv4 address pool to allocate the address from
         :return: none
         """
-        # Get public IP
-        public_ip_allocation = self.ec2_client.allocate_address(Domain='vpc')
+        # Get public IP - only pass the pool when one is configured, otherwise EC2
+        # rejects the request; omitting it allocates from Amazon's pool
+        allocation_args = {'Domain': 'vpc'}
+        if public_ipv4_pool:
+            allocation_args['PublicIpv4Pool'] = public_ipv4_pool
+            self.logger.info(f"Allocating public ip from pool {public_ipv4_pool} for {interface_id}")
+
+        public_ip_allocation = self.ec2_client.allocate_address(**allocation_args)
         self.logger.info(f"Created public ip {public_ip_allocation['PublicIp']} for {interface_id}")
 
         # Associate public IP with ENI
