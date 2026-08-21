@@ -12,7 +12,7 @@ For example usage, please refer to the [examples](https://github.com/PaloAltoNet
 ### Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.17 |
 | <a name="requirement_cloudngfwaws"></a> [cloudngfwaws](#requirement\_cloudngfwaws) | 2.0.20 |
@@ -20,7 +20,7 @@ For example usage, please refer to the [examples](https://github.com/PaloAltoNet
 ### Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.17 |
 | <a name="provider_cloudngfwaws"></a> [cloudngfwaws](#provider\_cloudngfwaws) | 2.0.20 |
 
@@ -31,7 +31,7 @@ No modules.
 ### Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_cloudwatch_log_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_cloudwatch_log_stream.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_stream) | resource |
 | [cloudngfwaws_commit_rulestack.this](https://registry.terraform.io/providers/PaloAltoNetworks/cloudngfwaws/2.0.20/docs/resources/commit_rulestack) | resource |
@@ -44,7 +44,7 @@ No modules.
 ### Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_description"></a> [description](#input\_description) | Cloud NGFW description. | `string` | `"CloudNGFW"` | no |
 | <a name="input_description_rule"></a> [description\_rule](#input\_description\_rule) | The rulestack description. | `string` | `"CloudNGFW rulestack"` | no |
 | <a name="input_endpoint_mode"></a> [endpoint\_mode](#input\_endpoint\_mode) | The endpoint mode indicate the creation method of endpoint for target VPC. Customer Managed required to create endpoint manually. | `string` | `"CustomerManaged"` | no |
@@ -62,6 +62,6 @@ No modules.
 ### Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_cloudngfw_service_name"></a> [cloudngfw\_service\_name](#output\_cloudngfw\_service\_name) | The service endpoint name exposed to tenant environment. |
 <!-- END_TF_DOCS -->

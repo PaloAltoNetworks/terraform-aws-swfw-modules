@@ -82,7 +82,7 @@ To enable access from the session manager, the Internet connection for a public 
 ### Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.17 |
 | <a name="requirement_cloudngfwaws"></a> [cloudngfwaws](#requirement\_cloudngfwaws) | 2.0.20 |
@@ -91,13 +91,13 @@ To enable access from the session manager, the Internet connection for a public 
 ### Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.17 |
 
 ### Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_app_alb"></a> [app\_alb](#module\_app\_alb) | ../../modules/alb | n/a |
 | <a name="module_cloudngfw"></a> [cloudngfw](#module\_cloudngfw) | ../../modules/cloudngfw | n/a |
 | <a name="module_gwlbe_endpoint"></a> [gwlbe\_endpoint](#module\_gwlbe\_endpoint) | ../../modules/gwlb_endpoint_set | n/a |
@@ -109,7 +109,7 @@ To enable access from the session manager, the Internet connection for a public 
 ### Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_iam_instance_profile.spoke_vm_iam_instance_profile](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_instance_profile) | resource |
 | [aws_iam_role.spoke_vm_ec2_iam_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy_attachment.spoke_vm_iam_instance_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
@@ -122,7 +122,7 @@ To enable access from the session manager, the Internet connection for a public 
 ### Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_cloudngfws"></a> [cloudngfws](#input\_cloudngfws) | A map defining Cloud NGFWs.<br/><br/>Following properties are available:<br/>- `name`       : name of CloudNGFW<br/>- `vpc_subnet` : key of the VPC and subnet connected by '-' character<br/>- `vpc`        : key of the VPC<br/>- `description`: Use for internal purposes.<br/>- `security_rules`: Security Rules definition.<br/>- `log_profiles`: Log Profile definition.<br/><br/>Example:<pre>cloudngfws = {<br/>  cloudngfws_security = {<br/>    name        = "cloudngfw01"<br/>    vpc_subnet  = "app_vpc-app_gwlbe"<br/>    vpc         = "app_vpc"<br/>    description = "description"<br/>    security_rules = <br/>    { <br/>      rule_1 = { <br/>        rule_list                   = "LocalRule"<br/>        priority                    = 3<br/>        name                        = "tf-security-rule"<br/>        description                 = "Also configured by Terraform"<br/>        source_cidrs                = ["any"]<br/>        destination_cidrs           = ["0.0.0.0/0"]<br/>        negate_destination          = false<br/>        protocol                    = "application-default"<br/>        applications                = ["any"]<br/>        category_feeds              = null<br/>        category_url_category_names = null<br/>        action                      = "Allow"<br/>        logging                     = true<br/>        audit_comment               = "initial config"<br/>      }<br/>    }<br/>    log_profiles = {  <br/>      dest_1 = {<br/>        create_cw        = true<br/>        name             = "PaloAltoCloudNGFW"<br/>        destination_type = "CloudWatchLogs"<br/>        log_type         = "THREAT"<br/>      }<br/>      dest_2 = {<br/>        create_cw        = true<br/>        name             = "PaloAltoCloudNGFW"<br/>        destination_type = "CloudWatchLogs"<br/>        log_type         = "TRAFFIC"<br/>      }<br/>      dest_3 = {<br/>        create_cw        = true<br/>        name             = "PaloAltoCloudNGFW"<br/>        destination_type = "CloudWatchLogs"<br/>        log_type         = "DECRYPTION"<br/>      }<br/>    }<br/>    profile_config = {<br/>      anti_spyware  = "BestPractice"<br/>      anti_virus    = "BestPractice"<br/>      vulnerability = "BestPractice"<br/>      file_blocking = "BestPractice"<br/>      url_filtering = "BestPractice"<br/>    }<br/>  }<br/>}</pre> | <pre>map(object({<br/>    name           = string<br/>    subnet_group   = string<br/>    vpc            = string<br/>    description    = optional(string, "Palo Alto Cloud NGFW")<br/>    security_rules = map(any)<br/>    log_profiles   = map(any)<br/>    profile_config = map(any)<br/>  }))</pre> | `{}` | no |
 | <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Global tags configured for all provisioned resources | `any` | n/a | yes |
 | <a name="input_gwlb_endpoints"></a> [gwlb\_endpoints](#input\_gwlb\_endpoints) | A map defining GWLB endpoints.<br/><br/>Following properties are available:<br/>- `name`: name of the GWLB endpoint<br/>- `custom_names`: Optional map of names of the VPC Endpoints, used to override the default naming generated from the input `name`.<br/>  Each key is the Availability Zone identifier, for example `us-east-1b`.<br/>- `gwlb`: key of GWLB. Required when GWLB Endpoint must connect to GWLB's service name<br/>- `vpc`: key of VPC<br/>- `subnet_group`: key of the subnet\_group<br/>- `act_as_next_hop`: set to `true` if endpoint is part of an IGW route table e.g. for inbound traffic<br/>- `from_igw_to_vpc`: VPC to which traffic from IGW is routed to the GWLB endpoint<br/>- `from_igw_to_subnet_group` : subnet\_group to which traffic from IGW is routed to the GWLB endpoint<br/>- `cloudngfw_key`(optional): Key of the Cloud NGFW. Required when GWLB Endpoint must connect to Cloud NGFW's service name<br/><br/>Example:<pre>gwlb_endpoints = {<br/>  security_gwlb_eastwest = {<br/>    name            = "eastwest-gwlb-endpoint"<br/>    gwlb            = "security_gwlb"<br/>    vpc             = "security_vpc"<br/>    subnet_group    = "gwlbe_eastwest"<br/>    act_as_next_hop = false<br/>  }<br/>}</pre> | <pre>map(object({<br/>    name                     = string<br/>    custom_names             = optional(map(string), {})<br/>    gwlb                     = optional(string)<br/>    vpc                      = string<br/>    subnet_group             = string<br/>    act_as_next_hop          = bool<br/>    from_igw_to_vpc          = optional(string)<br/>    from_igw_to_subnet_group = optional(string)<br/>    delay                    = optional(number, 0)<br/>    tags                     = optional(map(string))<br/>    cloudngfw_key            = optional(string)<br/>  }))</pre> | `{}` | no |
@@ -139,7 +139,7 @@ To enable access from the session manager, the Internet connection for a public 
 ### Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_application_load_balancers"></a> [application\_load\_balancers](#output\_application\_load\_balancers) | FQDNs of Application Load Balancers |
 | <a name="output_cloudngfws"></a> [cloudngfws](#output\_cloudngfws) | Cloud NGFW service name |
 <!-- END_TF_DOCS -->

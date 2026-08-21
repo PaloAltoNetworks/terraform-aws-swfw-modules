@@ -157,7 +157,7 @@ template_assignments = {
 ### Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.17 |
 
@@ -176,7 +176,7 @@ No resources.
 ### Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_abbreviations"></a> [abbreviations](#input\_abbreviations) | Map of abbreviations used for resources (placed in place of "\_\_default\_\_"). | `map(string)` | <pre>{<br/>  "application_loadbalancer": "alb",<br/>  "application_loadbalancer_target_group": "atg",<br/>  "gateway_loadbalancer": "gwlb",<br/>  "gateway_loadbalancer_endpoint": "gwep",<br/>  "gateway_loadbalancer_target_group": "gwtg",<br/>  "iam_instance_profile": "profile",<br/>  "iam_role": "role",<br/>  "internet_gateway": "igw",<br/>  "nat_gateway": "ngw",<br/>  "network_loadbalancer": "nlb",<br/>  "network_loadbalancer_target_group": "ntg",<br/>  "route_table": "rt",<br/>  "route_table_internet_gateway": "rt",<br/>  "security_group": "sg",<br/>  "subnet": "snet",<br/>  "transit_gateway": "tgw",<br/>  "transit_gateway_attachment": "att",<br/>  "transit_gateway_route_table": "trt",<br/>  "vm": "vm",<br/>  "vmseries": "vm",<br/>  "vmseries_network_interface": "nic",<br/>  "vpc": "vpc",<br/>  "vpn_gateway": "vgw"<br/>}</pre> | no |
 | <a name="input_az_map_literal_to_numeric"></a> [az\_map\_literal\_to\_numeric](#input\_az\_map\_literal\_to\_numeric) | Map of number used instead of letters for AZs (placed in place of "\_\_az\_numeric\_\_"). | `map(string)` | <pre>{<br/>  "a": 1,<br/>  "b": 2,<br/>  "c": 3,<br/>  "d": 4,<br/>  "e": 5,<br/>  "f": 6,<br/>  "g": 7,<br/>  "h": 8,<br/>  "i": 9<br/>}</pre> | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Prefix used in names for the resources | `string` | n/a | yes |
@@ -188,6 +188,6 @@ No resources.
 ### Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_names"></a> [names](#output\_names) | Map of generated names for each kind of resources.<br/><br/>Example:<br/><br/>names = {<br/>    vpc                           = {<br/>        app1\_vpc     = "example-vpc-app1-cloud-tst-ec1"<br/>        app2\_vpc     = "example-vpc-app2-cloud-tst-ec1"<br/>        security\_vpc = "example-vpc-security-cloud-tst-ec1"<br/>    }<br/>    gateway\_loadbalancer          = {<br/>        security\_gwlb = "example-gwlb-security-cloud-tst"<br/>    }<br/>    gateway\_loadbalancer\_endpoint = {<br/>        app1\_inbound           = "example-gwep-app1-cloud-tst-ec1"<br/>        app2\_inbound           = "example-gwep-app2-cloud-tst-ec1"<br/>        security\_gwlb\_eastwest = "example-gwep-eastwest-cloud-tst-ec1"<br/>        security\_gwlb\_outbound = "example-gwep-outbound-cloud-tst-ec1"<br/>    }<br/>} |
 <!-- END_TF_DOCS -->
