@@ -248,7 +248,7 @@ variable "vmseries" {
         dhcp-accept-server-domain   = "yes"
       }
 
-      panos_version   = "10.2.3"        # TODO: update here
+      panos_version   = "11.2.8"        # TODO: update here
       ebs_kms_id      = "alias/aws/ebs" # TODO: update here
       ebs_volume_type = "gp3"           # TODO: update here
 
