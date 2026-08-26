@@ -1,0 +1,6 @@
+pytest==9.1.1
+boto3==1.43.69
+# Matches modules/asg/scripts/requirements.txt - lambda.py imports it at module level
+pan-os-python==1.11.0
+# Provides the distutils shim pan-os-python needs on Python 3.12+
+setuptools
