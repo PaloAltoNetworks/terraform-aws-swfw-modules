@@ -252,7 +252,7 @@ variable "panoramas" {
         }
       }
 
-      panos_version = "10.2.3"
+      panos_version = "11.2.8"
 
       network = {
         vpc              = "management_vpc"

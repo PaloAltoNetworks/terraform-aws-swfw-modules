@@ -64,14 +64,14 @@ module "vpc_route" {
 ### Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.17 |
 
 ### Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.17 |
 
 ### Modules
@@ -81,13 +81,13 @@ No modules.
 ### Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_route.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route) | resource |
 
 ### Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_destination_type"></a> [destination\_type](#input\_destination\_type) | Type of destination: "ipv4", "ipv6" or "mpl". | `string` | `"ipv4"` | no |
 | <a name="input_managed_prefix_list_id"></a> [managed\_prefix\_list\_id](#input\_managed\_prefix\_list\_id) | ID of managed prefix list, which is going to be set as destination in route | `string` | `null` | no |
 | <a name="input_next_hop_set"></a> [next\_hop\_set](#input\_next\_hop\_set) | The Next Hop Set object, such as an output `module.nat_gateway_set.next_hop_set`, which contains 3 attributes:<br/>- `type`<br/>- `id`<br/>- `ids`<br/><br/>For `type` attribute there are possible below values:<br/>- "transit\_gateway"<br/>- "internet\_gateway"<br/>- "vpc\_peer"<br/>- "egress\_only\_gateway"<br/>- "local\_gateway"<br/>- "nat\_gateway"<br/>- "interface"<br/>- "vpc\_endpoint"<br/><br/>The set of single-zone next hops (type "nat\_gateway", "interface" and "vpc\_endpoint") should be specified as the `ids` map, in which case each value is a next hop id and each key should be present among the keys of the input `route_table_ids`. To avoid unintended cross-zone routing, these keys should be equal. Example:<pre>next_hop_set = {<br/>  type = "nat_gateway"<br/>  id   = null<br/>  ids  = {<br/>    "us-east-1a" = "natgw-123"<br/>    "us-east-1b" = "natgw-124"<br/>  }<br/>}</pre>For a non-AZ-aware next hop (type "transit\_gateway", "internet\_gateway", "vpc\_peer", "egress\_only\_gateway" and "local\_gateway"), the `ids` map should be empty. All the route tables receive the same `id` of the next hop. Example:<pre>next_hop_set = {<br/>  type = "internet_gateway"<br/>  id   = "igw-12345"<br/>  ids  = {}<br/>}</pre> | <pre>object({<br/>    type = string<br/>    id   = string<br/>    ids  = map(string)<br/>  })</pre> | n/a | yes |
@@ -97,6 +97,6 @@ No modules.
 ### Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_route_details"></a> [route\_details](#output\_route\_details) | n/a |
 <!-- END_TF_DOCS -->

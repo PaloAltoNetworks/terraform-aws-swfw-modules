@@ -33,14 +33,14 @@ module "subnet_sets" {
 ### Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.17 |
 
 ### Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.17 |
 
 ### Modules
@@ -50,7 +50,7 @@ No modules.
 ### Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_network_acl_association.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_acl_association) | resource |
 | [aws_route_table.shared](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
 | [aws_route_table.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
@@ -62,7 +62,7 @@ No modules.
 ### Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_cidrs"></a> [cidrs](#input\_cidrs) | Map describing configuration of subnets and route tables to create and/or use in the set.<br/>Keys are CIDR blocks, values can consist of following items:<br/>- `create_subnet`           - (Optional\|bool) When `true` (default), subnet is created, otherwise existing one is used.<br/>- `create_route_table`      - (Optional\|bool) When `true`  a dedicated route table is created, unless existing subnet is used.<br/>- `associate_route_table`   - (Optional\|bool) Unless set to `false`, route table is associated with the subnet.<br/>- `existing_route_table_id` - (Optional\|string) Id of an existing route table to associate with the subnet.<br/>- `name`                    - (Optional\|string) Name (tag) of a subnet and, optionally a route table, to create or use. Defaults to set name appended with zone letter id.<br/>- `route_table_name`        - (Optional\|string) Name (tag) of a subnet and, optionally a route table, to create or use.  Defaults to `name` value.<br/>- `ipv6_cidr_block`         - (Optional\|string) IPv6 CIDR block. The subnet size must use a /64 prefix length.<br/>- `map_public_ip_on_launch` - (Optional\|bool) Specify true to indicate that instances launched into the subnet should be assigned a public IP address.<br/>- `local_tags`              - (Optional\|map) Map of tags to assign to created resources. | <pre>map(object({<br/>    az                      = string<br/>    create_subnet           = optional(bool, true)<br/>    create_route_table      = optional(bool, true)<br/>    associate_route_table   = optional(bool, true)<br/>    existing_route_table_id = optional(string)<br/>    name                    = optional(string)<br/>    route_table_name        = optional(string)<br/>    ipv6_cidr               = optional(string)<br/>    map_public_ip_on_launch = optional(bool)<br/>    local_tags              = optional(map(string))<br/>  }))</pre> | n/a | yes |
 | <a name="input_create_shared_route_table"></a> [create\_shared\_route\_table](#input\_create\_shared\_route\_table) | Boolean flag whether to create a shared route tables. | `bool` | `false` | no |
 | <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Optional map of arbitrary tags to apply to all the created resources. | `map(string)` | `{}` | no |
@@ -75,7 +75,7 @@ No modules.
 ### Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_availability_zones"></a> [availability\_zones](#output\_availability\_zones) | n/a |
 | <a name="output_route_tables"></a> [route\_tables](#output\_route\_tables) | n/a |
 | <a name="output_subnet_names"></a> [subnet\_names](#output\_subnet\_names) | n/a |

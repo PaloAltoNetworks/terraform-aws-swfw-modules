@@ -7,14 +7,14 @@ A Terraform module for deploying a VPN for VM-Series firewalls.
 ### Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.17 |
 
 ### Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.17 |
 
 ### Modules
@@ -24,7 +24,7 @@ No modules.
 ### Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_cloudwatch_log_group.tunnel1_log](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_cloudwatch_log_group.tunnel2_log](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_customer_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/customer_gateway) | resource |
@@ -42,7 +42,7 @@ No modules.
 ### Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_customer_gateway"></a> [customer\_gateway](#input\_customer\_gateway) | Customer gateway defined by attributes:<br/>- bgp\_asn - (Required) The gateway's Border Gateway Protocol (BGP) Autonomous System Number (ASN).<br/>- certificate\_arn - (Optional) The Amazon Resource Name (ARN) for the customer gateway certificate.<br/>- device\_name - (Optional) A name for the customer gateway device.<br/>- ip\_address - (Optional) The IPv4 address for the customer gateway device's outside interface.<br/>- type - (Required) The type of customer gateway. The only type AWS supports at this time is "ipsec.1".<br/>- tags - (Optional) Tags to apply to the gateway. If configured with a provider default\_tags configuration block present, tags with matching keys will overwrite those defined at the provider-level. | `any` | n/a | yes |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | A prefix added to all resource names created by this module | `string` | `""` | no |
 | <a name="input_name_suffix"></a> [name\_suffix](#input\_name\_suffix) | A sufix added to all resource names created by this module | `string` | `""` | no |
@@ -57,7 +57,7 @@ No modules.
 ### Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_customer_gateway"></a> [customer\_gateway](#output\_customer\_gateway) | Object describing created customer gateway |
 | <a name="output_tunnel1"></a> [tunnel1](#output\_tunnel1) | Tunnel 1 details (public IP address, inside IP addresses, BGP ASN) |
 | <a name="output_tunnel2"></a> [tunnel2](#output\_tunnel2) | Tunnel 2 details (public IP address, inside IP addresses, BGP ASN) |

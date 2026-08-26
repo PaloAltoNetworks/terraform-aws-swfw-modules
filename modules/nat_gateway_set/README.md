@@ -39,14 +39,14 @@ module "nat_gateway_set" {
 ### Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.17 |
 
 ### Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.17 |
 
 ### Modules
@@ -56,7 +56,7 @@ No modules.
 ### Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_eip.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip) | resource |
 | [aws_nat_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/nat_gateway) | resource |
 | [aws_eip.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/eip) | data source |
@@ -65,7 +65,7 @@ No modules.
 ### Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_create_eip"></a> [create\_eip](#input\_create\_eip) | If false, does not create a new Elastic IP, but instead reads a pre-existing one. This input is ignored if `create_nat_gateway` is false. | `bool` | `true` | no |
 | <a name="input_create_nat_gateway"></a> [create\_nat\_gateway](#input\_create\_nat\_gateway) | If false, does not create a new NAT Gateway, but instead reads a pre-existing one. | `bool` | `true` | no |
 | <a name="input_eip_domain"></a> [eip\_domain](#input\_eip\_domain) | Indicates if this EIP is for use in VPC | `string` | `"vpc"` | no |
@@ -79,7 +79,7 @@ No modules.
 ### Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_eips"></a> [eips](#output\_eips) | The map of Elastic IP objects. Only valid if `create_nat_gateway` is at the default true value. |
 | <a name="output_nat_gateways"></a> [nat\_gateways](#output\_nat\_gateways) | The map of NAT Gateway objects. |
 | <a name="output_next_hop_set"></a> [next\_hop\_set](#output\_next\_hop\_set) | The Next Hop Set object, useful as the input to the `vpc_route` module. Example:<pre>next_hop_set = {<br/>  ids = {<br/>    "us-east-1a" = "nat-0ddf598f93a8ea8ae"<br/>    "us-east-1b" = "nat-0862c4b707b012111"<br/>  }<br/>  id = null<br/>  type = "nat_gateway"<br/>}</pre> |

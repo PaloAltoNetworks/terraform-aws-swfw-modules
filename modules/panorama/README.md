@@ -13,14 +13,14 @@ For usage, check the "examples" folder in the root of the repository.
 ### Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.17 |
 
 ### Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.17 |
 
 ### Modules
@@ -30,7 +30,7 @@ No modules.
 ### Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_ebs_volume.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_volume) | resource |
 | [aws_eip.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip) | resource |
 | [aws_instance.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) | resource |
@@ -41,7 +41,7 @@ No modules.
 ### Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_availability_zone"></a> [availability\_zone](#input\_availability\_zone) | Availability zone in which Panorama will be deployed. | `string` | n/a | yes |
 | <a name="input_create_public_ip"></a> [create\_public\_ip](#input\_create\_public\_ip) | If true, create an Elastic IP address for Panorama. | `bool` | `false` | no |
 | <a name="input_ebs_encrypted"></a> [ebs\_encrypted](#input\_ebs\_encrypted) | Whether to enable EBS encryption on root volume. | `bool` | `true` | no |
@@ -67,7 +67,7 @@ No modules.
 ### Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_mgmt_ip_private_address"></a> [mgmt\_ip\_private\_address](#output\_mgmt\_ip\_private\_address) | Panorama private IP address. |
 | <a name="output_mgmt_ip_public_address"></a> [mgmt\_ip\_public\_address](#output\_mgmt\_ip\_public\_address) | Panorama management IP address. If `create_public_ip` is set to `true`, it will output the public IP address otherwise it will show the 'no public IP assigned to Panorama' message. |
 <!-- END_TF_DOCS -->

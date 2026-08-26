@@ -14,7 +14,7 @@ For example usage, please refer to the [examples](https://github.com/PaloAltoNet
 ### Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_archive"></a> [archive](#requirement\_archive) | ~> 2.2 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.17 |
@@ -23,7 +23,7 @@ For example usage, please refer to the [examples](https://github.com/PaloAltoNet
 ### Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_archive"></a> [archive](#provider\_archive) | ~> 2.2 |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.17 |
 | <a name="provider_null"></a> [null](#provider\_null) | 3.2.1 |
@@ -35,7 +35,7 @@ No modules.
 ### Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_autoscaling_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group) | resource |
 | [aws_autoscalingplans_scaling_plan.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscalingplans_scaling_plan) | resource |
 | [aws_cloudwatch_event_rule.instance_launch_event_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
@@ -58,7 +58,7 @@ No modules.
 ### Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_airs_deployment"></a> [airs\_deployment](#input\_airs\_deployment) | Deployment type VM-Series (False) or AI Runtime Security (True) | `bool` | `false` | no |
 | <a name="input_airs_instance_type"></a> [airs\_instance\_type](#input\_airs\_instance\_type) | EC2 instance type. | `string` | `"c6in.xlarge"` | no |
 | <a name="input_airs_product_code"></a> [airs\_product\_code](#input\_airs\_product\_code) | Product code corresponding to a chosen AIRS license type model - by default - BYOL. <br/>To check the available license type models and their codes, please refer to the | `string` | `"b261y39exndwe1ltro1tqpeog"` | no |
@@ -113,6 +113,6 @@ No modules.
 ### Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_asg"></a> [asg](#output\_asg) | n/a |
 <!-- END_TF_DOCS -->

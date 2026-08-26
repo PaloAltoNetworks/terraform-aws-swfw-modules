@@ -38,14 +38,14 @@ The static routes are currently not handled by this module.
 ### Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.17 |
 
 ### Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.17 |
 | <a name="provider_aws.remote"></a> [aws.remote](#provider\_aws.remote) | >= 5.17 |
 
@@ -56,7 +56,7 @@ No modules.
 ### Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_ec2_transit_gateway_peering_attachment.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_transit_gateway_peering_attachment) | resource |
 | [aws_ec2_transit_gateway_peering_attachment_accepter.remote](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_transit_gateway_peering_attachment_accepter) | resource |
 | [aws_ec2_transit_gateway_route_table_association.local](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_transit_gateway_route_table_association) | resource |
@@ -67,7 +67,7 @@ No modules.
 ### Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_local_attachment_tags"></a> [local\_attachment\_tags](#input\_local\_attachment\_tags) | AWS tags to assign to the Attachment object. The tags are only visible in the UI when logged on the local account, but not when logged on the remote peer account. Example: `{ Name = "my-name" }` | `map(string)` | `{}` | no |
 | <a name="input_local_tgw_route_table"></a> [local\_tgw\_route\_table](#input\_local\_tgw\_route\_table) | Local TGW's pre-existing route table which should handle the traffic coming from the remote TGW. In other words a route table associated to the peering in the local region. An object with two attributes, the `id` of the local route table and the `transit_gateway_id` of the local TGW:<pre>transit_gateway_route_table = {<br/>  id                 = "tgw-rtb-1234"<br/>  transit_gateway_id = "tgw-1234"<br/>}</pre> | <pre>object({<br/>    id                 = string<br/>    transit_gateway_id = string<br/>  })</pre> | n/a | yes |
 | <a name="input_remote_tgw_route_table"></a> [remote\_tgw\_route\_table](#input\_remote\_tgw\_route\_table) | Analog to the `local_tgw_route_table` but on the remote end of the peering. | <pre>object({<br/>    id                 = string<br/>    transit_gateway_id = string<br/>  })</pre> | n/a | yes |
@@ -76,7 +76,7 @@ No modules.
 ### Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_local_route_table"></a> [local\_route\_table](#output\_local\_route\_table) | The route table associated to the TGW Peering Attachment, owned by the provider `aws`. |
 | <a name="output_peering_attachment"></a> [peering\_attachment](#output\_peering\_attachment) | The TGW Peering Attachment object, created under the provider `aws`. |
 | <a name="output_peering_attachment_accepter"></a> [peering\_attachment\_accepter](#output\_peering\_attachment\_accepter) | The Accepter object, created under the provider `aws.remote`. |

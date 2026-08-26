@@ -100,7 +100,7 @@ panoramas = {
       }
     }
 
-    panos_version = "11.1.4-h7"
+    panos_version = "11.2.8"
 
     network = {
       vpc              = "management_vpc"

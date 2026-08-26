@@ -7,14 +7,14 @@ A Terraform module for deploying a Crosszone Failover for VM-Series firewalls.
 ### Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.17 |
 
 ### Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.17 |
 
 ### Modules
@@ -24,7 +24,7 @@ No modules.
 ### Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_api_gateway_deployment.pan_failover](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_deployment) | resource |
 | [aws_api_gateway_integration.pan_failover](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_integration) | resource |
 | [aws_api_gateway_integration_response.pan_failover](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_integration_response) | resource |
@@ -51,7 +51,7 @@ No modules.
 ### Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_lambda_file_location"></a> [lambda\_file\_location](#input\_lambda\_file\_location) | Name of folder where lambda package is stored in this workspace. | `string` | `"lambda-package"` | no |
 | <a name="input_lambda_file_name"></a> [lambda\_file\_name](#input\_lambda\_file\_name) | File name of lambda package. | `string` | `"crosszone_ha_instance_id.zip"` | no |
 | <a name="input_lambda_s3_bucket"></a> [lambda\_s3\_bucket](#input\_lambda\_s3\_bucket) | Name of bucket with lambda zip package to deploy. | `string` | `""` | no |

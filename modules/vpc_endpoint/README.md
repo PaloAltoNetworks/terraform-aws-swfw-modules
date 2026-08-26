@@ -7,14 +7,14 @@ A Terraform module for deploying a VPC Endpoint for VM-Series firewalls.
 ### Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.17 |
 
 ### Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.17 |
 
 ### Modules
@@ -24,7 +24,7 @@ No modules.
 ### Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_vpc_endpoint.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_endpoint) | resource |
 | [aws_vpc_endpoint_route_table_association.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_endpoint_route_table_association) | resource |
 | [aws_vpc_endpoint_subnet_association.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_endpoint_subnet_association) | resource |
@@ -34,7 +34,7 @@ No modules.
 ### Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_auto_accept"></a> [auto\_accept](#input\_auto\_accept) | If a service connection requires service owner's acceptance, the request will be approved automatically, provided that both parties are members of the same AWS account. | `bool` | `null` | no |
 | <a name="input_create"></a> [create](#input\_create) | If false, does not create a new AWS VPC Endpoint, but instead uses a pre-existing one. The inputs `name`, `service_name`, `simple_service_name`, `tags`, `type`, and `vpc_id` can be used to match the pre-existing endpoint. | `bool` | `true` | no |
 | <a name="input_name"></a> [name](#input\_name) | n/a | `string` | `null` | no |
@@ -52,6 +52,6 @@ No modules.
 ### Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_endpoint"></a> [endpoint](#output\_endpoint) | The created `aws_vpc_endpoint` object. Alternatively, the data resource if the input `create` is false. |
 <!-- END_TF_DOCS -->

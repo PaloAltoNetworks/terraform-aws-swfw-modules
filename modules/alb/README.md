@@ -76,14 +76,14 @@ module "public_alb" {
 ### Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, < 2.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.17 |
 
 ### Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.17 |
 
 ### Modules
@@ -93,7 +93,7 @@ No modules.
 ### Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_lb.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb) | resource |
 | [aws_lb_listener.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener) | resource |
 | [aws_lb_listener_rule.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener_rule) | resource |
@@ -113,7 +113,7 @@ No modules.
 ### Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_access_logs_byob"></a> [access\_logs\_byob](#input\_access\_logs\_byob) | Bring Your Own Bucket - in case you would like to re-use an existing S3 Bucket for Load Balancer's access logs.<br/><br/>NOTICE.<br/>This code does not set up proper `Bucket Policies` for existing buckets. They have to be already in place. | `bool` | `false` | no |
 | <a name="input_access_logs_s3_bucket_name"></a> [access\_logs\_s3\_bucket\_name](#input\_access\_logs\_s3\_bucket\_name) | Name of an S3 Bucket that will be used as storage for Load Balancer's access logs.<br/><br/>When used with `configure_access_logs` it becomes the name of a newly created S3 Bucket.<br/>When used with `access_logs_byob` it is a name of an existing bucket. | `string` | `"pantf-alb-access-logs-bucket"` | no |
 | <a name="input_access_logs_s3_bucket_prefix"></a> [access\_logs\_s3\_bucket\_prefix](#input\_access\_logs\_s3\_bucket\_prefix) | A path to a location inside a bucket under which access logs will be stored. When omitted defaults to the root folder of a bucket. | `string` | `null` | no |
@@ -134,7 +134,7 @@ No modules.
 ### Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_lb_fqdn"></a> [lb\_fqdn](#output\_lb\_fqdn) | A FQDN for the Load Balancer. |
 | <a name="output_target_group"></a> [target\_group](#output\_target\_group) | n/a |
 <!-- END_TF_DOCS -->
