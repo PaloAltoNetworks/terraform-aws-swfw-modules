@@ -28,9 +28,13 @@ This repository has the following directory structure:
   `modules` directory.
 
 ## Compatibility
-
-The compatibility with Terraform is defined individually per each module. In general, expect the earliest compatible
-Terraform version to be 0.13.7 across most of the modules.
+ 
+- The compatibility with Terraform is defined individually per each module. In general, expect the earliest compatible
+- Terraform version to be 0.13.7 across most of the modules.
++ The compatibility with Terraform is defined individually per each module. In general, the earliest compatible
++ Terraform version is `1.5.0` across all modules. The AWS provider requirement is `>= 5.17`.
+ 
+ ## Roadmap
 
 ## Roadmap
 
@@ -54,3 +58,4 @@ and credit will always be given. Please follow our [contributing guide](https://
 
 This repository is maintained by [Palo Alto Networks](https://www.paloaltonetworks.com/).
 If you're looking for commercial support or services, send an email to [address not known yet]. -->
+
