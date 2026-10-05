@@ -129,6 +129,7 @@ variable "interfaces" {
   description = <<-EOF
   Map of the network interface specifications.
   If "mgmt-interface-swap" bootstrap option is enabled, ensure dataplane interface `device_index` is set to 0 and the firewall management interface `device_index` is set to 1.
+
   Available options:
   - `device_index`       = (Required|int) Determines order in which interfaces are attached to the instance. Interface with `0` is attached at boot time.
   - `subnet_id`          = (Required|string) Subnet ID to create the ENI in.
@@ -152,21 +153,22 @@ variable "interfaces" {
       create_public_ip   = true
       source_dest_check  = true
       security_group_ids = ["sg-123456"]
-    },
+    }
     public = {
       device_index     = 1
       subnet_id        = aws_subnet.public.id
       name             = "public"
       create_public_ip = true
-    },
+    }
     private = {
       device_index = 2
       subnet_id    = aws_subnet.private.id
       name         = "private"
-    },
-  ]
+    }
+  }
   ```
   EOF
+
   type = map(object({
     device_index       = number
     subnet_id          = string
@@ -180,11 +182,37 @@ variable "interfaces" {
     source_dest_check  = optional(bool, false)
     security_group_ids = optional(list(string), null)
   }))
+
+  validation {
+    condition = alltrue([
+      for k, v in var.interfaces :
+      !(v.create_public_ip && v.eip_allocation_id != null)
+    ])
+
+    error_message = "An interface cannot both create a new EIP and associate an existing eip_allocation_id. Pick one."
+  }
+
+  validation {
+    condition = length([
+      for k, v in var.interfaces : k
+      if v.device_index == 0
+    ]) == 1
+
+    error_message = "Exactly one interface must have device_index = 0."
+  }
+
+  validation {
+    condition = length(distinct([
+      for k, v in var.interfaces : v.device_index
+    ])) == length(var.interfaces)
+
+    error_message = "Each interface must have a unique device_index."
+  }
 }
 
 variable "bootstrap_options" {
   description = <<-EOF
-  VM-Series bootstrap options to provide using instance user data. Contents determine type of bootstap method to use.
+  VM-Series bootstrap options to provide using instance user data. Contents determine type of bootstrap method to use.
   If empty (the default), bootstrap process is not triggered at all.
   For more information on available methods, please refer to VM-Series documentation for specific version.
   For 10.0 docs are available [here](https://docs.paloaltonetworks.com/vm-series/10-0/vm-series-deployment/bootstrap-the-vm-series-firewall.html).
@@ -202,10 +230,10 @@ variable "tags" {
 variable "enable_imdsv2" {
   description = <<-EOF
   Whether to enable IMDSv2 on the EC2 instance.
-  Support for this feature has been added in VM-Series Plugin [3.0.0](https://docs.paloaltonetworks.com/plugins/vm-series-and-panorama-plugins-release-notes/vm-series-plugin/vm-series-plugin-30/vm-series-plugin-300#id126d0957-95d7-4b29-9147-fff20027986e), which in turn requires VM-Series version 10.2.0 at minimum.
+  Support for this feature has been added in VM-Series Plugin 3.0.0, which in turn requires VM-Series version 10.2.0 at minimum.
   EOF
   default     = false
-  type        = string
+  type        = bool
 }
 
 variable "enable_instance_termination_protection" {
