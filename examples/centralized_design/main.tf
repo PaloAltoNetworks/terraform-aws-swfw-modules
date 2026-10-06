@@ -422,6 +422,7 @@ module "vmseries" {
       private_ips        = v.private_ips
       ipv6_address_count = v.ipv6_address_count
       public_ipv4_pool   = v.public_ipv4_pool
+      ipam_pool_id       = v.ipam_pool_id
     }
   }
 

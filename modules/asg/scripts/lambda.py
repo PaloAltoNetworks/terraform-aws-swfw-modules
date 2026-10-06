@@ -161,6 +161,7 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
                 interface[eni]["sg"] = v if 'security_group_ids' in k else interface.get(eni).get('sg')
                 interface[eni]["c_pub_ip"] = v if 'create_public_ip' in k else interface.get(eni).get('c_pub_ip')
                 interface[eni]["pub_pool"] = v if 'public_ipv4_pool' in k else interface.get(eni).get('pub_pool')
+                interface[eni]["ipam_pool"] = v if 'ipam_pool_id' in k else interface.get(eni).get('ipam_pool')
                 interface[eni]["s_dest_ch"] = v if 'source_dest_check' in k else interface.get(eni).get('s_dest_ch')
                 if 'subnet_id' in k:
                     for az, subnet in v.items():
@@ -230,22 +231,26 @@ class VMSeriesInterfaceScaling(ConfigureLogger):
                 self.modify_network_interface(interface_id, attachment_id, interface['s_dest_ch'])
             # If EIP is required for ENI, add public IP
             if interface['c_pub_ip']:
-                self.add_public_ip_to_eni(interface_id, interface.get('pub_pool'))
+                self.add_public_ip_to_eni(interface_id, interface.get('pub_pool'), interface.get('ipam_pool'))
 
-    def add_public_ip_to_eni(self, interface_id: str, public_ipv4_pool: str = None):
+    def add_public_ip_to_eni(self, interface_id: str, public_ipv4_pool: str = None, ipam_pool_id: str = None):
         """
         This function is used to create public ip and associate it with provided ENI ID.
 
         :param interface_id: Network Interface id
         :param public_ipv4_pool: EC2 IPv4 address pool to allocate the address from
+        :param ipam_pool_id: IPAM pool to allocate the address from
         :return: none
         """
-        # Get public IP - only pass the pool when one is configured, otherwise EC2
-        # rejects the request; omitting it allocates from Amazon's pool
+        # Get public IP - only pass a pool when one is configured, otherwise EC2
+        # rejects the request; omitting both allocates from Amazon's pool
         allocation_args = {'Domain': 'vpc'}
         if public_ipv4_pool:
             allocation_args['PublicIpv4Pool'] = public_ipv4_pool
             self.logger.info(f"Allocating public ip from pool {public_ipv4_pool} for {interface_id}")
+        if ipam_pool_id:
+            allocation_args['IpamPoolId'] = ipam_pool_id
+            self.logger.info(f"Allocating public ip from IPAM pool {ipam_pool_id} for {interface_id}")
 
         public_ip_allocation = self.ec2_client.allocate_address(**allocation_args)
         self.logger.info(f"Created public ip {public_ip_allocation['PublicIp']} for {interface_id}")
