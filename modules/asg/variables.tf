@@ -194,7 +194,8 @@ variable "interfaces" {
   - `create_public_ip`   = (Optional|bool) Whether to create a public IP for the ENI. Defaults to false.
   - `eip_allocation_id`  = (Optional|string) Associate an existing EIP to the ENI.
   - `private_ips`        = (Optional|list) List of private IPs to assign to the ENI. If not set, dynamic allocation is used.
-  - `public_ipv4_pool`   = (Optional|string) EC2 IPv4 address pool identifier.
+  - `public_ipv4_pool`   = (Optional|string) EC2 IPv4 address pool identifier. Conflicts with `ipam_pool_id`. Ignored for the interface with `device_index` 0, which gets an Amazon-assigned public IP from the launch template.
+  - `ipam_pool_id`       = (Optional|string) IPAM pool ID to allocate the public IP from, for Amazon-owned or BYOIP contiguous IPv4 blocks. Conflicts with `public_ipv4_pool`. Ignored for the interface with `device_index` 0, which gets an Amazon-assigned public IP from the launch template.
   - `source_dest_check`  = (Optional|bool) Whether to enable source destination checking for the ENI. Defaults to false.
   - `security_group_ids` = (Optional|list) A list of Security Group IDs to assign to this interface. Defaults to null.
 
@@ -234,9 +235,14 @@ variable "interfaces" {
     private_ips        = optional(list(string))
     ipv6_address_count = optional(number, null)
     public_ipv4_pool   = optional(string)
+    ipam_pool_id       = optional(string)
     source_dest_check  = optional(bool, false)
     security_group_ids = optional(list(string), null)
   }))
+  validation {
+    condition     = alltrue([for k, v in var.interfaces : v.public_ipv4_pool == null || v.ipam_pool_id == null])
+    error_message = "Only one of `public_ipv4_pool` or `ipam_pool_id` can be set for an interface."
+  }
 }
 
 variable "target_group_arn" {

@@ -596,6 +596,7 @@ variable "vmseries" {
       private_ips        = optional(list(string))
       ipv6_address_count = optional(number, null)
       public_ipv4_pool   = optional(string)
+      ipam_pool_id       = optional(string)
     }))
 
     subinterfaces = map(map(object({

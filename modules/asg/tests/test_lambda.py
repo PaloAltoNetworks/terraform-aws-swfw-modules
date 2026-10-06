@@ -85,6 +85,7 @@ def test_interface_settings_carry_the_public_ipv4_pool(interfaces_config):
             "subnet_id": {"us-east-1a": "subnet-untrust-a"},
             "create_public_ip": True,
             "public_ipv4_pool": "ipv4pool-ec2-0123456789abcdef0",
+            "ipam_pool_id": None,
             "security_group_ids": ["sg-untrust"],
             "source_dest_check": False,
         }
@@ -119,6 +120,7 @@ def test_configured_pool_reaches_eip_allocation_when_an_interface_is_created(
             "subnet_id": {"us-east-1a": "subnet-untrust-a"},
             "create_public_ip": True,
             "public_ipv4_pool": "ipv4pool-ec2-0123456789abcdef0",
+            "ipam_pool_id": None,
             "security_group_ids": ["sg-untrust"],
             "source_dest_check": False,
         }
@@ -139,6 +141,7 @@ def test_unset_pool_falls_back_to_the_amazon_pool_when_an_interface_is_created(
             "subnet_id": {"us-east-1a": "subnet-untrust-a"},
             "create_public_ip": True,
             "public_ipv4_pool": None,
+            "ipam_pool_id": None,
             "security_group_ids": ["sg-untrust"],
             "source_dest_check": False,
         }
@@ -148,3 +151,54 @@ def test_unset_pool_falls_back_to_the_amazon_pool_when_an_interface_is_created(
     scaling.create_and_configure_new_network_interface("i-0abc", untrust)
 
     assert ec2.args_of("allocate_address") == {"Domain": "vpc"}
+
+
+def test_interface_settings_carry_the_ipam_pool_id(interfaces_config):
+    interfaces_config({
+        "untrust": {
+            "device_index": 2,
+            "subnet_id": {"us-east-1a": "subnet-untrust-a"},
+            "create_public_ip": True,
+            "public_ipv4_pool": None,
+            "ipam_pool_id": "ipam-pool-07ccc86aa41bef7ce",
+            "security_group_ids": ["sg-untrust"],
+            "source_dest_check": False,
+        }
+    })
+
+    settings = VMSeriesInterfaceScaling.create_interface_settings("us-east-1a")
+
+    assert settings[0]["ipam_pool"] == "ipam-pool-07ccc86aa41bef7ce"
+
+
+def test_eip_is_allocated_from_the_given_ipam_pool(scaling, ec2):
+    scaling.add_public_ip_to_eni("eni-untrust", ipam_pool_id="ipam-pool-07ccc86aa41bef7ce")
+
+    assert ec2.args_of("allocate_address") == {
+        "Domain": "vpc",
+        "IpamPoolId": "ipam-pool-07ccc86aa41bef7ce",
+    }
+
+
+def test_configured_ipam_pool_reaches_eip_allocation_when_an_interface_is_created(
+        scaling, ec2, interfaces_config):
+    """The IPAM pool set in Terraform on an interface is the pool the EIP comes from."""
+    interfaces_config({
+        "untrust": {
+            "device_index": 2,
+            "subnet_id": {"us-east-1a": "subnet-untrust-a"},
+            "create_public_ip": True,
+            "public_ipv4_pool": None,
+            "ipam_pool_id": "ipam-pool-07ccc86aa41bef7ce",
+            "security_group_ids": ["sg-untrust"],
+            "source_dest_check": False,
+        }
+    })
+    untrust = VMSeriesInterfaceScaling.create_interface_settings("us-east-1a")[0]
+
+    scaling.create_and_configure_new_network_interface("i-0abc", untrust)
+
+    assert ec2.args_of("allocate_address") == {
+        "Domain": "vpc",
+        "IpamPoolId": "ipam-pool-07ccc86aa41bef7ce",
+    }
